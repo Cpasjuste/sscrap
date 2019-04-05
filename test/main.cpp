@@ -26,8 +26,10 @@ int main() {
         printf("resolution: %s\n", jeu.resolution.c_str());
         printf("controles: %s\n", jeu.controles.c_str());
         printf("couleurs: %s\n", jeu.couleurs.c_str());
-        printf("synopsis (langue: %s, alternatives: %li): %s\n",
-               jeu.synopsis[0].langue.c_str(), jeu.synopsis.size() - 1, jeu.synopsis[0].text.c_str());
+        if (!jeu.synopsis.empty()) {
+            printf("synopsis (langue: %s, alternatives: %li): %s\n",
+                   jeu.synopsis[0].langue.c_str(), jeu.synopsis.size() - 1, jeu.synopsis[0].text.c_str());
+        }
     }
 
     return 0;
