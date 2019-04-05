@@ -3,9 +3,9 @@
 //
 
 #include <curl/curl.h>
-#include "p_curl.h"
+#include "ss_curl.h"
 
-using namespace pscrap;
+using namespace ss_api;
 
 static size_t write_string_cb(void *buf, size_t len, size_t count, void *stream) {
     ((std::string *) stream)->append((char *) buf, 0, len * count);
@@ -17,12 +17,22 @@ static size_t write_data_cb(void *buf, size_t len, size_t count, void *stream) {
     return written;
 }
 
-std::string Curl::getString(const std::string &url, int *http_code) {
+Curl::Curl() {
+    curl = curl_easy_init();
+}
+
+Curl::~Curl() {
+    if (curl) {
+        curl_easy_cleanup(curl);
+    }
+}
+
+std::string Curl::getString(const std::string &url, int timeout, long *http_code) {
 
     std::string data;
+
     int res = 0;
 
-    CURL *curl = curl_easy_init();
     if (!curl) {
         printf("Curl::getString: error: curl_easy_init failed\n");
         return data;
@@ -34,16 +44,15 @@ std::string Curl::getString(const std::string &url, int *http_code) {
     curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 
     res = curl_easy_perform(curl);
     if (http_code) {
-        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &(*http_code));
+        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
     }
-    curl_easy_cleanup(curl);
 
     if (res != 0) {
-        printf("Curl::getString: error: curl_easy_perform failed: %s, http_code: %i\n",
+        printf("Curl::getString: error: curl_easy_perform failed: %s, http_code: %li\n",
                curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
         return "";
     }
@@ -51,21 +60,19 @@ std::string Curl::getString(const std::string &url, int *http_code) {
     return data;
 }
 
-int Curl::getData(const std::string &url, const std::string &dstPath, int *http_code) {
+int Curl::getData(const std::string &url, const std::string &dstPath, int timeout, long *http_code) {
 
     FILE *data;
     int res = 0;
 
-    data = fopen(dstPath.c_str(), "wb");
-    if (!data) {
-        printf("Curl::getData: error: fopen failed\n");
+    if (!curl) {
+        printf("Curl::getData: error: curl_easy_init failed\n");
         return -1;
     }
 
-    CURL *curl = curl_easy_init();
-    if (!curl) {
-        printf("Curl::getData: error: curl_easy_init failed\n");
-        fclose(data);
+    data = fopen(dstPath.c_str(), "wb");
+    if (!data) {
+        printf("Curl::getData: error: fopen failed\n");
         return -1;
     }
 
@@ -75,21 +82,35 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int *http_
     curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, data);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 
     res = curl_easy_perform(curl);
     fclose(data);
     if (http_code) {
-        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &(*http_code));
+        curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
     }
-    curl_easy_cleanup(curl);
 
     if (res != 0) {
-        printf("Curl::getData: error: curl_easy_perform failed: %s, http_code: %i\n",
+        printf("Curl::getData: error: curl_easy_perform failed: %s, http_code: %li\n",
                curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
         remove(dstPath.c_str());
         return res;
     }
 
     return 0;
+}
+
+std::string Curl::escape(const std::string &url) {
+
+    std::string escaped = url;
+
+    if (curl) {
+        char *ret = curl_easy_escape(curl, url.c_str(), (int) url.length());
+        if (ret) {
+            escaped = ret;
+            free(ret);
+        }
+    }
+
+    return escaped;
 }

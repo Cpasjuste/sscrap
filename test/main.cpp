@@ -3,41 +3,31 @@
 //
 
 #include "main.h"
-#include "p_search.h"
+#include "ss_api.h"
 
-#include "s_system.h"
-#include "s_country.h"
-
-using namespace pscrap;
-
-void print_search(const Search &search) {
-    printf("\nSearch results: pages: %i, total_results: %i, total_pages: %i\n",
-           search.page, search.total_results, search.total_pages);
-    for (auto &movie : search.movies) {
-        printf("\n===========================\n");
-        printf("%s\n", movie.title.c_str());
-        printf("%s\n", movie.overview.c_str());
-        printf("===========================\n");
-    }
-}
+using namespace ss_api;
 
 int main() {
 
-    System Mame = {.id = 75, .name_eu = "Mame"};
+    Api api(DEVID, DEVPWD, "SSSCRAP");
 
-
-
-    Search search(API_KEY, "Jack Reacher");
-
-    int res = search.get();
-    if (res == 0 && search.total_results > 0) {
-        print_search(search);
-#if 0
-        search.save("search.bin");
-        Search loadedSearch;
-        loadedSearch.load("search.bin");
-        print_search(loadedSearch);
-#endif
+    Api::JeuRecherche recherche = api.jeuRecherche("cadillacs", "75", SSID, SSPWD);
+    for (auto &jeu : recherche.jeux) {
+        printf("\n===================================\n");
+        printf("nom: %s (region: %s, alternatives: %li)\n",
+               jeu.noms[0].text.c_str(), jeu.noms[0].region.c_str(), jeu.noms.size() - 1);
+        printf("id: %s\n", jeu.id.c_str());
+        printf("editeur: %s (id: %s)\n", jeu.editeur.text.c_str(), jeu.editeur.id.c_str());
+        printf("developpeur: %s (developpeur: %s)\n", jeu.developpeur.text.c_str(), jeu.developpeur.id.c_str());
+        printf("joueurs: %s\n", jeu.joueurs.c_str());
+        printf("note: %s\n", jeu.note.c_str());
+        printf("topstaff: %s\n", jeu.topstaff.c_str());
+        printf("rotation: %s\n", jeu.rotation.c_str());
+        printf("resolution: %s\n", jeu.resolution.c_str());
+        printf("controles: %s\n", jeu.controles.c_str());
+        printf("couleurs: %s\n", jeu.couleurs.c_str());
+        printf("synopsis (langue: %s, alternatives: %li): %s\n",
+               jeu.synopsis[0].langue.c_str(), jeu.synopsis.size() - 1, jeu.synopsis[0].text.c_str());
     }
 
     return 0;

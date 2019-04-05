@@ -3,7 +3,7 @@
 //
 
 #ifndef SCREENSCRAP_S_SYSTEM_H
-#define SCREENSCRAP_S_SYSTEM_H
+#define SCREENSCRAP_SS_SYSTEM_H
 
 #if 0
 #include <string>

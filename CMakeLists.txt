@@ -51,8 +51,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${LDFLAGS})
 # SCREENSCRAP TEST
 #####################
 # read tmdb api key
-file(STRINGS "id.key" API_ID)
-file(STRINGS "pwd.key" API_PWD)
+file(STRINGS "ss_dev_id.key" DEVID)
+file(STRINGS "ss_dev_pwd.key" DEVPWD)
+file(STRINGS "ss_user_id.key" SSID)
+file(STRINGS "ss_user_pwd.key" SSPWD)
 add_executable(${PROJECT_NAME}.elf test/main.cpp)
-target_compile_options(${PROJECT_NAME}.elf PRIVATE -DAPI_ID=\"${API_ID}\" -DAPI_PWD=\"${API_PWD}\")
+target_compile_options(
+        ${PROJECT_NAME}.elf PRIVATE -DDEVID=\"${DEVID}\"
+        -DDEVPWD=\"${DEVPWD}\" -DSSID=\"${SSID}\" -DSSPWD=\"${SSPWD}\")
 target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME})
