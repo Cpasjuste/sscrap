@@ -22,16 +22,31 @@ namespace ss_api {
             std::vector<Jeu> jeux;
         };
 
+        struct JeuInfos {
+            User ssuser;
+            Jeu jeu;
+        };
+
         explicit Api(const std::string &devid, const std::string &devpassword,
                      const std::string &softname);
 
         JeuRecherche jeuRecherche(const std::string &recherche, const std::string &systemeid,
-                                  const std::string &ssid = "test", const std::string &sspassword = "test");
+                                  const std::string &ssid = "", const std::string &sspassword = "");
 
+        JeuInfos jeuInfos(const std::string &crc, const std::string &md5, const std::string &sha1,
+                          const std::string &systemeid, const std::string &romtype,
+                          const std::string &romnom, const std::string &romtaille, const std::string &gameid,
+                          const std::string &ssid = "", const std::string &sspassword = "");
 
     private:
 
         JeuRecherche parseJeuRecherche(const std::string &jsonData);
+
+        JeuInfos parseJeuInfos(const std::string &jsonData);
+
+        Jeu parseJeu(json_object *root);
+
+        User parseUser(json_object *root);
 
         json_object *getJsonObject(json_object *root, const std::string &key);
 
