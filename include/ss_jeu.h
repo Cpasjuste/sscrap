@@ -46,28 +46,43 @@ namespace ss_api {
         };
 
         struct Genre {
-            struct Name {
+            struct Nom {
                 std::string langue;
                 std::string text;
             };
             std::string id;
-            std::vector<Genre::Name> names;
+            std::string principale;
+            std::string parentid;
+            std::vector<Genre::Nom> noms;
         };
 
         struct Famille {
-            struct Name {
+            struct Nom {
                 std::string langue;
                 std::string text;
             };
             std::string id;
-            std::vector<Genre::Name> names;
+            std::string principale;
+            std::string parentid;
+            std::vector<Famille::Nom> noms;
+        };
+
+        struct Media {
+            std::string type;
+            std::string parent;
+            std::string url;
+            std::string region;
+            std::string crc;
+            std::string md5;
+            std::string sha1;
+            std::string format;
         };
 
         std::string id;
         std::string romid;
         std::string notgame;
         std::vector<Nom> noms;
-        std::vector<std::string> regionshortnames;
+        std::vector<std::string> regions;
         std::string cloneof;
         std::string systemeid;
         std::string systemenom;
@@ -81,9 +96,11 @@ namespace ss_api {
         std::string controles;
         std::string couleurs;
         std::vector<Synopsis> synopsis;
+        std::vector<Classification> classifications;
         std::vector<Date> dates;
+        std::vector<Genre> genres;
         std::vector<Famille> familles;
-
+        std::vector<Media> medias;
     };
 }
 

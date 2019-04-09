@@ -11,7 +11,7 @@ option(BUILD_SWITCH "Build with Nintendo Switch support" OFF)
 
 include(Toolchain.cmake)
 
-project(screenscrap)
+project(ssscrap)
 
 ##############
 # SCREENSCRAP

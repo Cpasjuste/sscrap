@@ -24,14 +24,17 @@ Api::JeuRecherche Api::jeuRecherche(const std::string &recherche, const std::str
     std::string soft = curl.escape(softname);
 
     std::string url = "https://www.screenscraper.fr/api2/jeuRecherche.php?devid="
-                      + devid + "&devpassword=" + devpassword + "&softname=" + soft + "&output=json&ssid="
-                      + systemeid + "&recherche=" + search;
+                      + devid + "&devpassword=" + devpassword + "&softname=" + soft + "&output=json"
+                      + "&recherche=" + search;
 
     if (!ssid.empty()) {
         url += "&ssid=" + ssid;
     }
     if (!sspassword.empty()) {
         url += "&sspassword=" + sspassword;
+    }
+    if (!systemeid.empty()) {
+        url += "&systemeid=" + systemeid;
     }
 
     printf("Api::jeuRecherche: %s\n", url.c_str());
@@ -94,13 +97,16 @@ Api::jeuInfos(const std::string &crc, const std::string &md5, const std::string 
 
     std::string url = "https://www.screenscraper.fr/api2/jeuInfos.php?devid="
                       + devid + "&devpassword=" + devpassword + "&softname=" + soft + "&output=json"
-                      + "&systemeid=" + systemeid + "&romnom=" + search;
+                      + "&romnom=" + search;
 
     if (!ssid.empty()) {
         url += "&ssid=" + ssid;
     }
     if (!sspassword.empty()) {
         url += "&sspassword=" + sspassword;
+    }
+    if (!systemeid.empty()) {
+        url += "&systemeid=" + systemeid;
     }
     if (!crc.empty()) {
         url += "&crc=" + crc;
@@ -171,17 +177,32 @@ Api::JeuInfos Api::parseJeuInfos(const std::string &jsonData) {
 Jeu Api::parseJeu(json_object *root) {
 
     Jeu jeu;
+    json_object *array;
 
     jeu.id = getJsonString(root, "id");
     jeu.romid = getJsonString(root, "romid");
     jeu.notgame = getJsonString(root, "notgame");
     // parse names array
-    json_object *name_array = getJsonObject(root, "noms");
-    if (name_array) {
-        int name_size = json_object_array_length(name_array);
-        for (int j = 0; j < name_size; j++) {
-            json_object *json_nom = json_object_array_get_idx(name_array, j);
-            jeu.noms.push_back({getJsonString(json_nom, "region"), getJsonString(json_nom, "text")});
+    array = getJsonObject(root, "noms");
+    if (array) {
+        int size = json_object_array_length(array);
+        for (int j = 0; j < size; j++) {
+            json_object *json_obj = json_object_array_get_idx(array, j);
+            jeu.noms.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
+        }
+    }
+    // parse region array
+    std::string region = getJsonString(getJsonObject(root, "regions"), "shortname");
+    if (!region.empty()) {
+        jeu.regions.push_back(region);
+    } else {
+        array = getJsonObject(root, "regions");
+        if (array) {
+            int size = json_object_array_length(array);
+            for (int j = 0; j < size; j++) {
+                json_object *json_obj = json_object_array_get_idx(array, j);
+                jeu.regions.push_back(getJsonString(json_obj, "shortname"));
+            }
         }
     }
     jeu.cloneof = getJsonString(root, "cloneof");
@@ -200,12 +221,98 @@ Jeu Api::parseJeu(json_object *root) {
     jeu.controles = getJsonString(root, "controles");
     jeu.couleurs = getJsonString(root, "couleurs");
     // parse synopsis array
-    json_object *synopsis_array = getJsonObject(root, "synopsis");
-    if (synopsis_array) {
-        int synopsis_size = json_object_array_length(synopsis_array);
-        for (int j = 0; j < synopsis_size; j++) {
-            json_object *json_syn = json_object_array_get_idx(synopsis_array, j);
+    array = getJsonObject(root, "synopsis");
+    if (array) {
+        int size = json_object_array_length(array);
+        for (int j = 0; j < size; j++) {
+            json_object *json_syn = json_object_array_get_idx(array, j);
             jeu.synopsis.push_back({getJsonString(json_syn, "langue"), getJsonString(json_syn, "text")});
+        }
+    }
+    // parse classification array
+    array = getJsonObject(root, "classifications");
+    if (array) {
+        int size = json_object_array_length(array);
+        for (int j = 0; j < size; j++) {
+            json_object *json_obj = json_object_array_get_idx(array, j);
+            jeu.classifications.push_back({getJsonString(json_obj, "type"), getJsonString(json_obj, "text")});
+        }
+    }
+    // parse dates array
+    array = getJsonObject(root, "dates");
+    if (array) {
+        int size = json_object_array_length(array);
+        for (int j = 0; j < size; j++) {
+            json_object *json_obj = json_object_array_get_idx(array, j);
+            jeu.dates.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
+        }
+    }
+    // parse genres array
+    array = getJsonObject(root, "genres");
+    if (array) {
+        int size = json_object_array_length(array);
+        for (int j = 0; j < size; j++) {
+            json_object *json_obj = json_object_array_get_idx(array, j);
+            Jeu::Genre genre;
+            genre.id = getJsonString(json_obj, "id");
+            genre.principale = getJsonString(json_obj, "principale");
+            genre.parentid = getJsonString(json_obj, "parentid");
+            json_object *sub_array = getJsonObject(json_obj, "noms");
+            if (!sub_array) {
+                sub_array = getJsonObject(json_obj, "names");
+            }
+            if (sub_array) {
+                int sub_size = json_object_array_length(sub_array);
+                for (int k = 0; k < sub_size; k++) {
+                    json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
+                    genre.noms.push_back({getJsonString(json_sub_obj, "langue"),
+                                          getJsonString(json_sub_obj, "text")});
+                }
+            }
+            jeu.genres.push_back(genre);
+        }
+    }
+    // parse familles array
+    array = getJsonObject(root, "familles");
+    if (array) {
+        int size = json_object_array_length(array);
+        for (int j = 0; j < size; j++) {
+            json_object *json_obj = json_object_array_get_idx(array, j);
+            Jeu::Famille famille;
+            famille.id = getJsonString(json_obj, "id");
+            famille.principale = getJsonString(json_obj, "principale");
+            famille.parentid = getJsonString(json_obj, "parentid");
+            json_object *sub_array = getJsonObject(json_obj, "noms");
+            if (!sub_array) {
+                sub_array = getJsonObject(json_obj, "names");
+            }
+            if (sub_array) {
+                int sub_size = json_object_array_length(sub_array);
+                for (int k = 0; k < sub_size; k++) {
+                    json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
+                    famille.noms.push_back({getJsonString(json_sub_obj, "langue"),
+                                            getJsonString(json_sub_obj, "text")});
+                }
+            }
+            jeu.familles.push_back(famille);
+        }
+    }
+    // parse medias array
+    array = getJsonObject(root, "medias");
+    if (array) {
+        int size = json_object_array_length(array);
+        for (int j = 0; j < size; j++) {
+            Jeu::Media media;
+            json_object *json_obj = json_object_array_get_idx(array, j);
+            media.type = getJsonString(json_obj, "type");
+            media.parent = getJsonString(json_obj, "parent");
+            media.url = getJsonString(json_obj, "url");
+            media.region = getJsonString(json_obj, "region");
+            media.crc = getJsonString(json_obj, "crc");
+            media.md5 = getJsonString(json_obj, "md5");
+            media.sha1 = getJsonString(json_obj, "sha1");
+            media.format = getJsonString(json_obj, "format");
+            jeu.medias.push_back(media);
         }
     }
 

@@ -12,6 +12,9 @@ void printJeu(const Jeu &jeu) {
     printf("\n===================================\n");
     printf("nom: %s (region: %s, alternatives: %li)\n",
            jeu.noms[0].text.c_str(), jeu.noms[0].region.c_str(), jeu.noms.size() - 1);
+    for (auto &region : jeu.regions) {
+        printf("region: %s\n", region.c_str());
+    }
     printf("id: %s\n", jeu.id.c_str());
     printf("editeur: %s (id: %s)\n", jeu.editeur.text.c_str(), jeu.editeur.id.c_str());
     printf("developpeur: %s (developpeur: %s)\n", jeu.developpeur.text.c_str(), jeu.developpeur.id.c_str());
@@ -22,9 +25,23 @@ void printJeu(const Jeu &jeu) {
     printf("resolution: %s\n", jeu.resolution.c_str());
     printf("controles: %s\n", jeu.controles.c_str());
     printf("couleurs: %s\n", jeu.couleurs.c_str());
-    if (!jeu.synopsis.empty()) {
-        printf("synopsis (langue: %s, alternatives: %li): %s\n",
-               jeu.synopsis[0].langue.c_str(), jeu.synopsis.size() - 1, jeu.synopsis[0].text.c_str());
+    for (auto &synopsis : jeu.synopsis) {
+        printf("synopsis (%s): %s\n", synopsis.langue.c_str(), synopsis.text.c_str());
+    }
+    for (auto &classification : jeu.classifications) {
+        printf("classification: %s: %s\n", classification.type.c_str(), classification.text.c_str());
+    }
+    for (auto &date : jeu.dates) {
+        printf("date (%s): %s\n", date.region.c_str(), date.text.c_str());
+    }
+    for (auto &genre : jeu.genres) {
+        printf("genre: %s (%s)\n", genre.noms.empty() ? "N/A" : genre.noms[0].text.c_str(), genre.id.c_str());
+    }
+    for (auto &famille : jeu.familles) {
+        printf("famille: %s (%s)\n", famille.noms.empty() ? "N/A" : famille.noms[0].text.c_str(), famille.id.c_str());
+    }
+    for (auto &media : jeu.medias) {
+        printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
     }
 }
 
@@ -32,7 +49,7 @@ int main() {
 
     Api api(DEVID, DEVPWD, "SSSCRAP");
 
-    Api::JeuRecherche recherche = api.jeuRecherche("cadillacs", "75", SSID, SSPWD);
+    Api::JeuRecherche recherche = api.jeuRecherche("sonic", "1", SSID, SSPWD);
     printf("\n===================================\n");
     printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
            recherche.ssuser.id.c_str(), recherche.ssuser.maxrequestsperday.c_str(),
