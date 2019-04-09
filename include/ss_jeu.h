@@ -68,6 +68,14 @@ namespace ss_api {
         };
 
         struct Media {
+            enum Type {
+                SSTitle, SS, Screenshot, Fanart, Video, Marquee,
+                ScreenMarquee, ScreenMarqueeSmall, ThemeHs, Manuel,
+                Flyer, SteamGrid, Wheel, WheelHD, WheelCarbon, WheelSteel,
+                Box2D, Box2DSide, Box2DBack, BoxTexture, Box3D, BoxScan,
+                SupportTexture, Bezel43, Bezel169, Bezel1610, Mixrbv1, Mixrbv2,
+                Pictoliste, Pictocouleur, Pictomonochrome
+            };
             std::string type;
             std::string parent;
             std::string url;
@@ -76,6 +84,7 @@ namespace ss_api {
             std::string md5;
             std::string sha1;
             std::string format;
+            std::string support;
         };
 
         std::string id;
@@ -101,6 +110,8 @@ namespace ss_api {
         std::vector<Genre> genres;
         std::vector<Famille> familles;
         std::vector<Media> medias;
+
+        Media getMedia(Media::Type type);
     };
 }
 

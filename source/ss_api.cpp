@@ -258,9 +258,6 @@ Jeu Api::parseJeu(json_object *root) {
             genre.principale = getJsonString(json_obj, "principale");
             genre.parentid = getJsonString(json_obj, "parentid");
             json_object *sub_array = getJsonObject(json_obj, "noms");
-            if (!sub_array) {
-                sub_array = getJsonObject(json_obj, "names");
-            }
             if (sub_array) {
                 int sub_size = json_object_array_length(sub_array);
                 for (int k = 0; k < sub_size; k++) {
@@ -283,9 +280,6 @@ Jeu Api::parseJeu(json_object *root) {
             famille.principale = getJsonString(json_obj, "principale");
             famille.parentid = getJsonString(json_obj, "parentid");
             json_object *sub_array = getJsonObject(json_obj, "noms");
-            if (!sub_array) {
-                sub_array = getJsonObject(json_obj, "names");
-            }
             if (sub_array) {
                 int sub_size = json_object_array_length(sub_array);
                 for (int k = 0; k < sub_size; k++) {
@@ -312,6 +306,7 @@ Jeu Api::parseJeu(json_object *root) {
             media.md5 = getJsonString(json_obj, "md5");
             media.sha1 = getJsonString(json_obj, "sha1");
             media.format = getJsonString(json_obj, "format");
+            media.support = getJsonString(json_obj, "support");
             jeu.medias.push_back(media);
         }
     }
