@@ -11,11 +11,22 @@
 #include "ss_jeu.h"
 #include "ss_user.h"
 
+#define SS_TIMEOUT 10
+
 namespace ss_api {
 
     class Api {
 
     public:
+
+        enum Region {
+            ALL, DE, ASI, AU, BR, BG, CA, CL,
+            CN, AME, KR, CUS, DK, SP, EU,
+            FI, FR, GR, HU, IL, IT, JP,
+            KW, WOR, MOR, NO, NZ, OCE,
+            NL, PE, PL, PT, CZ, UK, RU,
+            SS, SK, SE, TW, TR, US
+        };
 
         struct JeuRecherche {
             User ssuser;
@@ -37,6 +48,14 @@ namespace ss_api {
                           const std::string &systemeid, const std::string &romtype,
                           const std::string &romnom, const std::string &romtaille, const std::string &gameid,
                           const std::string &ssid = "", const std::string &sspassword = "");
+
+        std::vector<Jeu::Media> getMedia(const Jeu &jeu, const Jeu::Media::Type &type, const Region &region = ALL);
+
+        int download(const Jeu::Media &media, const std::string &dstPath);
+
+        static std::string mediaTypeToString(const Jeu::Media::Type &type);
+
+        static std::string regionToString(const Region &region);
 
     private:
 

@@ -3,7 +3,7 @@
 //
 
 #include <cstring>
-
+#include <algorithm>
 #include "ss_api.h"
 
 using namespace ss_api;
@@ -39,7 +39,7 @@ Api::JeuRecherche Api::jeuRecherche(const std::string &recherche, const std::str
 
     printf("Api::jeuRecherche: %s\n", url.c_str());
 
-    std::string json = curl.getString(url, 10, &code);
+    std::string json = curl.getString(url, SS_TIMEOUT, &code);
     if (json.empty()) {
         printf("Api::jeuRecherche: error %li\n", code);
         return JeuRecherche();
@@ -132,7 +132,7 @@ Api::jeuInfos(const std::string &crc, const std::string &md5, const std::string 
 
     printf("Api::jeuInfos: %s\n", url.c_str());
 
-    std::string json = curl.getString(url, 10, &code);
+    std::string json = curl.getString(url, SS_TIMEOUT, &code);
     if (json.empty()) {
         printf("Api::jeuInfos: error %li\n", code);
         return JeuInfos();
@@ -364,3 +364,186 @@ std::string Api::getJsonString(json_object *root, const std::string &key) {
     return "";
 }
 
+std::vector<Jeu::Media> Api::getMedia(const Jeu &jeu, const Jeu::Media::Type &type, const Region &region) {
+
+    std::vector<Jeu::Media> medias;
+
+    remove_copy_if(jeu.medias.begin(), jeu.medias.end(), back_inserter(medias),
+                   [type, region](Jeu::Media media) {
+                       return media.type != mediaTypeToString(type)
+                              || (region != Region::ALL && media.region != regionToString(region));
+                   });
+
+    return medias;
+}
+
+int Api::download(const Jeu::Media &media, const std::string &dstPath) {
+
+    if (dstPath.empty()) {
+        return -1;
+    }
+
+    printf("Api::download: %s\n", media.url.c_str());
+
+    long http_code = 0;
+    int res = curl.getData(media.url, dstPath, SS_TIMEOUT, &http_code);
+    if (res != 0) {
+        printf("Api::download: error: curl failed: %s, http_code: %li\n",
+               curl_easy_strerror((CURLcode) res), http_code);
+        return (int) http_code;
+    }
+
+    return 0;
+}
+
+std::string Api::mediaTypeToString(const Jeu::Media::Type &type) {
+    switch (type) {
+        case Jeu::Media::SSTitle:
+            return "sstitle";
+        case Jeu::Media::SS:
+            return "ss";
+        case Jeu::Media::Screenshot:
+            return "screenshot";
+        case Jeu::Media::Fanart:
+            return "fanart";
+        case Jeu::Media::Video:
+            return "video";
+        case Jeu::Media::Marquee:
+            return "marquee";
+        case Jeu::Media::ScreenMarquee:
+            return "screenmarquee";
+        case Jeu::Media::ScreenMarqueeSmall:
+            return "screenmarqueesmall";
+        case Jeu::Media::ThemeHs:
+            return "themehs";
+        case Jeu::Media::Manuel:
+            return "manuel";
+        case Jeu::Media::Flyer:
+            return "flyer";
+        case Jeu::Media::SteamGrid:
+            return "steamgrid";
+        case Jeu::Media::Wheel:
+            return "wheel";
+        case Jeu::Media::WheelHD:
+            return "wheel-hd";
+        case Jeu::Media::WheelCarbon:
+            return "wheel-carbon";
+        case Jeu::Media::WheelSteel:
+            return "wheel-steel";
+        case Jeu::Media::Box2D:
+            return "box-2D";
+        case Jeu::Media::Box2DSide:
+            return "box-2D-side";
+        case Jeu::Media::Box2DBack:
+            return "box-2D-back";
+        case Jeu::Media::BoxTexture:
+            return "box-texture";
+        case Jeu::Media::Box3D:
+            return "box-3D";
+        case Jeu::Media::BoxScan:
+            return "box-scan";
+        case Jeu::Media::SupportTexture:
+            return "support-texture";
+        case Jeu::Media::Bezel43:
+            return "bezel-4-3";
+        case Jeu::Media::Bezel169:
+            return "bezel-16-9";
+        case Jeu::Media::Bezel1610:
+            return "bezel-16-10";
+        case Jeu::Media::Mixrbv1:
+            return "mixrbv1";
+        case Jeu::Media::Mixrbv2:
+            return "mixrbv2";
+        case Jeu::Media::Pictoliste:
+            return "pictoliste";
+        case Jeu::Media::Pictocouleur:
+            return "pictocouleur";
+        case Jeu::Media::Pictomonochrome:
+            return "pictomonochrome";
+    }
+}
+
+std::string Api::regionToString(const Api::Region &region) {
+    switch (region) {
+        case DE:
+            return "de";
+        case ASI:
+            return "asi";
+        case AU:
+            return "au";
+        case BR:
+            return "br";
+        case BG:
+            return "bg";
+        case CA:
+            return "ca";
+        case CL:
+            return "cl";
+        case CN:
+            return "cn";
+        case AME:
+            return "ame";
+        case KR:
+            return "kr";
+        case CUS:
+            return "cus";
+        case DK:
+            return "dk";
+        case SP:
+            return "sp";
+        case EU:
+            return "eu";
+        case FI:
+            return "fi";
+        case FR:
+            return "fr";
+        case GR:
+            return "gr";
+        case HU:
+            return "hu";
+        case IL:
+            return "il";
+        case IT:
+            return "it";
+        case JP:
+            return "jp";
+        case KW:
+            return "kw";
+        case WOR:
+            return "wor";
+        case MOR:
+            return "mor";
+        case NO:
+            return "no";
+        case NZ:
+            return "nz";
+        case OCE:
+            return "oce";
+        case NL:
+            return "nl";
+        case PE:
+            return "pe";
+        case PL:
+            return "pl";
+        case PT:
+            return "pt";
+        case CZ:
+            return "cz";
+        case UK:
+            return "uk";
+        case RU:
+            return "ru";
+        case SS:
+            return "ss";
+        case SK:
+            return "sk";
+        case SE:
+            return "se";
+        case TW:
+            return "tw";
+        case TR:
+            return "tr";
+        case US:
+            return "us";
+    }
+}

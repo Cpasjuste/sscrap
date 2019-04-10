@@ -110,8 +110,6 @@ namespace ss_api {
         std::vector<Genre> genres;
         std::vector<Famille> familles;
         std::vector<Media> medias;
-
-        Media getMedia(Media::Type type);
     };
 }
 

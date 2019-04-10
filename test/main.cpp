@@ -7,7 +7,7 @@
 
 using namespace ss_api;
 
-void printJeu(const Jeu &jeu) {
+void printJeu(Api *api, const Jeu &jeu) {
 
     printf("\n===================================\n");
     printf("nom: %s (region: %s, alternatives: %li)\n",
@@ -40,8 +40,10 @@ void printJeu(const Jeu &jeu) {
     for (auto &famille : jeu.familles) {
         printf("famille: %s (%s)\n", famille.noms.empty() ? "N/A" : famille.noms[0].text.c_str(), famille.id.c_str());
     }
-    for (auto &media : jeu.medias) {
+    std::vector<Jeu::Media> medias = api->getMedia(jeu, Jeu::Media::Type::Mixrbv2, Api::Region::WOR);
+    for (auto &media : medias) {
         printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
+        //api->download(media, "cache/" + media.type + "_" + media.region + "." + media.format);
     }
 }
 
@@ -49,6 +51,7 @@ int main() {
 
     Api api(DEVID, DEVPWD, "SSSCRAP");
 
+#if 1
     Api::JeuRecherche recherche = api.jeuRecherche("sonic", "1", SSID, SSPWD);
     printf("\n===================================\n");
     printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
@@ -56,8 +59,9 @@ int main() {
            recherche.ssuser.maxthreads.c_str());
     printf("games found: %li\n", recherche.jeux.size());
     for (auto &jeu : recherche.jeux) {
-        printJeu(jeu);
+        printJeu(&api, jeu);
     }
+#endif
 
     Api::JeuInfos jeuInfos = api.jeuInfos("", "", "", "75", "rom", "dino.zip", "", "", SSID, SSPWD);
     printf("\n===================================\n");
@@ -65,7 +69,7 @@ int main() {
            jeuInfos.ssuser.id.c_str(), jeuInfos.ssuser.maxrequestsperday.c_str(),
            jeuInfos.ssuser.maxthreads.c_str());
     if (!jeuInfos.jeu.id.empty()) {
-        printJeu(jeuInfos.jeu);
+        printJeu(&api, jeuInfos.jeu);
     } else {
         printf("jeuInfos: game not found\n");
     }
