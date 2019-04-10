@@ -48,10 +48,39 @@ Api::JeuRecherche Api::jeuRecherche(const std::string &recherche, const std::str
     return parseJeuRecherche(json);
 }
 
+Api::JeuRecherche Api::jeuRecherche(const std::string &srcPath) {
+
+    long size = 0;
+    FILE *fp = fopen(srcPath.c_str(), "rb");
+    if (!fp) {
+        printf("Api::jeuRecherche: error: fopen failed\n");
+        return JeuRecherche();
+    }
+    fseek(fp, 0, SEEK_END);
+    size = ftell(fp);
+    if (size <= 0) {
+        printf("Api::jeuRecherche: error: ftell failed\n");
+        fclose(fp);
+        return JeuRecherche();
+    }
+    fseek(fp, 0, SEEK_SET);
+    std::string json = std::string((unsigned long) size, '\0');
+    fread(&json[0], sizeof(char), (size_t) size, fp);
+    fclose(fp);
+
+    if (json.empty()) {
+        printf("Api::jeuRecherche: error: data is empty\n");
+        return JeuRecherche();
+    }
+
+    return parseJeuRecherche(json);
+}
+
 Api::JeuRecherche Api::parseJeuRecherche(const std::string &jsonData) {
 
     JeuRecherche jr{};
-    json_object *json_root = json_tokener_parse(jsonData.c_str());
+    jr.json = jsonData;
+    json_object *json_root = json_tokener_parse(jr.json.c_str());
     json_object *json_response, *json_ssuser, *json_jeux;
 
     json_bool found = json_object_object_get_ex(json_root, "response", &json_response);
@@ -141,10 +170,39 @@ Api::jeuInfos(const std::string &crc, const std::string &md5, const std::string 
     return parseJeuInfos(json);
 }
 
+Api::JeuInfos Api::jeuInfos(const std::string &srcPath) {
+
+    long size = 0;
+    FILE *fp = fopen(srcPath.c_str(), "rb");
+    if (!fp) {
+        printf("Api::jeuInfos: error: fopen failed\n");
+        return JeuInfos();
+    }
+    fseek(fp, 0, SEEK_END);
+    size = ftell(fp);
+    if (size <= 0) {
+        printf("Api::jeuInfos: error: ftell failed\n");
+        fclose(fp);
+        return JeuInfos();
+    }
+    fseek(fp, 0, SEEK_SET);
+    std::string json = std::string((unsigned long) size, '\0');
+    fread(&json[0], sizeof(char), (size_t) size, fp);
+    fclose(fp);
+
+    if (json.empty()) {
+        printf("Api::jeuInfos: error: data is empty\n");
+        return JeuInfos();
+    }
+
+    return parseJeuInfos(json);
+}
+
 Api::JeuInfos Api::parseJeuInfos(const std::string &jsonData) {
 
     JeuInfos ji{};
-    json_object *json_root = json_tokener_parse(jsonData.c_str());
+    ji.json = jsonData;
+    json_object *json_root = json_tokener_parse(ji.json.c_str());
     json_object *json_response, *json_ssuser, *json_jeu;
 
     json_bool found = json_object_object_get_ex(json_root, "response", &json_response);
@@ -394,6 +452,33 @@ int Api::download(const Jeu::Media &media, const std::string &dstPath) {
     }
 
     return 0;
+}
+
+bool Api::JeuInfos::save(const std::string &dstPath) {
+
+    FILE *fp = fopen(dstPath.c_str(), "wb");
+    if (!fp) {
+        printf("Api::JeuInfos::save: error: fopen failed\n");
+        return -1;
+    }
+
+    fwrite(json.c_str(), sizeof(char), json.length(), fp);
+    fclose(fp);
+
+    return true;
+}
+
+bool Api::JeuRecherche::save(const std::string &dstPath) {
+    FILE *fp = fopen(dstPath.c_str(), "wb");
+    if (!fp) {
+        printf("Api::JeuRecherche::save: error: fopen failed\n");
+        return -1;
+    }
+
+    fwrite(json.c_str(), sizeof(char), json.length(), fp);
+    fclose(fp);
+
+    return true;
 }
 
 std::string Api::mediaTypeToString(const Jeu::Media::Type &type) {

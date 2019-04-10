@@ -28,14 +28,22 @@ namespace ss_api {
             SS, SK, SE, TW, TR, US
         };
 
-        struct JeuRecherche {
+        class JeuRecherche {
+        public:
             User ssuser;
             std::vector<Jeu> jeux;
+            std::string json;
+
+            bool save(const std::string &dstPath);
         };
 
-        struct JeuInfos {
+        class JeuInfos {
+        public:
             User ssuser;
             Jeu jeu;
+            std::string json;
+
+            bool save(const std::string &dstPath);
         };
 
         explicit Api(const std::string &devid, const std::string &devpassword,
@@ -44,10 +52,14 @@ namespace ss_api {
         JeuRecherche jeuRecherche(const std::string &recherche, const std::string &systemeid,
                                   const std::string &ssid = "", const std::string &sspassword = "");
 
+        JeuRecherche jeuRecherche(const std::string &srcPath);
+
         JeuInfos jeuInfos(const std::string &crc, const std::string &md5, const std::string &sha1,
                           const std::string &systemeid, const std::string &romtype,
                           const std::string &romnom, const std::string &romtaille, const std::string &gameid,
                           const std::string &ssid = "", const std::string &sspassword = "");
+
+        JeuInfos jeuInfos(const std::string &srcPath);
 
         std::vector<Jeu::Media> getMedia(const Jeu &jeu, const Jeu::Media::Type &type, const Region &region = ALL);
 

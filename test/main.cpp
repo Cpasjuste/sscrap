@@ -51,7 +51,6 @@ int main() {
 
     Api api(DEVID, DEVPWD, "SSSCRAP");
 
-#if 1
     Api::JeuRecherche recherche = api.jeuRecherche("sonic", "1", SSID, SSPWD);
     printf("\n===================================\n");
     printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
@@ -61,7 +60,6 @@ int main() {
     for (auto &jeu : recherche.jeux) {
         printJeu(&api, jeu);
     }
-#endif
 
     Api::JeuInfos jeuInfos = api.jeuInfos("", "", "", "75", "rom", "dino.zip", "", "", SSID, SSPWD);
     printf("\n===================================\n");
