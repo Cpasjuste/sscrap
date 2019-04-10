@@ -545,5 +545,7 @@ std::string Api::regionToString(const Api::Region &region) {
             return "tr";
         case US:
             return "us";
+        case ALL:
+            return "all";
     }
 }
