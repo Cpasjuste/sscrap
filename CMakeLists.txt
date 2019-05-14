@@ -35,6 +35,8 @@ elseif (BUILD_LINUX)
     #####################
     # LINUX PLATORM
     #####################
+	find_package(CURL REQUIRED)
+	find_package(ZLIB REQUIRED)
     list(APPEND CFLAGS)
     list(APPEND LDFLAGS)
 endif ()
