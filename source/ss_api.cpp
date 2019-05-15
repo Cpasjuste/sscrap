@@ -546,6 +546,7 @@ std::string Api::mediaTypeToString(const Jeu::Media::Type &type) {
         case Jeu::Media::Pictomonochrome:
             return "pictomonochrome";
     }
+    return "";
 }
 
 std::string Api::regionToString(const Api::Region &region) {
@@ -633,4 +634,5 @@ std::string Api::regionToString(const Api::Region &region) {
         case ALL:
             return "all";
     }
+    return "";
 }
