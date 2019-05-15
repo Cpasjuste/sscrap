@@ -48,17 +48,26 @@ add_library(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_compile_options(${PROJECT_NAME} PRIVATE ${CFLAGS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LDFLAGS})
+# read tmdb api key
+if(EXISTS "ss_dev_id.key")
+	file(STRINGS "ss_dev_id.key" DEVID)
+	file(STRINGS "ss_dev_pwd.key" DEVPWD)
+	file(STRINGS "ss_user_id.key" SSID)
+	file(STRINGS "ss_user_pwd.key" SSPWD)
+else()
+	message(WARNING "ss_dev_id.key, ss_dev_pwd.key, ss_user_id.key and ss_user_pwd.key files not found, using dummy ss keys")
+	message(WARNING "Please fix by creating this files and add your keys...")
+	set(DEVID "none")
+	set(DEVPWD "none")
+	set(SSID "none")
+	set(SSPWD "none")
+endif()
+target_compile_options(
+        ${PROJECT_NAME} PUBLIC -DDEVID=\"${DEVID}\"
+        -DDEVPWD=\"${DEVPWD}\" -DSSID=\"${SSID}\" -DSSPWD=\"${SSPWD}\")
 
 #####################
 # SCREENSCRAP TEST
 #####################
-# read tmdb api key
-file(STRINGS "ss_dev_id.key" DEVID)
-file(STRINGS "ss_dev_pwd.key" DEVPWD)
-file(STRINGS "ss_user_id.key" SSID)
-file(STRINGS "ss_user_pwd.key" SSPWD)
 add_executable(${PROJECT_NAME}.elf test/main.cpp)
-target_compile_options(
-        ${PROJECT_NAME}.elf PRIVATE -DDEVID=\"${DEVID}\"
-        -DDEVPWD=\"${DEVPWD}\" -DSSID=\"${SSID}\" -DSSPWD=\"${SSPWD}\")
 target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME})
