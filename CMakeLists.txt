@@ -35,10 +35,16 @@ elseif (BUILD_LINUX)
     #####################
     # LINUX PLATORM
     #####################
-	find_package(CURL REQUIRED)
-	find_package(ZLIB REQUIRED)
-    list(APPEND CFLAGS)
-    list(APPEND LDFLAGS)
+    find_package(CURL REQUIRED)
+    find_package(ZLIB REQUIRED)
+    if (BUILD_WINDOWS)
+        # TODO: try to fix nghttp2 static linking...
+        list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
+        set(LDFLAGS json-c curl.a nghttp2 idn2.a psl.a ssl.a
+                crypto.a crypt32.a unistring brotlidec-static.a
+                brotlicommon-static.a intl.a iconv.a wldap32.a ws2_32.a
+                -static -static-libgcc -static-libstdc++)
+    endif ()
 endif ()
 
 #####################
@@ -49,18 +55,18 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_compile_options(${PROJECT_NAME} PRIVATE ${CFLAGS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LDFLAGS})
 # read tmdb api key
-if(EXISTS "ss_dev_id.key")
-	file(STRINGS "ss_dev_id.key" DEVID)
-	file(STRINGS "ss_dev_pwd.key" DEVPWD)
-	file(STRINGS "ss_user_id.key" SSID)
-	file(STRINGS "ss_user_pwd.key" SSPWD)
-else()
-	message(WARNING "ss_dev_id.key, ss_dev_pwd.key, ss_user_id.key and ss_user_pwd.key files not found, using dummy ss keys. Please fix by creating this files and add your keys...")
-	set(DEVID "none")
-	set(DEVPWD "none")
-	set(SSID "none")
-	set(SSPWD "none")
-endif()
+if (EXISTS "ss_dev_id.key")
+    file(STRINGS "ss_dev_id.key" DEVID)
+    file(STRINGS "ss_dev_pwd.key" DEVPWD)
+    file(STRINGS "ss_user_id.key" SSID)
+    file(STRINGS "ss_user_pwd.key" SSPWD)
+else ()
+    message(WARNING "ss_dev_id.key, ss_dev_pwd.key, ss_user_id.key and ss_user_pwd.key files not found, using dummy ss keys. Please fix by creating this files and add your keys...")
+    set(DEVID "none")
+    set(DEVPWD "none")
+    set(SSID "none")
+    set(SSPWD "none")
+endif ()
 target_compile_options(
         ${PROJECT_NAME} PUBLIC -DDEVID=\"${DEVID}\"
         -DDEVPWD=\"${DEVPWD}\" -DSSID=\"${SSID}\" -DSSPWD=\"${SSPWD}\")
