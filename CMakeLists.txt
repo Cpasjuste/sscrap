@@ -9,7 +9,7 @@ option(BUILD_PS3 "Build with PS3 support (hardware rendering, fast)" OFF)
 option(BUILD_3DS "Build with 3DS support" OFF)
 option(BUILD_SWITCH "Build with Nintendo Switch support" OFF)
 
-include(Toolchain.cmake)
+#include(Toolchain.cmake)
 
 project(ssscrap)
 
