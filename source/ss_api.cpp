@@ -175,7 +175,7 @@ Api::JeuInfos Api::jeuInfos(const std::string &srcPath) {
     long size = 0;
     FILE *fp = fopen(srcPath.c_str(), "rb");
     if (!fp) {
-        printf("Api::jeuInfos: error: fopen failed\n");
+        printf("Api::jeuInfos: error: fopen failed: %s\n", srcPath.c_str());
         return JeuInfos();
     }
     fseek(fp, 0, SEEK_END);

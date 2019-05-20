@@ -72,7 +72,7 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
 
     data = fopen(dstPath.c_str(), "wb");
     if (!data) {
-        printf("Curl::getData: error: fopen failed\n");
+        printf("Curl::getData: error: fopen failed: %s\n", dstPath.c_str());
         return -1;
     }
 
