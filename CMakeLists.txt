@@ -69,8 +69,9 @@ else ()
     set(SSPWD "none")
 endif ()
 target_compile_options(
-        ${PROJECT_NAME} PUBLIC -DDEVID=\"${DEVID}\"
-        -DDEVPWD=\"${DEVPWD}\" -DSSID=\"${SSID}\" -DSSPWD=\"${SSPWD}\")
+        ${PROJECT_NAME} PUBLIC
+        -DSS_DEV_ID=\"${DEVID}\" -DSS_DEV_PWD=\"${DEVPWD}\"
+        -DSS_ID=\"${SSID}\" -DSS_PWD=\"${SSPWD}\")
 
 #####################
 # SCREENSCRAP TEST

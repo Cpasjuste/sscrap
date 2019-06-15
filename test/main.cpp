@@ -49,9 +49,9 @@ void printJeu(Api *api, const Jeu &jeu) {
 
 int main() {
 
-    Api api(DEVID, DEVPWD, "SSSCRAP");
+    Api api(SS_DEV_ID, SS_DEV_PWD, "SSSCRAP");
 
-    Api::JeuRecherche recherche = api.jeuRecherche("sonic", "1", SSID, SSPWD);
+    Api::JeuRecherche recherche = api.jeuRecherche("sonic", "1", SS_ID, SS_PWD);
     printf("\n===================================\n");
     printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
            recherche.ssuser.id.c_str(), recherche.ssuser.maxrequestsperday.c_str(),
@@ -61,7 +61,7 @@ int main() {
         printJeu(&api, jeu);
     }
 
-    Api::JeuInfos jeuInfos = api.jeuInfos("", "", "", "75", "rom", "dino.zip", "", "", SSID, SSPWD);
+    Api::JeuInfos jeuInfos = api.jeuInfos("", "", "", "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
     printf("\n===================================\n");
     printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
            jeuInfos.ssuser.id.c_str(), jeuInfos.ssuser.maxrequestsperday.c_str(),
