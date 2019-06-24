@@ -1,15 +1,19 @@
 cmake_minimum_required(VERSION 3.0)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-# delete cmake cache folder before changing this options
-option(BUILD_LINUX "Build with SDL2 support" OFF)
-option(BUILD_WINDOWS "Build with Windows support (msys/mingw64)" OFF)
-option(BUILD_VITA "Build with Ps Vita support (hardware rendering, fast)" OFF)
-option(BUILD_PS3 "Build with PS3 support (hardware rendering, fast)" OFF)
-option(BUILD_3DS "Build with 3DS support" OFF)
-option(BUILD_SWITCH "Build with Nintendo Switch support" OFF)
-
-#include(Toolchain.cmake)
+####################
+# TARGET PLATFORM
+####################
+option(PLATFORM_LINUX "Linux platform target" OFF)
+option(PLATFORM_WINDOWS "Windows platform target (msys/mingw64)" OFF)
+option(PLATFORM_RPI3 "RIP3 platform target" OFF)
+option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
+option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
+option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
+option(PLATFORM_LDK "LDK Handheld platform target (mips: LDK, RS-97...)" OFF)
+####################
+# TARGET PLATFORM
+####################
 
 project(ssscrap)
 
@@ -24,20 +28,20 @@ set(LDFLAGS curl json-c z)
 #####################
 # PLATORM SPECIFIC
 #####################
-if (BUILD_SWITCH)
+if (PLATFORM_SWITCH)
     #####################
     # SWITCH PLATORM
     #####################
     list(APPEND CFLAGS -D__SWITCH__)
     list(APPEND INCLUDES)
     list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 nx)
-elseif (BUILD_LINUX)
+elseif (PLATFORM_LINUX)
     #####################
     # LINUX PLATORM
     #####################
     find_package(CURL REQUIRED)
     find_package(ZLIB REQUIRED)
-    if (BUILD_WINDOWS)
+    if (PLATFORM_WINDOWS)
         # TODO: try to fix nghttp2 static linking...
         list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
         set(LDFLAGS json-c curl.a nghttp2 idn2.a psl.a ssl.a
