@@ -19,7 +19,7 @@ namespace ss_api {
 
     public:
 
-        enum Region {
+        enum Country {
             ALL, DE, ASI, AU, BR, BG, CA, CL,
             CN, AME, KR, CUS, DK, SP, EU,
             FI, FR, GR, HU, IL, IT, JP,
@@ -28,19 +28,19 @@ namespace ss_api {
             SS, SK, SE, TW, TR, US
         };
 
-        class JeuRecherche {
+        class GameSearch {
         public:
             User ssuser;
-            std::vector<Jeu> jeux;
+            std::vector<Game> games;
             std::string json;
 
             bool save(const std::string &dstPath);
         };
 
-        class JeuInfos {
+        class GameInfo {
         public:
             User ssuser;
-            Jeu jeu;
+            Game game;
             std::string json;
 
             bool save(const std::string &dstPath);
@@ -49,39 +49,40 @@ namespace ss_api {
         explicit Api(const std::string &devid, const std::string &devpassword,
                      const std::string &softname);
 
-        JeuRecherche jeuRecherche(const std::string &recherche, const std::string &systemeid,
-                                  const std::string &ssid = "", const std::string &sspassword = "");
+        GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
+                              const std::string &ssid = "", const std::string &sspassword = "");
 
-        JeuRecherche jeuRecherche(const std::string &srcPath);
+        GameSearch gameSearch(const std::string &srcPath);
 
-        JeuInfos jeuInfos(const std::string &crc, const std::string &md5, const std::string &sha1,
+        GameInfo gameInfo(const std::string &crc, const std::string &md5, const std::string &sha1,
                           const std::string &systemeid, const std::string &romtype,
                           const std::string &romnom, const std::string &romtaille, const std::string &gameid,
                           const std::string &ssid = "", const std::string &sspassword = "");
 
-        JeuInfos jeuInfos(const std::string &srcPath);
+        GameInfo gameInfo(const std::string &srcPath);
 
-        std::vector<Jeu::Media> getMedia(const Jeu &jeu, const Jeu::Media::Type &type, const Region &region = ALL);
+        int download(const Game::Media &media, const std::string &dstPath);
 
-        int download(const Jeu::Media &media, const std::string &dstPath);
+        static std::vector<Game::Media> getMedia(
+                const Game &game, const Game::Media::Type &type, const Country &country = ALL);
 
-        static std::string mediaTypeToString(const Jeu::Media::Type &type);
+        static std::string mediaTypeToString(const Game::Media::Type &type);
 
-        static std::string regionToString(const Region &region);
+        static std::string countryToString(const Country &country);
 
     private:
 
-        JeuRecherche parseJeuRecherche(const std::string &jsonData);
+        static GameInfo parseGameInfo(const std::string &jsonData);
 
-        JeuInfos parseJeuInfos(const std::string &jsonData);
+        static GameSearch parseGameSearch(const std::string &jsonData);
 
-        Jeu parseJeu(json_object *root);
+        static Game parseGame(json_object *root);
 
-        User parseUser(json_object *root);
+        static User parseUser(json_object *root);
 
-        json_object *getJsonObject(json_object *root, const std::string &key);
+        static json_object *getJsonObject(json_object *root, const std::string &key);
 
-        std::string getJsonString(json_object *root, const std::string &key);
+        static std::string getJsonString(json_object *root, const std::string &key);
 
         std::string devid;
         std::string devpassword;

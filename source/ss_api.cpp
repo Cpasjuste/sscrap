@@ -16,8 +16,8 @@ Api::Api(const std::string &_devid, const std::string &_devpassword,
     softname = _softname;
 }
 
-Api::JeuRecherche Api::jeuRecherche(const std::string &recherche, const std::string &systemeid,
-                                    const std::string &ssid, const std::string &sspassword) {
+Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string &systemeid,
+                                const std::string &ssid, const std::string &sspassword) {
 
     long code = 0;
     std::string search = curl.escape(recherche);
@@ -42,26 +42,26 @@ Api::JeuRecherche Api::jeuRecherche(const std::string &recherche, const std::str
     std::string json = curl.getString(url, SS_TIMEOUT, &code);
     if (json.empty()) {
         printf("Api::jeuRecherche: error %li\n", code);
-        return JeuRecherche();
+        return GameSearch();
     }
 
-    return parseJeuRecherche(json);
+    return parseGameSearch(json);
 }
 
-Api::JeuRecherche Api::jeuRecherche(const std::string &srcPath) {
+Api::GameSearch Api::gameSearch(const std::string &srcPath) {
 
     long size = 0;
     FILE *fp = fopen(srcPath.c_str(), "rb");
     if (!fp) {
         printf("Api::jeuRecherche: error: fopen failed\n");
-        return JeuRecherche();
+        return GameSearch();
     }
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
     if (size <= 0) {
         printf("Api::jeuRecherche: error: ftell failed\n");
         fclose(fp);
-        return JeuRecherche();
+        return GameSearch();
     }
     fseek(fp, 0, SEEK_SET);
     std::string json = std::string((unsigned long) size, '\0');
@@ -70,15 +70,15 @@ Api::JeuRecherche Api::jeuRecherche(const std::string &srcPath) {
 
     if (json.empty()) {
         printf("Api::jeuRecherche: error: data is empty\n");
-        return JeuRecherche();
+        return GameSearch();
     }
 
-    return parseJeuRecherche(json);
+    return parseGameSearch(json);
 }
 
-Api::JeuRecherche Api::parseJeuRecherche(const std::string &jsonData) {
+Api::GameSearch Api::parseGameSearch(const std::string &jsonData) {
 
-    JeuRecherche jr{};
+    GameSearch jr{};
     jr.json = jsonData;
     json_object *json_root = json_tokener_parse(jr.json.c_str());
     json_object *json_response, *json_ssuser, *json_jeux;
@@ -109,14 +109,14 @@ Api::JeuRecherche Api::parseJeuRecherche(const std::string &jsonData) {
         if (getJsonString(json_jeu, "id").empty()) {
             continue;
         }
-        jr.jeux.push_back(parseJeu(json_jeu));
+        jr.games.push_back(parseGame(json_jeu));
     }
 
     return jr;
 }
 
-Api::JeuInfos
-Api::jeuInfos(const std::string &crc, const std::string &md5, const std::string &sha1, const std::string &systemeid,
+Api::GameInfo
+Api::gameInfo(const std::string &crc, const std::string &md5, const std::string &sha1, const std::string &systemeid,
               const std::string &romtype, const std::string &romnom, const std::string &romtaille,
               const std::string &gameid, const std::string &ssid, const std::string &sspassword) {
 
@@ -164,26 +164,26 @@ Api::jeuInfos(const std::string &crc, const std::string &md5, const std::string 
     std::string json = curl.getString(url, SS_TIMEOUT, &code);
     if (json.empty()) {
         printf("Api::jeuInfos: error %li\n", code);
-        return JeuInfos();
+        return GameInfo();
     }
 
-    return parseJeuInfos(json);
+    return parseGameInfo(json);
 }
 
-Api::JeuInfos Api::jeuInfos(const std::string &srcPath) {
+Api::GameInfo Api::gameInfo(const std::string &srcPath) {
 
     long size = 0;
     FILE *fp = fopen(srcPath.c_str(), "rb");
     if (!fp) {
         printf("Api::jeuInfos: error: fopen failed: %s\n", srcPath.c_str());
-        return JeuInfos();
+        return GameInfo();
     }
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
     if (size <= 0) {
         printf("Api::jeuInfos: error: ftell failed\n");
         fclose(fp);
-        return JeuInfos();
+        return GameInfo();
     }
     fseek(fp, 0, SEEK_SET);
     std::string json = std::string((unsigned long) size, '\0');
@@ -192,15 +192,15 @@ Api::JeuInfos Api::jeuInfos(const std::string &srcPath) {
 
     if (json.empty()) {
         printf("Api::jeuInfos: error: data is empty\n");
-        return JeuInfos();
+        return GameInfo();
     }
 
-    return parseJeuInfos(json);
+    return parseGameInfo(json);
 }
 
-Api::JeuInfos Api::parseJeuInfos(const std::string &jsonData) {
+Api::GameInfo Api::parseGameInfo(const std::string &jsonData) {
 
-    JeuInfos ji{};
+    GameInfo ji{};
     ji.json = jsonData;
     json_object *json_root = json_tokener_parse(ji.json.c_str());
     json_object *json_response, *json_ssuser, *json_jeu;
@@ -226,15 +226,15 @@ Api::JeuInfos Api::parseJeuInfos(const std::string &jsonData) {
     }
 
     if (!getJsonString(json_jeu, "id").empty()) {
-        ji.jeu = parseJeu(json_jeu);
+        ji.game = parseGame(json_jeu);
     }
 
     return ji;
 }
 
-Jeu Api::parseJeu(json_object *root) {
+Game Api::parseGame(json_object *root) {
 
-    Jeu jeu;
+    Game jeu;
     json_object *array;
 
     jeu.id = getJsonString(root, "id");
@@ -246,38 +246,38 @@ Jeu Api::parseJeu(json_object *root) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
             json_object *json_obj = json_object_array_get_idx(array, j);
-            jeu.noms.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
+            jeu.names.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
         }
     }
     // parse region array
     std::string region = getJsonString(getJsonObject(root, "regions"), "shortname");
     if (!region.empty()) {
-        jeu.regions.push_back(region);
+        jeu.countries.push_back(region);
     } else {
         array = getJsonObject(root, "regions");
         if (array) {
             int size = json_object_array_length(array);
             for (int j = 0; j < size; j++) {
                 json_object *json_obj = json_object_array_get_idx(array, j);
-                jeu.regions.push_back(getJsonString(json_obj, "shortname"));
+                jeu.countries.push_back(getJsonString(json_obj, "shortname"));
             }
         }
     }
     jeu.cloneof = getJsonString(root, "cloneof");
     jeu.systemeid = getJsonString(root, "systemeid");
-    jeu.systemenom = getJsonString(root, "systemenom");
+    jeu.systemename = getJsonString(root, "systemenom");
     // parse editor object
-    jeu.editeur.id = getJsonString(getJsonObject(root, "editeur"), "id");
-    jeu.editeur.text = getJsonString(getJsonObject(root, "editeur"), "text");
-    jeu.developpeur.id = getJsonString(getJsonObject(root, "developpeur"), "id");
-    jeu.developpeur.text = getJsonString(getJsonObject(root, "developpeur"), "text");
-    jeu.joueurs = getJsonString(getJsonObject(root, "joueurs"), "text");
-    jeu.note = getJsonString(getJsonObject(root, "note"), "text");
+    jeu.editor.id = getJsonString(getJsonObject(root, "editeur"), "id");
+    jeu.editor.text = getJsonString(getJsonObject(root, "editeur"), "text");
+    jeu.developer.id = getJsonString(getJsonObject(root, "developpeur"), "id");
+    jeu.developer.text = getJsonString(getJsonObject(root, "developpeur"), "text");
+    jeu.players = getJsonString(getJsonObject(root, "joueurs"), "text");
+    jeu.rating = getJsonString(getJsonObject(root, "note"), "text");
     jeu.topstaff = getJsonString(root, "topstaff");
     jeu.rotation = getJsonString(root, "rotation");
     jeu.resolution = getJsonString(root, "resolution");
-    jeu.controles = getJsonString(root, "controles");
-    jeu.couleurs = getJsonString(root, "couleurs");
+    jeu.inputs = getJsonString(root, "controles");
+    jeu.colors = getJsonString(root, "couleurs");
     // parse synopsis array
     array = getJsonObject(root, "synopsis");
     if (array) {
@@ -311,16 +311,16 @@ Jeu Api::parseJeu(json_object *root) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
             json_object *json_obj = json_object_array_get_idx(array, j);
-            Jeu::Genre genre;
+            Game::Genre genre;
             genre.id = getJsonString(json_obj, "id");
-            genre.principale = getJsonString(json_obj, "principale");
+            genre.main = getJsonString(json_obj, "principale");
             genre.parentid = getJsonString(json_obj, "parentid");
             json_object *sub_array = getJsonObject(json_obj, "noms");
             if (sub_array) {
                 int sub_size = json_object_array_length(sub_array);
                 for (int k = 0; k < sub_size; k++) {
                     json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
-                    genre.noms.push_back({getJsonString(json_sub_obj, "langue"),
+                    genre.names.push_back({getJsonString(json_sub_obj, "langue"),
                                           getJsonString(json_sub_obj, "text")});
                 }
             }
@@ -333,20 +333,20 @@ Jeu Api::parseJeu(json_object *root) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
             json_object *json_obj = json_object_array_get_idx(array, j);
-            Jeu::Famille famille;
+            Game::Family famille;
             famille.id = getJsonString(json_obj, "id");
-            famille.principale = getJsonString(json_obj, "principale");
+            famille.main = getJsonString(json_obj, "principale");
             famille.parentid = getJsonString(json_obj, "parentid");
             json_object *sub_array = getJsonObject(json_obj, "noms");
             if (sub_array) {
                 int sub_size = json_object_array_length(sub_array);
                 for (int k = 0; k < sub_size; k++) {
                     json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
-                    famille.noms.push_back({getJsonString(json_sub_obj, "langue"),
+                    famille.names.push_back({getJsonString(json_sub_obj, "langue"),
                                             getJsonString(json_sub_obj, "text")});
                 }
             }
-            jeu.familles.push_back(famille);
+            jeu.families.push_back(famille);
         }
     }
     // parse medias array
@@ -354,12 +354,12 @@ Jeu Api::parseJeu(json_object *root) {
     if (array) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
-            Jeu::Media media;
+            Game::Media media;
             json_object *json_obj = json_object_array_get_idx(array, j);
             media.type = getJsonString(json_obj, "type");
             media.parent = getJsonString(json_obj, "parent");
             media.url = getJsonString(json_obj, "url");
-            media.region = getJsonString(json_obj, "region");
+            media.country = getJsonString(json_obj, "region");
             media.crc = getJsonString(json_obj, "crc");
             media.md5 = getJsonString(json_obj, "md5");
             media.sha1 = getJsonString(json_obj, "sha1");
@@ -422,20 +422,20 @@ std::string Api::getJsonString(json_object *root, const std::string &key) {
     return "";
 }
 
-std::vector<Jeu::Media> Api::getMedia(const Jeu &jeu, const Jeu::Media::Type &type, const Region &region) {
+std::vector<Game::Media> Api::getMedia(const Game &jeu, const Game::Media::Type &type, const Country &region) {
 
-    std::vector<Jeu::Media> medias;
+    std::vector<Game::Media> medias;
 
     remove_copy_if(jeu.medias.begin(), jeu.medias.end(), back_inserter(medias),
-                   [type, region](Jeu::Media media) {
+                   [type, region](const Game::Media& media) {
                        return media.type != mediaTypeToString(type)
-                              || (region != Region::ALL && media.region != regionToString(region));
+                              || (region != Country::ALL && media.country != countryToString(region));
                    });
 
     return medias;
 }
 
-int Api::download(const Jeu::Media &media, const std::string &dstPath) {
+int Api::download(const Game::Media &media, const std::string &dstPath) {
 
     if (dstPath.empty()) {
         return -1;
@@ -454,7 +454,7 @@ int Api::download(const Jeu::Media &media, const std::string &dstPath) {
     return 0;
 }
 
-bool Api::JeuInfos::save(const std::string &dstPath) {
+bool Api::GameInfo::save(const std::string &dstPath) {
 
     FILE *fp = fopen(dstPath.c_str(), "wb");
     if (!fp) {
@@ -468,7 +468,7 @@ bool Api::JeuInfos::save(const std::string &dstPath) {
     return true;
 }
 
-bool Api::JeuRecherche::save(const std::string &dstPath) {
+bool Api::GameSearch::save(const std::string &dstPath) {
     FILE *fp = fopen(dstPath.c_str(), "wb");
     if (!fp) {
         printf("Api::JeuRecherche::save: error: fopen failed\n");
@@ -481,75 +481,75 @@ bool Api::JeuRecherche::save(const std::string &dstPath) {
     return true;
 }
 
-std::string Api::mediaTypeToString(const Jeu::Media::Type &type) {
+std::string Api::mediaTypeToString(const Game::Media::Type &type) {
     switch (type) {
-        case Jeu::Media::SSTitle:
+        case Game::Media::SSTitle:
             return "sstitle";
-        case Jeu::Media::SS:
+        case Game::Media::SS:
             return "ss";
-        case Jeu::Media::Screenshot:
+        case Game::Media::Screenshot:
             return "screenshot";
-        case Jeu::Media::Fanart:
+        case Game::Media::Fanart:
             return "fanart";
-        case Jeu::Media::Video:
+        case Game::Media::Video:
             return "video";
-        case Jeu::Media::Marquee:
+        case Game::Media::Marquee:
             return "marquee";
-        case Jeu::Media::ScreenMarquee:
+        case Game::Media::ScreenMarquee:
             return "screenmarquee";
-        case Jeu::Media::ScreenMarqueeSmall:
+        case Game::Media::ScreenMarqueeSmall:
             return "screenmarqueesmall";
-        case Jeu::Media::ThemeHs:
+        case Game::Media::ThemeHs:
             return "themehs";
-        case Jeu::Media::Manuel:
+        case Game::Media::Manuel:
             return "manuel";
-        case Jeu::Media::Flyer:
+        case Game::Media::Flyer:
             return "flyer";
-        case Jeu::Media::SteamGrid:
+        case Game::Media::SteamGrid:
             return "steamgrid";
-        case Jeu::Media::Wheel:
+        case Game::Media::Wheel:
             return "wheel";
-        case Jeu::Media::WheelHD:
+        case Game::Media::WheelHD:
             return "wheel-hd";
-        case Jeu::Media::WheelCarbon:
+        case Game::Media::WheelCarbon:
             return "wheel-carbon";
-        case Jeu::Media::WheelSteel:
+        case Game::Media::WheelSteel:
             return "wheel-steel";
-        case Jeu::Media::Box2D:
+        case Game::Media::Box2D:
             return "box-2D";
-        case Jeu::Media::Box2DSide:
+        case Game::Media::Box2DSide:
             return "box-2D-side";
-        case Jeu::Media::Box2DBack:
+        case Game::Media::Box2DBack:
             return "box-2D-back";
-        case Jeu::Media::BoxTexture:
+        case Game::Media::BoxTexture:
             return "box-texture";
-        case Jeu::Media::Box3D:
+        case Game::Media::Box3D:
             return "box-3D";
-        case Jeu::Media::BoxScan:
+        case Game::Media::BoxScan:
             return "box-scan";
-        case Jeu::Media::SupportTexture:
+        case Game::Media::SupportTexture:
             return "support-texture";
-        case Jeu::Media::Bezel43:
+        case Game::Media::Bezel43:
             return "bezel-4-3";
-        case Jeu::Media::Bezel169:
+        case Game::Media::Bezel169:
             return "bezel-16-9";
-        case Jeu::Media::Bezel1610:
+        case Game::Media::Bezel1610:
             return "bezel-16-10";
-        case Jeu::Media::Mixrbv1:
+        case Game::Media::Mixrbv1:
             return "mixrbv1";
-        case Jeu::Media::Mixrbv2:
+        case Game::Media::Mixrbv2:
             return "mixrbv2";
-        case Jeu::Media::Pictoliste:
+        case Game::Media::Pictoliste:
             return "pictoliste";
-        case Jeu::Media::Pictocouleur:
+        case Game::Media::Pictocouleur:
             return "pictocouleur";
-        case Jeu::Media::Pictomonochrome:
+        case Game::Media::Pictomonochrome:
             return "pictomonochrome";
     }
     return "";
 }
 
-std::string Api::regionToString(const Api::Region &region) {
+std::string Api::countryToString(const Api::Country &region) {
     switch (region) {
         case DE:
             return "de";

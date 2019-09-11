@@ -10,28 +10,28 @@
 
 namespace ss_api {
 
-    class Jeu {
+    class Game {
 
     public:
 
-        struct Nom {
-            std::string region;
+        struct Name {
+            std::string country;
             std::string text;
         };
 
-        struct Editeur {
+        struct Editor {
             std::string id;
             std::string text;
 
         };
 
-        struct Developpeur {
+        struct Developer {
             std::string id;
             std::string text;
         };
 
         struct Synopsis {
-            std::string langue;
+            std::string language;
             std::string text;
         };
 
@@ -41,30 +41,30 @@ namespace ss_api {
         };
 
         struct Date {
-            std::string region;
+            std::string country;
             std::string text;
         };
 
         struct Genre {
-            struct Nom {
-                std::string langue;
+            struct Name {
+                std::string language;
                 std::string text;
             };
             std::string id;
-            std::string principale;
+            std::string main;
             std::string parentid;
-            std::vector<Genre::Nom> noms;
+            std::vector<Genre::Name> names;
         };
 
-        struct Famille {
-            struct Nom {
-                std::string langue;
+        struct Family {
+            struct Name {
+                std::string language;
                 std::string text;
             };
             std::string id;
-            std::string principale;
+            std::string main;
             std::string parentid;
-            std::vector<Famille::Nom> noms;
+            std::vector<Family::Name> names;
         };
 
         struct Media {
@@ -79,7 +79,7 @@ namespace ss_api {
             std::string type;
             std::string parent;
             std::string url;
-            std::string region;
+            std::string country;
             std::string crc;
             std::string md5;
             std::string sha1;
@@ -90,25 +90,25 @@ namespace ss_api {
         std::string id;
         std::string romid;
         std::string notgame;
-        std::vector<Nom> noms;
-        std::vector<std::string> regions;
+        std::vector<Name> names;
+        std::vector<std::string> countries;
         std::string cloneof;
         std::string systemeid;
-        std::string systemenom;
-        Editeur editeur;
-        Developpeur developpeur;
-        std::string joueurs;
-        std::string note;
+        std::string systemename;
+        Editor editor;
+        Developer developer;
+        std::string players;
+        std::string rating;
         std::string topstaff;
         std::string rotation;
         std::string resolution;
-        std::string controles;
-        std::string couleurs;
+        std::string inputs;
+        std::string colors;
         std::vector<Synopsis> synopsis;
         std::vector<Classification> classifications;
         std::vector<Date> dates;
         std::vector<Genre> genres;
-        std::vector<Famille> familles;
+        std::vector<Family> families;
         std::vector<Media> medias;
     };
 }
