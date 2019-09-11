@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <tinyxml2.h>
-#include "ss_jeu.h"
+#include "ss_game.h"
 
 namespace ss_api {
 

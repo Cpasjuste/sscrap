@@ -3,7 +3,6 @@
 //
 
 #include <cstring>
-#include <algorithm>
 #include "ss_api.h"
 
 using namespace ss_api;
@@ -422,7 +421,8 @@ std::string Api::getJsonString(json_object *root, const std::string &key) {
     return "";
 }
 
-std::vector<Game::Media> Api::getMedia(const Game &game, const Game::Media::Type &type, const Country &country) {
+/*
+std::vector<Game::Media> Api::getMedia(const Game &game, const Game::Media::Type::Type &type, const Country &country) {
 
     std::vector<Game::Media> medias;
 
@@ -434,6 +434,7 @@ std::vector<Game::Media> Api::getMedia(const Game &game, const Game::Media::Type
 
     return medias;
 }
+*/
 
 int Api::download(const Game::Media &media, const std::string &dstPath) {
 
@@ -483,155 +484,155 @@ bool Api::GameSearch::save(const std::string &dstPath) {
 
 std::string Api::mediaTypeToString(const Game::Media::Type &type) {
     switch (type) {
-        case Game::Media::SSTitle:
+        case Game::Media::Type::SSTitle:
             return "sstitle";
-        case Game::Media::SS:
+        case Game::Media::Type::SS:
             return "ss";
-        case Game::Media::Screenshot:
+        case Game::Media::Type::Screenshot:
             return "screenshot";
-        case Game::Media::Fanart:
+        case Game::Media::Type::Fanart:
             return "fanart";
-        case Game::Media::Video:
+        case Game::Media::Type::Video:
             return "video";
-        case Game::Media::Marquee:
+        case Game::Media::Type::Marquee:
             return "marquee";
-        case Game::Media::ScreenMarquee:
+        case Game::Media::Type::ScreenMarquee:
             return "screenmarquee";
-        case Game::Media::ScreenMarqueeSmall:
+        case Game::Media::Type::ScreenMarqueeSmall:
             return "screenmarqueesmall";
-        case Game::Media::ThemeHs:
+        case Game::Media::Type::ThemeHs:
             return "themehs";
-        case Game::Media::Manuel:
+        case Game::Media::Type::Manuel:
             return "manuel";
-        case Game::Media::Flyer:
+        case Game::Media::Type::Flyer:
             return "flyer";
-        case Game::Media::SteamGrid:
+        case Game::Media::Type::SteamGrid:
             return "steamgrid";
-        case Game::Media::Wheel:
+        case Game::Media::Type::Wheel:
             return "wheel";
-        case Game::Media::WheelHD:
+        case Game::Media::Type::WheelHD:
             return "wheel-hd";
-        case Game::Media::WheelCarbon:
+        case Game::Media::Type::WheelCarbon:
             return "wheel-carbon";
-        case Game::Media::WheelSteel:
+        case Game::Media::Type::WheelSteel:
             return "wheel-steel";
-        case Game::Media::Box2D:
+        case Game::Media::Type::Box2D:
             return "box-2D";
-        case Game::Media::Box2DSide:
+        case Game::Media::Type::Box2DSide:
             return "box-2D-side";
-        case Game::Media::Box2DBack:
+        case Game::Media::Type::Box2DBack:
             return "box-2D-back";
-        case Game::Media::BoxTexture:
+        case Game::Media::Type::BoxTexture:
             return "box-texture";
-        case Game::Media::Box3D:
+        case Game::Media::Type::Box3D:
             return "box-3D";
-        case Game::Media::BoxScan:
+        case Game::Media::Type::BoxScan:
             return "box-scan";
-        case Game::Media::SupportTexture:
+        case Game::Media::Type::SupportTexture:
             return "support-texture";
-        case Game::Media::Bezel43:
+        case Game::Media::Type::Bezel43:
             return "bezel-4-3";
-        case Game::Media::Bezel169:
+        case Game::Media::Type::Bezel169:
             return "bezel-16-9";
-        case Game::Media::Bezel1610:
+        case Game::Media::Type::Bezel1610:
             return "bezel-16-10";
-        case Game::Media::Mixrbv1:
+        case Game::Media::Type::Mixrbv1:
             return "mixrbv1";
-        case Game::Media::Mixrbv2:
+        case Game::Media::Type::Mixrbv2:
             return "mixrbv2";
-        case Game::Media::Pictoliste:
+        case Game::Media::Type::Pictoliste:
             return "pictoliste";
-        case Game::Media::Pictocouleur:
+        case Game::Media::Type::Pictocouleur:
             return "pictocouleur";
-        case Game::Media::Pictomonochrome:
+        case Game::Media::Type::Pictomonochrome:
             return "pictomonochrome";
     }
     return "";
 }
 
-std::string Api::countryToString(const Api::Country &region) {
+std::string Api::countryToString(const Game::Country &region) {
     switch (region) {
-        case DE:
+        case Game::Country::DE:
             return "de";
-        case ASI:
+        case Game::Country::ASI:
             return "asi";
-        case AU:
+        case Game::Country::AU:
             return "au";
-        case BR:
+        case Game::Country::BR:
             return "br";
-        case BG:
+        case Game::Country::BG:
             return "bg";
-        case CA:
+        case Game::Country::CA:
             return "ca";
-        case CL:
+        case Game::Country::CL:
             return "cl";
-        case CN:
+        case Game::Country::CN:
             return "cn";
-        case AME:
+        case Game::Country::AME:
             return "ame";
-        case KR:
+        case Game::Country::KR:
             return "kr";
-        case CUS:
+        case Game::Country::CUS:
             return "cus";
-        case DK:
+        case Game::Country::DK:
             return "dk";
-        case SP:
+        case Game::Country::SP:
             return "sp";
-        case EU:
+        case Game::Country::EU:
             return "eu";
-        case FI:
+        case Game::Country::FI:
             return "fi";
-        case FR:
+        case Game::Country::FR:
             return "fr";
-        case GR:
+        case Game::Country::GR:
             return "gr";
-        case HU:
+        case Game::Country::HU:
             return "hu";
-        case IL:
+        case Game::Country::IL:
             return "il";
-        case IT:
+        case Game::Country::IT:
             return "it";
-        case JP:
+        case Game::Country::JP:
             return "jp";
-        case KW:
+        case Game::Country::KW:
             return "kw";
-        case WOR:
+        case Game::Country::WOR:
             return "wor";
-        case MOR:
+        case Game::Country::MOR:
             return "mor";
-        case NO:
+        case Game::Country::NO:
             return "no";
-        case NZ:
+        case Game::Country::NZ:
             return "nz";
-        case OCE:
+        case Game::Country::OCE:
             return "oce";
-        case NL:
+        case Game::Country::NL:
             return "nl";
-        case PE:
+        case Game::Country::PE:
             return "pe";
-        case PL:
+        case Game::Country::PL:
             return "pl";
-        case PT:
+        case Game::Country::PT:
             return "pt";
-        case CZ:
+        case Game::Country::CZ:
             return "cz";
-        case UK:
+        case Game::Country::UK:
             return "uk";
-        case RU:
+        case Game::Country::RU:
             return "ru";
-        case SS:
+        case Game::Country::SS:
             return "ss";
-        case SK:
+        case Game::Country::SK:
             return "sk";
-        case SE:
+        case Game::Country::SE:
             return "se";
-        case TW:
+        case Game::Country::TW:
             return "tw";
-        case TR:
+        case Game::Country::TR:
             return "tr";
-        case US:
+        case Game::Country::US:
             return "us";
-        case ALL:
+        case Game::Country::ALL:
             return "all";
     }
     return "";

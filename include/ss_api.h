@@ -8,7 +8,7 @@
 #include <json-c/json.h>
 
 #include "ss_curl.h"
-#include "ss_jeu.h"
+#include "ss_game.h"
 #include "ss_user.h"
 
 #define SS_TIMEOUT 10
@@ -18,15 +18,6 @@ namespace ss_api {
     class Api {
 
     public:
-
-        enum Country {
-            ALL, DE, ASI, AU, BR, BG, CA, CL,
-            CN, AME, KR, CUS, DK, SP, EU,
-            FI, FR, GR, HU, IL, IT, JP,
-            KW, WOR, MOR, NO, NZ, OCE,
-            NL, PE, PL, PT, CZ, UK, RU,
-            SS, SK, SE, TW, TR, US
-        };
 
         class GameSearch {
         public:
@@ -63,12 +54,9 @@ namespace ss_api {
 
         int download(const Game::Media &media, const std::string &dstPath);
 
-        static std::vector<Game::Media> getMedia(
-                const Game &game, const Game::Media::Type &type, const Country &country = ALL);
-
         static std::string mediaTypeToString(const Game::Media::Type &type);
 
-        static std::string countryToString(const Country &country);
+        static std::string countryToString(const Game::Country &country);
 
     private:
 

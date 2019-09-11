@@ -147,19 +147,19 @@ bool GameList::load(const std::string &xmlPath) {
     std::sort(genreList.begin(), genreList.end(), sortByName);
     std::sort(playersList.begin(), playersList.end(), sortByName);
     // default lists values
-    if (!releasedateList.empty() && releasedateList.at(0) != "All") {
+    if (releasedateList.empty() || releasedateList.at(0) != "All") {
         releasedateList.insert(releasedateList.begin(), "All");
     }
-    if (!developerList.empty() && developerList.at(0) != "All") {
+    if (developerList.empty() || developerList.at(0) != "All") {
         developerList.insert(developerList.begin(), "All");
     }
-    if (!editorList.empty() && editorList.at(0) != "All") {
+    if (editorList.empty() || editorList.at(0) != "All") {
         editorList.insert(editorList.begin(), "All");
     }
-    if (!genreList.empty() && genreList.at(0) != "All") {
+    if (genreList.empty() || genreList.at(0) != "All") {
         genreList.insert(genreList.begin(), "All");
     }
-    if (!playersList.empty() && playersList.at(0) != "All") {
+    if (playersList.empty() || playersList.at(0) != "All") {
         playersList.insert(playersList.begin(), "All");
     }
 
@@ -199,20 +199,16 @@ bool GameList::save(const std::string &path) {
         gameElement->InsertEndChild(child);
         // image
         child = doc.NewElement("image");
-        if (!game.medias.empty()) {
-            std::vector<Game::Media> medias = Api::getMedia(game, Game::Media::Type::SSTitle, Api::Country::WOR);
-            if (!medias.empty()) {
-                child->SetText(medias.at(0).url.c_str());
-            }
+        Game::Media image = game.getMedia(Game::Media::Type::SS, Game::Country::WOR);
+        if (!image.url.empty()) {
+            child->SetText(image.url.c_str());
         }
         gameElement->InsertEndChild(child);
         // thumbnail
         child = doc.NewElement("thumbnail");
-        if (!game.medias.empty()) {
-            std::vector<Game::Media> medias = Api::getMedia(game, Game::Media::Type::Screenshot, Api::Country::WOR);
-            if (!medias.empty()) {
-                child->SetText(medias.at(0).url.c_str());
-            }
+        Game::Media thumbnail = game.getMedia(Game::Media::Type::Box3D, Game::Country::WOR);
+        if (!thumbnail.url.empty()) {
+            child->SetText(thumbnail.url.c_str());
         }
         gameElement->InsertEndChild(child);
         // releasedate
@@ -257,8 +253,8 @@ std::vector<Game> GameList::filter(const std::string &date, const std::string &d
     std::vector<Game> newGameList;
     /*
     std::copy_if(games.begin(), games.end(), std::back_inserter(newGameList),
-                 [date, developer, publisher, genre, players](const Jeu &game) {
-                     return (date == "All" || game.releasedate >= date)
+                 [date, developer, publisher, genre, players](const Game &game) {
+                     return (date == "All" || game.dates >= date)
                             && (developer == "All" || game.developer == developer)
                             && (publisher == "All" || game.publisher == publisher)
                             && (genre == "All" || game.genre == genre)

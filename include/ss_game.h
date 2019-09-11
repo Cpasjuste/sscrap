@@ -14,6 +14,15 @@ namespace ss_api {
 
     public:
 
+        enum class Country {
+            ALL, DE, ASI, AU, BR, BG, CA, CL,
+            CN, AME, KR, CUS, DK, SP, EU,
+            FI, FR, GR, HU, IL, IT, JP,
+            KW, WOR, MOR, NO, NZ, OCE,
+            NL, PE, PL, PT, CZ, UK, RU,
+            SS, SK, SE, TW, TR, US
+        };
+
         struct Name {
             std::string country;
             std::string text;
@@ -68,7 +77,7 @@ namespace ss_api {
         };
 
         struct Media {
-            enum Type {
+            enum class Type {
                 SSTitle, SS, Screenshot, Fanart, Video, Marquee,
                 ScreenMarquee, ScreenMarqueeSmall, ThemeHs, Manuel,
                 Flyer, SteamGrid, Wheel, WheelHD, WheelCarbon, WheelSteel,
@@ -86,6 +95,10 @@ namespace ss_api {
             std::string format;
             std::string support;
         };
+
+        Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country) const;
+
+        std::vector<Game::Media> getMedias(const Game::Media::Type &type, const Game::Country &country) const;
 
         std::string id;
         std::string romid;

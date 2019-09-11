@@ -3,6 +3,7 @@
 //
 
 #include "ss_api.h"
+#include "ss_gamelist.h"
 
 using namespace ss_api;
 
@@ -39,7 +40,19 @@ void printGame(const Game &game) {
     for (auto &famille : game.families) {
         printf("famille: %s (%s)\n", famille.names.empty() ? "N/A" : famille.names[0].text.c_str(), famille.id.c_str());
     }
-    std::vector<Game::Media> medias = Api::getMedia(game, Game::Media::Type::Mixrbv2, Api::Country::WOR);
+
+    // print some medias
+    std::vector<Game::Media> medias = game.getMedias(Game::Media::Type::SSTitle, Game::Country::WOR);
+    for (auto &media : medias) {
+        printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
+        //api->download(media, "cache/" + media.type + "_" + media.country + "." + media.format);
+    }
+    medias = game.getMedias(Game::Media::Type::SS, Game::Country::WOR);
+    for (auto &media : medias) {
+        printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
+        //api->download(media, "cache/" + media.type + "_" + media.country + "." + media.format);
+    }
+    medias = game.getMedias(Game::Media::Type::Mixrbv2, Game::Country::WOR);
     for (auto &media : medias) {
         printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
         //api->download(media, "cache/" + media.type + "_" + media.country + "." + media.format);
@@ -50,6 +63,7 @@ int main() {
 
     Api api(SS_DEV_ID, SS_DEV_PWD, "SSSCRAP");
 
+    /*
     Api::GameSearch search = api.gameSearch("sonic", "1", SS_ID, SS_PWD);
     printf("\n===================================\n");
     printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
@@ -59,6 +73,7 @@ int main() {
     for (auto &game : search.games) {
         printGame(game);
     }
+    */
 
     Api::GameInfo gameInfo = api.gameInfo("", "", "", "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
     printf("\n===================================\n");
@@ -67,6 +82,10 @@ int main() {
            gameInfo.ssuser.maxthreads.c_str());
     if (!gameInfo.game.id.empty()) {
         printGame(gameInfo.game);
+        auto gameList = new GameList();
+        gameList->games.push_back(gameInfo.game);
+        gameList->save("test.xml");
+        delete(gameList);
     } else {
         printf("jeuInfos: game not found\n");
     }

@@ -23,7 +23,7 @@ project(ssscrap)
 set(INCLUDES include)
 file(GLOB SOURCES source/*.c*)
 set(CFLAGS)
-set(LDFLAGS curl json-c z)
+set(LDFLAGS curl json-c tinyxml2 z)
 
 #####################
 # PLATORM SPECIFIC
@@ -54,7 +54,7 @@ endif ()
 #####################
 # SCREENSCRAP LIBRARY
 #####################
-add_library(${PROJECT_NAME} ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES} source/ss_game.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_compile_options(${PROJECT_NAME} PRIVATE ${CFLAGS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LDFLAGS})
