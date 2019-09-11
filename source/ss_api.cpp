@@ -321,7 +321,7 @@ Game Api::parseGame(json_object *root) {
                 for (int k = 0; k < sub_size; k++) {
                     json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
                     genre.names.push_back({getJsonString(json_sub_obj, "langue"),
-                                          getJsonString(json_sub_obj, "text")});
+                                           getJsonString(json_sub_obj, "text")});
                 }
             }
             jeu.genres.push_back(genre);
@@ -343,7 +343,7 @@ Game Api::parseGame(json_object *root) {
                 for (int k = 0; k < sub_size; k++) {
                     json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
                     famille.names.push_back({getJsonString(json_sub_obj, "langue"),
-                                            getJsonString(json_sub_obj, "text")});
+                                             getJsonString(json_sub_obj, "text")});
                 }
             }
             jeu.families.push_back(famille);
@@ -422,14 +422,14 @@ std::string Api::getJsonString(json_object *root, const std::string &key) {
     return "";
 }
 
-std::vector<Game::Media> Api::getMedia(const Game &jeu, const Game::Media::Type &type, const Country &region) {
+std::vector<Game::Media> Api::getMedia(const Game &game, const Game::Media::Type &type, const Country &country) {
 
     std::vector<Game::Media> medias;
 
-    remove_copy_if(jeu.medias.begin(), jeu.medias.end(), back_inserter(medias),
-                   [type, region](const Game::Media& media) {
+    remove_copy_if(game.medias.begin(), game.medias.end(), back_inserter(medias),
+                   [type, country](const Game::Media &media) {
                        return media.type != mediaTypeToString(type)
-                              || (region != Country::ALL && media.country != countryToString(region));
+                              || (country != Country::ALL && media.country != countryToString(country));
                    });
 
     return medias;

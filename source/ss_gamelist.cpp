@@ -8,6 +8,7 @@
 //
 
 #include <algorithm>
+#include "ss_api.h"
 #include "ss_gamelist.h"
 
 using namespace tinyxml2;
@@ -15,7 +16,6 @@ using namespace ss_api;
 
 bool GameList::load(const std::string &xmlPath) {
 
-    /*
     tinyxml2::XMLDocument doc;
 
     XMLError e = doc.LoadFile(xmlPath.c_str());
@@ -37,39 +37,39 @@ bool GameList::load(const std::string &xmlPath) {
     }
 
     while (gameNode) {
-        Jeu game;
+        Game game{};
         // parse id
         if (gameNode->ToElement()->Attribute("id")) {
             game.id = gameNode->ToElement()->Attribute("id");
         }
-        // parse romid
-        if (gameNode->ToElement()->Attribute("romid")) {
-            game.romid = gameNode->ToElement()->Attribute("romid");
+        // parse source
+        if (gameNode->ToElement()->Attribute("source")) {
+            game.source = gameNode->ToElement()->Attribute("source");
         }
-        // parse notgame
-        XMLElement *element = gameNode->FirstChildElement("notgame");
+        // parse path
+        XMLElement *element = gameNode->FirstChildElement("path");
         if (element && element->GetText()) {
-            game.notgame = element->GetText();
+            game.path = element->GetText();
         }
-        // parse names
-        element = gameNode->FirstChildElement("names");
+        // parse name
+        element = gameNode->FirstChildElement("name");
         if (element && element->GetText()) {
-            game.nom = element->GetText();
+            game.names.push_back({"wor", element->GetText()});
         }
         // parse description
         element = gameNode->FirstChildElement("desc");
         if (element && element->GetText()) {
-            game.desc = element->GetText();
+            game.synopsis.push_back({"wor", element->GetText()});
         }
         // parse image
         element = gameNode->FirstChildElement("image");
         if (element && element->GetText()) {
-            game.image = element->GetText();
+            game.medias.push_back({"sstitle", "", element->GetText(), "wor", "", "", "", "", ""});
         }
         // parse thumbnail
         element = gameNode->FirstChildElement("thumbnail");
         if (element && element->GetText()) {
-            game.thumbnail = element->GetText();
+            game.medias.push_back({"screenshot", "", element->GetText(), "wor", "", "", "", "", ""});
         }
         // parse rating
         element = gameNode->FirstChildElement("rating");
@@ -83,41 +83,43 @@ bool GameList::load(const std::string &xmlPath) {
         // parse release date
         element = gameNode->FirstChildElement("releasedate");
         if (element && element->GetText()) {
-            game.releasedate = element->GetText();
+            Game::Date date{"wor", element->GetText()};
+            game.dates.emplace_back(date);
             // add release date (year for now) to releasedateList for later filtering
-            auto p = std::find(releasedateList.begin(), releasedateList.end(), game.releasedate);
+            auto p = std::find(releasedateList.begin(), releasedateList.end(), date.text);
             if (p == releasedateList.end()) {
-                releasedateList.emplace_back(game.releasedate);
+                releasedateList.emplace_back(date.text);
             }
         }
         // parse developer
         element = gameNode->FirstChildElement("developer");
         if (element && element->GetText()) {
-            game.developer = element->GetText();
+            game.developer.text = element->GetText();
             // add developer to developerList for later filtering
-            auto p = std::find(developerList.begin(), developerList.end(), game.developer);
+            auto p = std::find(developerList.begin(), developerList.end(), game.developer.text);
             if (p == developerList.end()) {
-                developerList.emplace_back(game.developer);
+                developerList.emplace_back(game.developer.text);
             }
         }
-        // parse publisher
+        // parse editor
         element = gameNode->FirstChildElement("publisher");
         if (element && element->GetText()) {
-            game.publisher = element->GetText();
-            // add publisher to publisherList for later filtering
-            auto p = std::find(publisherList.begin(), publisherList.end(), game.publisher);
-            if (p == publisherList.end()) {
-                publisherList.emplace_back(game.publisher);
+            game.editor.text = element->GetText();
+            // add editor to editorList for later filtering
+            auto p = std::find(editorList.begin(), editorList.end(), game.editor.text);
+            if (p == editorList.end()) {
+                editorList.emplace_back(game.editor.text);
             }
         }
         // parse genre
         element = gameNode->FirstChildElement("genre");
         if (element && element->GetText()) {
-            game.genre = element->GetText();
+            Game::Genre genre{"", element->GetText(), "", std::vector<Game::Genre::Name>()};
+            game.genres.emplace_back(genre);
             // add genre to genreList for later filtering
-            auto p = std::find(genreList.begin(), genreList.end(), game.genre);
+            auto p = std::find(genreList.begin(), genreList.end(), genre.main);
             if (p == genreList.end()) {
-                genreList.emplace_back(game.genre);
+                genreList.emplace_back(genre.main);
             }
         }
         // parse players
@@ -141,23 +143,31 @@ bool GameList::load(const std::string &xmlPath) {
     // sort lists
     std::sort(releasedateList.begin(), releasedateList.end(), sortByName);
     std::sort(developerList.begin(), developerList.end(), sortByName);
-    std::sort(publisherList.begin(), publisherList.end(), sortByName);
+    std::sort(editorList.begin(), editorList.end(), sortByName);
     std::sort(genreList.begin(), genreList.end(), sortByName);
     std::sort(playersList.begin(), playersList.end(), sortByName);
     // default lists values
-    releasedateList.insert(releasedateList.begin(), "All");
-    developerList.insert(developerList.begin(), "All");
-    publisherList.insert(publisherList.begin(), "All");
-    genreList.insert(genreList.begin(), "All");
-    playersList.insert(playersList.begin(), "All");
+    if (!releasedateList.empty() && releasedateList.at(0) != "All") {
+        releasedateList.insert(releasedateList.begin(), "All");
+    }
+    if (!developerList.empty() && developerList.at(0) != "All") {
+        developerList.insert(developerList.begin(), "All");
+    }
+    if (!editorList.empty() && editorList.at(0) != "All") {
+        editorList.insert(editorList.begin(), "All");
+    }
+    if (!genreList.empty() && genreList.at(0) != "All") {
+        genreList.insert(genreList.begin(), "All");
+    }
+    if (!playersList.empty() && playersList.at(0) != "All") {
+        playersList.insert(playersList.begin(), "All");
+    }
 
-     */
     return true;
 }
 
 bool GameList::save(const std::string &path) {
 
-    /*
     XMLDocument doc;
 
     XMLDeclaration *dec = doc.NewDeclaration();
@@ -177,35 +187,53 @@ bool GameList::save(const std::string &path) {
         gameElement->InsertEndChild(child);
         // name
         child = doc.NewElement("name");
-        child->SetText(game.name.c_str());
+        if (!game.names.empty()) {
+            child->SetText(game.names.at(0).text.c_str());
+        }
         gameElement->InsertEndChild(child);
         // desc
         child = doc.NewElement("desc");
-        child->SetText(game.desc.c_str());
+        if (!game.synopsis.empty()) {
+            child->SetText(game.synopsis.at(0).text.c_str());
+        }
         gameElement->InsertEndChild(child);
         // image
         child = doc.NewElement("image");
-        child->SetText(game.image.c_str());
+        if (!game.medias.empty()) {
+            std::vector<Game::Media> medias = Api::getMedia(game, Game::Media::Type::SSTitle, Api::Country::WOR);
+            if (!medias.empty()) {
+                child->SetText(medias.at(0).url.c_str());
+            }
+        }
         gameElement->InsertEndChild(child);
         // thumbnail
         child = doc.NewElement("thumbnail");
-        child->SetText(game.thumbnail.c_str());
+        if (!game.medias.empty()) {
+            std::vector<Game::Media> medias = Api::getMedia(game, Game::Media::Type::Screenshot, Api::Country::WOR);
+            if (!medias.empty()) {
+                child->SetText(medias.at(0).url.c_str());
+            }
+        }
         gameElement->InsertEndChild(child);
         // releasedate
         child = doc.NewElement("releasedate");
-        child->SetText(game.releasedate.c_str());
+        if (!game.dates.empty()) {
+            child->SetText(game.dates.at(0).text.c_str());
+        }
         gameElement->InsertEndChild(child);
         // developer
         child = doc.NewElement("developer");
-        child->SetText(game.developer.c_str());
+        child->SetText(game.developer.text.c_str());
         gameElement->InsertEndChild(child);
         // publisher
         child = doc.NewElement("publisher");
-        child->SetText(game.publisher.c_str());
+        child->SetText(game.editor.text.c_str());
         gameElement->InsertEndChild(child);
         // genre
         child = doc.NewElement("genre");
-        child->SetText(game.genre.c_str());
+        if (!game.genres.empty()) {
+            child->SetText(game.genres.at(0).main.c_str());
+        }
         gameElement->InsertEndChild(child);
         // players
         child = doc.NewElement("players");
@@ -220,7 +248,7 @@ bool GameList::save(const std::string &path) {
         printf("GameList::save: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         return false;
     }
-    */
+
     return true;
 }
 
@@ -238,6 +266,10 @@ std::vector<Game> GameList::filter(const std::string &date, const std::string &d
                  });
     */
     return newGameList;
+}
+
+void GameList::clear() {
+    games.clear();
 }
 
 bool GameList::sortByName(const std::string &g1, const std::string &g2) {

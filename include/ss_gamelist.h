@@ -15,23 +15,27 @@ namespace ss_api {
     class GameList {
 
     public:
+
         explicit GameList() = default;
 
         bool load(const std::string &xmlPath);
 
         bool save(const std::string &xmlPath);
 
+
+        void clear();
+
         std::vector<Game> filter(const std::string &date = "All", const std::string &developer = "All",
                                  const std::string &publisher = "All", const std::string &genre = "All",
                                  const std::string &players = "All");
 
-        std::vector<std::string> romsPaths;
         std::vector<Game> games;
         std::vector<std::string> releasedateList;
         std::vector<std::string> developerList;
-        std::vector<std::string> publisherList;
+        std::vector<std::string> editorList;
         std::vector<std::string> genreList;
         std::vector<std::string> playersList;
+        std::vector<std::string> romsPaths;
 
     private:
 
