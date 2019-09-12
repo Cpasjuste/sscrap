@@ -4,6 +4,10 @@
 
 #include "ss_api.h"
 #include "ss_gamelist.h"
+#include "args.h"
+
+#define KRED "\x1B[31m"
+#define KRAS "\033[0m"
 
 using namespace ss_api;
 
@@ -45,34 +49,60 @@ void printGame(const Game &game) {
     //api->download(media, "cache/" + media.type + "_" + media.country + "." + media.format);
 }
 
-int main() {
+int main(int argc, char **argv) {
 
-    Api api(SS_DEV_ID, SS_DEV_PWD, "SSSCRAP");
+    // default values
+    std::string user;
+    std::string pwd;
+    Game::Language language = Game::Language::EN;
+    ArgumentParser args(argc, argv);
 
-    Api::GameSearch search = api.gameSearch("sonic", "1", SS_ID, SS_PWD);
-    printf("\n===================================\n");
-    printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
-           search.ssuser.id.c_str(), search.ssuser.maxrequestsperday.c_str(),
-           search.ssuser.maxthreads.c_str());
-    printf("games found: %li\n", search.games.size());
-    for (auto &game : search.games) {
-        printGame(game);
+    user = args.get("-u");
+    pwd = args.get("-p");
+    if (args.exist("-l")) {
+        language = Api::toLanguage(args.get("-l"));
+        if (language == Game::Language::UNKNOWN) {
+            fprintf(stderr, KRED "ERROR: language not found: %s, available languages: en, fr, es, pt\n" KRAS,
+                    args.get("-l").c_str());
+            return -1;
+        }
+        printf("language: %s\n", Api::toString(language).c_str());
     }
 
-    Api::GameInfo gameInfo = api.gameInfo("", "", "", "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
-    printf("\n===================================\n");
-    printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
-           gameInfo.ssuser.id.c_str(), gameInfo.ssuser.maxrequestsperday.c_str(),
-           gameInfo.ssuser.maxthreads.c_str());
-    if (!gameInfo.game.id.empty()) {
-        printGame(gameInfo.game);
-        // save game list as xml (emulationstation + pFBA compatibility)
-        auto gameList = new GameList();
-        gameList->games.push_back(gameInfo.game);
-        gameList->save("test.xml");
-        delete (gameList);
+    // ok, continue..
+    Api api(SS_DEV_ID, SS_DEV_PWD, "sscrap");
+
+    if (args.exist("-gameinfo")) {
+        //Api::GameInfo gameInfo = api.gameInfo(crc, md5, sha1, "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
+        Api::GameInfo gameInfo = api.gameInfo(args.get("-crc"), args.get("-md5"), args.get("-sha1"),
+                                              args.get("-systemid"), args.get("-romtype"), args.get("-romname"),
+                                              args.get("-romsize"), args.get("-gameid"), user, pwd);
+        printf("\n===================================\n");
+        printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
+               gameInfo.ssuser.id.c_str(), gameInfo.ssuser.maxrequestsperday.c_str(),
+               gameInfo.ssuser.maxthreads.c_str());
+        if (!gameInfo.game.id.empty()) {
+            printGame(gameInfo.game);
+            // save game list as xml (emulationstation + pFBA compatibility)
+            //auto gameList = new GameList();
+            //gameList->games.push_back(gameInfo.game);
+            //gameList->save("test.xml");
+            //delete (gameList);
+        } else {
+            printf("gameInfo: game not found\n");
+        }
+    } else if (args.exist("-gamesearch")) {
+        Api::GameSearch search = api.gameSearch(args.get("-gamename"), args.get("-systemid"), user, pwd);
+        printf("\n===================================\n");
+        printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
+               search.ssuser.id.c_str(), search.ssuser.maxrequestsperday.c_str(),
+               search.ssuser.maxthreads.c_str());
+        printf("games found: %li\n", search.games.size());
+        for (auto &game : search.games) {
+            printGame(game);
+        }
     } else {
-        printf("jeuInfos: game not found\n");
+        fprintf(stderr, KRED "TODO: PRINT HELP\n" KRAS);
     }
 
     return 0;

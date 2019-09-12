@@ -21,6 +21,7 @@ Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string 
     long code = 0;
     std::string search = curl.escape(recherche);
     std::string soft = curl.escape(softname);
+    printf("gameSearch: id = %s\n", systemeid.c_str());
 
     std::string url = "https://www.screenscraper.fr/api2/jeuRecherche.php?devid="
                       + devid + "&devpassword=" + devpassword + "&softname=" + soft + "&output=json"
@@ -483,7 +484,7 @@ bool Api::GameSearch::save(const std::string &dstPath) {
     return true;
 }
 
-std::string Api::mediaTypeToString(const Game::Media::Type &type) {
+std::string Api::toString(const Game::Media::Type &type) {
     switch (type) {
         case Game::Media::Type::SSTitle:
             return "sstitle";
@@ -547,11 +548,12 @@ std::string Api::mediaTypeToString(const Game::Media::Type &type) {
             return "pictocouleur";
         case Game::Media::Type::Pictomonochrome:
             return "pictomonochrome";
+        default:
+            return "unknown";
     }
-    return "";
 }
 
-std::string Api::languageToString(const Game::Language &language) {
+std::string Api::toString(const Game::Language &language) {
     switch (language) {
         case Game::Language::EN:
             return "en";
@@ -561,10 +563,12 @@ std::string Api::languageToString(const Game::Language &language) {
             return "es";
         case Game::Language::PT:
             return "pt";
+        default:
+            return "unknown";
     }
 }
 
-std::string Api::countryToString(const Game::Country &region) {
+std::string Api::toString(const Game::Country &region) {
     switch (region) {
         case Game::Country::DE:
             return "de";
@@ -648,5 +652,99 @@ std::string Api::countryToString(const Game::Country &region) {
             return "us";
         case Game::Country::ALL:
             return "all";
+        default:
+            return "unknown";
     }
+}
+
+Game::Media::Type Api::toMedia(const std::string &type) {
+
+    if (type == "sstitle") { return Game::Media::Type::SSTitle; }
+    else if (type == "ss") { return Game::Media::Type::SS; }
+    else if (type == "screenshot") { return Game::Media::Type::Screenshot; }
+    else if (type == "fanart") { return Game::Media::Type::Fanart; }
+    else if (type == "video") { return Game::Media::Type::Video; }
+    else if (type == "marquee") { return Game::Media::Type::Marquee; }
+    else if (type == "screenmarquee") { return Game::Media::Type::ScreenMarquee; }
+    else if (type == "screenmarqueesmall") { return Game::Media::Type::ScreenMarqueeSmall; }
+    else if (type == "themehs") { return Game::Media::Type::ThemeHs; }
+    else if (type == "manuel") { return Game::Media::Type::Manuel; }
+    else if (type == "flyer") { return Game::Media::Type::Flyer; }
+    else if (type == "steamgrid") { return Game::Media::Type::SteamGrid; }
+    else if (type == "wheel") { return Game::Media::Type::Wheel; }
+    else if (type == "wheel-hd") { return Game::Media::Type::WheelHD; }
+    else if (type == "wheel-carbon") { return Game::Media::Type::WheelCarbon; }
+    else if (type == "wheel-steel") { return Game::Media::Type::WheelSteel; }
+    else if (type == "box-2D") { return Game::Media::Type::Box2D; }
+    else if (type == "box-2D-side") { return Game::Media::Type::Box2DSide; }
+    else if (type == "box-2D-back") { return Game::Media::Type::Box2DBack; }
+    else if (type == "box-texture") { return Game::Media::Type::BoxTexture; }
+    else if (type == "box-2D-side") { return Game::Media::Type::Box2DSide; }
+    else if (type == "box-3D") { return Game::Media::Type::Box3D; }
+    else if (type == "box-scan") { return Game::Media::Type::BoxScan; }
+    else if (type == "support-texture") { return Game::Media::Type::SupportTexture; }
+    else if (type == "box-2D-side") { return Game::Media::Type::Box2DSide; }
+    else if (type == "bezel-4-3") { return Game::Media::Type::Bezel43; }
+    else if (type == "bezel-16-9") { return Game::Media::Type::Bezel169; }
+    else if (type == "bezel-16-10") { return Game::Media::Type::Bezel1610; }
+    else if (type == "mixrbv1") { return Game::Media::Type::Mixrbv1; }
+    else if (type == "mixrbv2") { return Game::Media::Type::Mixrbv2; }
+    else if (type == "pictoliste") { return Game::Media::Type::Pictoliste; }
+    else if (type == "pictocouleur") { return Game::Media::Type::Pictocouleur; }
+    else if (type == "pictomonochrome") { return Game::Media::Type::Pictomonochrome; }
+    else { return Game::Media::Type::Unknow; }
+}
+
+Game::Country Api::toCountry(const std::string &country) {
+    if (country == "de") { return Game::Country::US; }
+    else if (country == "asi") { return Game::Country::ASI; }
+    else if (country == "au") { return Game::Country::AU; }
+    else if (country == "br") { return Game::Country::BR; }
+    else if (country == "bg") { return Game::Country::BG; }
+    else if (country == "ca") { return Game::Country::CA; }
+    else if (country == "cl") { return Game::Country::CL; }
+    else if (country == "cn") { return Game::Country::CN; }
+    else if (country == "ame") { return Game::Country::AME; }
+    else if (country == "kr") { return Game::Country::KR; }
+    else if (country == "cus") { return Game::Country::CUS; }
+    else if (country == "dk") { return Game::Country::DK; }
+    else if (country == "sp") { return Game::Country::SP; }
+    else if (country == "eu") { return Game::Country::EU; }
+    else if (country == "fi") { return Game::Country::FI; }
+    else if (country == "fr") { return Game::Country::FR; }
+    else if (country == "gr") { return Game::Country::GR; }
+    else if (country == "hu") { return Game::Country::HU; }
+    else if (country == "il") { return Game::Country::IL; }
+    else if (country == "it") { return Game::Country::IL; }
+    else if (country == "jp") { return Game::Country::JP; }
+    else if (country == "kw") { return Game::Country::KW; }
+    else if (country == "wor") { return Game::Country::WOR; }
+    else if (country == "mor") { return Game::Country::MOR; }
+    else if (country == "no") { return Game::Country::NO; }
+    else if (country == "nz") { return Game::Country::NZ; }
+    else if (country == "oce") { return Game::Country::OCE; }
+    else if (country == "nl") { return Game::Country::NL; }
+    else if (country == "pe") { return Game::Country::PE; }
+    else if (country == "pl") { return Game::Country::PL; }
+    else if (country == "pt") { return Game::Country::PT; }
+    else if (country == "cz") { return Game::Country::CZ; }
+    else if (country == "uk") { return Game::Country::UK; }
+    else if (country == "ru") { return Game::Country::RU; }
+    else if (country == "ss") { return Game::Country::SS; }
+    else if (country == "sk") { return Game::Country::SK; }
+    else if (country == "se") { return Game::Country::SE; }
+    else if (country == "tw") { return Game::Country::TW; }
+    else if (country == "tr") { return Game::Country::TR; }
+    else if (country == "us") { return Game::Country::US; }
+    else if (country == "all") { return Game::Country::ALL; }
+    else return Game::Country::UNKNOWN;
+}
+
+Game::Language Api::toLanguage(const std::string &language) {
+    if (language == "en") { return Game::Language::EN; }
+    else if (language == "fr") { return Game::Language::FR; }
+    else if (language == "es") { return Game::Language::ES; }
+    else if (language == "pt") { return Game::Language::PT; }
+    else if (language == "all") { return Game::Language::ALL; }
+    else return Game::Language::UNKNOWN;
 }

@@ -15,7 +15,7 @@ Game::Name Game::getName(const Game::Country &country) const {
 
     remove_copy_if(names.begin(), names.end(), back_inserter(list),
                    [country](const Game::Name &name) {
-                       return country != Country::ALL && name.country != Api::countryToString(country);
+                       return country != Country::ALL && name.country != Api::toString(country);
                    });
 
     if (list.empty()) {
@@ -36,7 +36,7 @@ Game::Synopsis Game::getSynopsis(const Game::Language &language) const {
 
     copy_if(synopses.begin(), synopses.end(), back_inserter(list),
             [language](const Game::Synopsis &p) {
-                return p.language == Api::languageToString(language);
+                return p.language == Api::toString(language);
             });
 
     if (list.empty()) {
@@ -57,7 +57,7 @@ Game::Date Game::getDate(const Game::Country &country) const {
 
     copy_if(dates.begin(), dates.end(), back_inserter(list),
             [country](const Game::Date &p) {
-                return p.country == Api::countryToString(country);
+                return p.country == Api::toString(country);
             });
 
     if (list.empty()) {
@@ -76,7 +76,7 @@ Game::Genre::Name Game::getGenre(const Game::Language &language) const {
 
     for (const auto &genre : genres) {
         for (const auto &name : genre.names) {
-            if (name.language == Api::languageToString(language)) {
+            if (name.language == Api::toString(language)) {
                 return name;
             }
         }
@@ -97,8 +97,8 @@ Game::Media Game::getMedia(const Game::Media::Type &type, const Game::Country &c
 
     remove_copy_if(medias.begin(), medias.end(), back_inserter(mediaList),
                    [type, country](const Game::Media &media) {
-                       return media.type != Api::mediaTypeToString(type)
-                              || (country != Country::ALL && media.country != Api::countryToString(country));
+                       return media.type != Api::toString(type)
+                              || (country != Country::ALL && media.country != Api::toString(country));
                    });
 
     if (mediaList.empty()) {

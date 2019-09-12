@@ -20,11 +20,13 @@ namespace ss_api {
             FI, FR, GR, HU, IL, IT, JP,
             KW, WOR, MOR, NO, NZ, OCE,
             NL, PE, PL, PT, CZ, UK, RU,
-            SS, SK, SE, TW, TR, US
+            SS, SK, SE, TW, TR, US,
+            UNKNOWN
         };
 
         enum class Language {
-            EN, FR, ES, PT
+            EN, FR, ES, PT,
+            ALL, UNKNOWN
         };
 
         struct Name {
@@ -87,7 +89,8 @@ namespace ss_api {
                 Flyer, SteamGrid, Wheel, WheelHD, WheelCarbon, WheelSteel,
                 Box2D, Box2DSide, Box2DBack, BoxTexture, Box3D, BoxScan,
                 SupportTexture, Bezel43, Bezel169, Bezel1610, Mixrbv1, Mixrbv2,
-                Pictoliste, Pictocouleur, Pictomonochrome
+                Pictoliste, Pictocouleur, Pictomonochrome,
+                Unknow
             };
             std::string type;
             std::string parent;

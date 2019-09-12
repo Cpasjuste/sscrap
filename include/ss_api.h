@@ -54,11 +54,17 @@ namespace ss_api {
 
         int download(const Game::Media &media, const std::string &dstPath);
 
-        static std::string mediaTypeToString(const Game::Media::Type &type);
+        static std::string toString(const Game::Media::Type &type);
 
-        static std::string countryToString(const Game::Country &country);
+        static std::string toString(const Game::Country &country);
 
-        static std::string languageToString(const Game::Language &language);
+        static std::string toString(const Game::Language &language);
+
+        static Game::Media::Type toMedia(const std::string &type);
+
+        static Game::Country toCountry(const std::string &country);
+
+        static Game::Language toLanguage(const std::string &language);
 
     private:
 
