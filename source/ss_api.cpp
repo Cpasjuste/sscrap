@@ -21,7 +21,6 @@ Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string 
     long code = 0;
     std::string search = curl.escape(recherche);
     std::string soft = curl.escape(softname);
-    printf("gameSearch: id = %s\n", systemeid.c_str());
 
     std::string url = "https://www.screenscraper.fr/api2/jeuRecherche.php?devid="
                       + devid + "&devpassword=" + devpassword + "&softname=" + soft + "&output=json"
