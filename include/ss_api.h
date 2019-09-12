@@ -58,6 +58,8 @@ namespace ss_api {
 
         static std::string countryToString(const Game::Country &country);
 
+        static std::string languageToString(const Game::Language &language);
+
     private:
 
         static GameInfo parseGameInfo(const std::string &jsonData);

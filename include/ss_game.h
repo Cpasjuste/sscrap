@@ -23,6 +23,10 @@ namespace ss_api {
             SS, SK, SE, TW, TR, US
         };
 
+        enum class Language {
+            EN, FR, ES, PT
+        };
+
         struct Name {
             std::string country;
             std::string text;
@@ -96,9 +100,21 @@ namespace ss_api {
             std::string support;
         };
 
-        Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country) const;
+        Game::Name getName(const Game::Country &country) const;
 
-        std::vector<Game::Media> getMedias(const Game::Media::Type &type, const Game::Country &country) const;
+        Game::Synopsis getSynopsis(const Game::Language &language) const;
+
+        // TODO: to lazy for now
+        //Game::Classification getClassification(const Game::Country &country) const;
+
+        Game::Date getDate(const Game::Country &country) const;
+
+        Game::Genre::Name getGenre(const Game::Language &language) const;
+
+        // TODO: to lazy for now
+        //Game::Family::Name getFamily(const Game::Language &language) const;
+
+        Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country) const;
 
         std::string id;
         std::string romid;
@@ -117,7 +133,7 @@ namespace ss_api {
         std::string resolution;
         std::string inputs;
         std::string colors;
-        std::vector<Synopsis> synopsis;
+        std::vector<Synopsis> synopses;
         std::vector<Classification> classifications;
         std::vector<Date> dates;
         std::vector<Genre> genres;

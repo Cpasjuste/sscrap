@@ -233,57 +233,58 @@ Api::GameInfo Api::parseGameInfo(const std::string &jsonData) {
 
 Game Api::parseGame(json_object *root) {
 
-    Game jeu;
+    Game game;
     json_object *array;
 
-    jeu.id = getJsonString(root, "id");
-    jeu.romid = getJsonString(root, "romid");
-    jeu.notgame = getJsonString(root, "notgame");
+    game.source = "screenscraper.fr";
+    game.id = getJsonString(root, "id");
+    game.romid = getJsonString(root, "romid");
+    game.notgame = getJsonString(root, "notgame");
     // parse names array
     array = getJsonObject(root, "noms");
     if (array) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
             json_object *json_obj = json_object_array_get_idx(array, j);
-            jeu.names.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
+            game.names.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
         }
     }
     // parse region array
     std::string region = getJsonString(getJsonObject(root, "regions"), "shortname");
     if (!region.empty()) {
-        jeu.countries.push_back(region);
+        game.countries.push_back(region);
     } else {
         array = getJsonObject(root, "regions");
         if (array) {
             int size = json_object_array_length(array);
             for (int j = 0; j < size; j++) {
                 json_object *json_obj = json_object_array_get_idx(array, j);
-                jeu.countries.push_back(getJsonString(json_obj, "shortname"));
+                game.countries.push_back(getJsonString(json_obj, "shortname"));
             }
         }
     }
-    jeu.cloneof = getJsonString(root, "cloneof");
-    jeu.systemeid = getJsonString(root, "systemeid");
-    jeu.systemename = getJsonString(root, "systemenom");
+    game.cloneof = getJsonString(root, "cloneof");
+    game.systemeid = getJsonString(root, "systemeid");
+    game.systemename = getJsonString(root, "systemenom");
     // parse editor object
-    jeu.editor.id = getJsonString(getJsonObject(root, "editeur"), "id");
-    jeu.editor.text = getJsonString(getJsonObject(root, "editeur"), "text");
-    jeu.developer.id = getJsonString(getJsonObject(root, "developpeur"), "id");
-    jeu.developer.text = getJsonString(getJsonObject(root, "developpeur"), "text");
-    jeu.players = getJsonString(getJsonObject(root, "joueurs"), "text");
-    jeu.rating = getJsonString(getJsonObject(root, "note"), "text");
-    jeu.topstaff = getJsonString(root, "topstaff");
-    jeu.rotation = getJsonString(root, "rotation");
-    jeu.resolution = getJsonString(root, "resolution");
-    jeu.inputs = getJsonString(root, "controles");
-    jeu.colors = getJsonString(root, "couleurs");
+    game.editor.id = getJsonString(getJsonObject(root, "editeur"), "id");
+    game.editor.text = getJsonString(getJsonObject(root, "editeur"), "text");
+    game.developer.id = getJsonString(getJsonObject(root, "developpeur"), "id");
+    game.developer.text = getJsonString(getJsonObject(root, "developpeur"), "text");
+    game.players = getJsonString(getJsonObject(root, "joueurs"), "text");
+    game.rating = getJsonString(getJsonObject(root, "note"), "text");
+    game.topstaff = getJsonString(root, "topstaff");
+    game.rotation = getJsonString(root, "rotation");
+    game.resolution = getJsonString(root, "resolution");
+    game.inputs = getJsonString(root, "controles");
+    game.colors = getJsonString(root, "couleurs");
     // parse synopsis array
     array = getJsonObject(root, "synopsis");
     if (array) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
             json_object *json_syn = json_object_array_get_idx(array, j);
-            jeu.synopsis.push_back({getJsonString(json_syn, "langue"), getJsonString(json_syn, "text")});
+            game.synopses.push_back({getJsonString(json_syn, "langue"), getJsonString(json_syn, "text")});
         }
     }
     // parse classification array
@@ -292,7 +293,7 @@ Game Api::parseGame(json_object *root) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
             json_object *json_obj = json_object_array_get_idx(array, j);
-            jeu.classifications.push_back({getJsonString(json_obj, "type"), getJsonString(json_obj, "text")});
+            game.classifications.push_back({getJsonString(json_obj, "type"), getJsonString(json_obj, "text")});
         }
     }
     // parse dates array
@@ -301,7 +302,7 @@ Game Api::parseGame(json_object *root) {
         int size = json_object_array_length(array);
         for (int j = 0; j < size; j++) {
             json_object *json_obj = json_object_array_get_idx(array, j);
-            jeu.dates.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
+            game.dates.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
         }
     }
     // parse genres array
@@ -323,7 +324,7 @@ Game Api::parseGame(json_object *root) {
                                            getJsonString(json_sub_obj, "text")});
                 }
             }
-            jeu.genres.push_back(genre);
+            game.genres.push_back(genre);
         }
     }
     // parse familles array
@@ -345,7 +346,7 @@ Game Api::parseGame(json_object *root) {
                                              getJsonString(json_sub_obj, "text")});
                 }
             }
-            jeu.families.push_back(famille);
+            game.families.push_back(famille);
         }
     }
     // parse medias array
@@ -364,11 +365,11 @@ Game Api::parseGame(json_object *root) {
             media.sha1 = getJsonString(json_obj, "sha1");
             media.format = getJsonString(json_obj, "format");
             media.support = getJsonString(json_obj, "support");
-            jeu.medias.push_back(media);
+            game.medias.push_back(media);
         }
     }
 
-    return jeu;
+    return game;
 }
 
 User Api::parseUser(json_object *root) {
@@ -550,6 +551,19 @@ std::string Api::mediaTypeToString(const Game::Media::Type &type) {
     return "";
 }
 
+std::string Api::languageToString(const Game::Language &language) {
+    switch (language) {
+        case Game::Language::EN:
+            return "en";
+        case Game::Language::FR:
+            return "fr";
+        case Game::Language::ES:
+            return "es";
+        case Game::Language::PT:
+            return "pt";
+    }
+}
+
 std::string Api::countryToString(const Game::Country &region) {
     switch (region) {
         case Game::Country::DE:
@@ -635,5 +649,4 @@ std::string Api::countryToString(const Game::Country &region) {
         case Game::Country::ALL:
             return "all";
     }
-    return "";
 }
