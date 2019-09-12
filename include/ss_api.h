@@ -82,4 +82,4 @@ namespace ss_api {
     };
 }
 
-#endif //SCREENSCRAP_SS_API_H
+#endif //SS_API_H

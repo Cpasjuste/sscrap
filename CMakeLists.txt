@@ -15,7 +15,7 @@ option(PLATFORM_LDK "LDK Handheld platform target (mips: LDK, RS-97...)" OFF)
 # TARGET PLATFORM
 ####################
 
-project(ssscrap)
+project(sscrap)
 
 ##############
 # SCREENSCRAP

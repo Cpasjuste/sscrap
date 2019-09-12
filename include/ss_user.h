@@ -2,8 +2,8 @@
 // Created by cpasjuste on 05/04/19.
 //
 
-#ifndef SCREENSCRAP_SS_USER_H
-#define SCREENSCRAP_SS_USER_H
+#ifndef SS_USER_H
+#define SS_USER_H
 
 namespace ss_api {
 
@@ -28,4 +28,4 @@ namespace ss_api {
     };
 }
 
-#endif //SCREENSCRAP_SS_USER_H
+#endif //SS_USER_H

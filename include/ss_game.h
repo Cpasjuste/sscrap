@@ -2,8 +2,8 @@
 // Created by cpasjuste on 05/04/19.
 //
 
-#ifndef SCREENSCRAP_SS_JEU_H
-#define SCREENSCRAP_SS_JEU_H
+#ifndef SS_GAME_H
+#define SS_GAME_H
 
 #include <string>
 #include <vector>
@@ -145,4 +145,4 @@ namespace ss_api {
     };
 }
 
-#endif //SCREENSCRAP_SS_JEU_H
+#endif //SS_GAME_H

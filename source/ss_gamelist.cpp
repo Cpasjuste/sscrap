@@ -2,11 +2,6 @@
 // Created by cpasjuste on 11/09/2019.
 //
 
-//
-// Created by cpasjuste on 09/09/2019.
-// Parse emulationstation gamelist.xml
-//
-
 #include <algorithm>
 #include "ss_gamelist.h"
 

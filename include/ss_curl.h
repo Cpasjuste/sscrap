@@ -2,8 +2,8 @@
 // Created by cpasjuste on 29/03/19.
 //
 
-#ifndef PSCRAP_P_CURL_H
-#define PSCRAP_P_CURL_H
+#ifndef SS_CURL_H
+#define SS_CURL_H
 
 #include <string>
 #include <curl/curl.h>
@@ -31,4 +31,4 @@ namespace ss_api {
 
 }
 
-#endif //PSCRAP_P_CURL_H
+#endif //SS_CURL_H

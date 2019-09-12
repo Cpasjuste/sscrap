@@ -2,8 +2,8 @@
 // Created by cpasjuste on 11/09/2019.
 //
 
-#ifndef SSSCRAP_SS_GAMELIST_H
-#define SSSCRAP_SS_GAMELIST_H
+#ifndef SS_GAMELIST_H
+#define SS_GAMELIST_H
 
 #include <string>
 #include <vector>
@@ -43,4 +43,4 @@ namespace ss_api {
     };
 }
 
-#endif //SSSCRAP_SS_GAMELIST_H
+#endif //SS_GAMELIST_H

@@ -2,8 +2,8 @@
 // Created by cpasjuste on 05/04/19.
 //
 
-#ifndef SCREENSCRAP_S_SYSTEM_H
-#define SCREENSCRAP_SS_SYSTEM_H
+#ifndef SS_SYSTEM_H
+#define SS_SYSTEM_H
 
 #if 0
 #include <string>
@@ -39,5 +39,5 @@ public:
 };
 
 #endif
-#endif //SCREENSCRAP_S_SYSTEM_H
+#endif //SS_SYSTEM_H
 
