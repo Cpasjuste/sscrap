@@ -102,6 +102,8 @@ namespace ss_api {
             std::string sha1;
             std::string format;
             std::string support;
+
+            int download(const std::string &dstPath);
         };
 
         Game::Name getName(const Game::Country &country) const;

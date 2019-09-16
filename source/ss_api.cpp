@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <algorithm>
 #include "ss_api.h"
 
 using namespace ss_api;
@@ -262,13 +263,115 @@ Api::GameList Api::gameList(const std::string &xmlPath) {
         gameNode = gamesNode->FirstChildElement("game");
     }
     while (gameNode) {
+        Game game = parseGame(gameNode);
+        // add stuff for later filtering
+        auto p = std::find(gl.systems.begin(), gl.systems.end(), game.system.text);
+        if (p == gl.systems.end()) {
+            gl.systems.emplace_back(game.system.text);
+        }
+        p = std::find(gl.editors.begin(), gl.editors.end(), game.editor.text);
+        if (p == gl.editors.end()) {
+            gl.editors.emplace_back(game.editor.text);
+        }
+        p = std::find(gl.developers.begin(), gl.developers.end(), game.developer.text);
+        if (p == gl.developers.end()) {
+            gl.developers.emplace_back(game.developer.text);
+        }
+        p = std::find(gl.players.begin(), gl.players.end(), game.players);
+        if (p == gl.players.end()) {
+            gl.players.emplace_back(game.players);
+        }
+        p = std::find(gl.ratings.begin(), gl.ratings.end(), game.rating);
+        if (p == gl.ratings.end()) {
+            gl.ratings.emplace_back(game.rating);
+        }
+        p = std::find(gl.topstaffs.begin(), gl.topstaffs.end(), game.topstaff);
+        if (p == gl.topstaffs.end()) {
+            gl.topstaffs.emplace_back(game.topstaff);
+        }
+        p = std::find(gl.rotations.begin(), gl.rotations.end(), game.rotation);
+        if (p == gl.rotations.end()) {
+            gl.rotations.emplace_back(game.rotation);
+        }
+        p = std::find(gl.resolutions.begin(), gl.resolutions.end(), game.resolution);
+        if (p == gl.resolutions.end()) {
+            gl.resolutions.emplace_back(game.resolution);
+        }
+        if (!game.dates.empty()) {
+            std::string date = game.getDate(Game::Country::WOR).text;
+            p = std::find(gl.dates.begin(), gl.dates.end(), date);
+            if (p == gl.dates.end()) {
+                gl.dates.emplace_back(date);
+            }
+        }
+        if (!game.genres.empty()) {
+            std::string genre = game.getGenre(Game::Language::EN).text;
+            p = std::find(gl.genres.begin(), gl.genres.end(), genre);
+            if (p == gl.genres.end()) {
+                gl.genres.emplace_back(genre);
+            }
+        }
         // add game to game list
-        gl.games.emplace_back(parseGame(gameNode));
+        gl.games.emplace_back(game);
         // move to next node (game)
         gameNode = gameNode->NextSibling();
     }
 
+    // sort lists
+    std::sort(gl.systems.begin(), gl.systems.end(), sortByName);
+    std::sort(gl.editors.begin(), gl.editors.end(), sortByName);
+    std::sort(gl.developers.begin(), gl.developers.end(), sortByName);
+    std::sort(gl.players.begin(), gl.players.end(), sortByName);
+    std::sort(gl.ratings.begin(), gl.ratings.end(), sortByName);
+    std::sort(gl.topstaffs.begin(), gl.topstaffs.end(), sortByName);
+    std::sort(gl.rotations.begin(), gl.rotations.end(), sortByName);
+    std::sort(gl.resolutions.begin(), gl.resolutions.end(), sortByName);
+    std::sort(gl.dates.begin(), gl.dates.end(), sortByName);
+    std::sort(gl.genres.begin(), gl.genres.end(), sortByName);
+    // default lists values
+    gl.systems.insert(gl.systems.begin(), "All");
+    gl.editors.insert(gl.editors.begin(), "All");
+    gl.developers.insert(gl.developers.begin(), "All");
+    gl.players.insert(gl.players.begin(), "All");
+    gl.ratings.insert(gl.ratings.begin(), "All");
+    gl.topstaffs.insert(gl.topstaffs.begin(), "All");
+    gl.rotations.insert(gl.rotations.begin(), "All");
+    gl.resolutions.insert(gl.resolutions.begin(), "All");
+    gl.dates.insert(gl.dates.begin(), "All");
+    gl.genres.insert(gl.genres.begin(), "All");
+
     return gl;
+}
+
+Api::GameList Api::gameList(const std::string &xmlPath, const std::string &romPath) {
+    // TODO
+    return Api::GameList();
+}
+
+std::vector<Game>
+Api::gameListFilter(const std::vector<Game> &games,
+                    const std::string &system, const std::string &editor, const std::string &developer,
+                    const std::string &player, const std::string &rating, const std::string &topstaff,
+                    const std::string &rotation, const std::string &resolution, const std::string &date,
+                    const std::string &genre) {
+
+    std::vector<Game> newGameList;
+
+    std::copy_if(games.begin(), games.end(), std::back_inserter(newGameList),
+                 [system, editor, developer, player, rating,
+                         topstaff, rotation, resolution, date, genre](const Game &game) {
+                     return (system == "All" || game.system.text == system)
+                            && (editor == "All" || game.editor.text == editor)
+                            && (developer == "All" || game.developer.text == developer)
+                            && (player == "All" || game.players == player)
+                            && (rating == "All" || game.rating == rating)
+                            && (topstaff == "All" || game.topstaff == topstaff)
+                            && (rotation == "All" || game.rotation == rotation)
+                            && (resolution == "All" || game.resolution == resolution);
+                     // TODO: filter date & genre
+                 });
+
+    return newGameList;
 }
 
 Game Api::parseGame(XMLNode *gameNode) {
@@ -372,6 +475,9 @@ Game Api::parseGame(XMLNode *gameNode) {
             Game::Date date{};
             date.country = getXmlAttribute(node->ToElement(), "region");
             date.text = getXmlText(node->ToElement());
+            if (date.text.size() >= 4) {
+                date.text = date.text.substr(0, 4);
+            }
             game.dates.emplace_back(date);
             node = node->NextSibling();
         }
@@ -457,26 +563,6 @@ User Api::parseUser(XMLNode *userNode) {
     user.favregion = getXmlText(userNode->FirstChildElement("favregion"));
 
     return user;
-}
-
-int Api::download(const Game::Media &media, const std::string &dstPath) {
-
-    if (dstPath.empty()) {
-        return -1;
-    }
-
-    printf("Api::download: %s\n", media.url.c_str());
-
-    long http_code = 0;
-    Curl ss_curl;
-    int res = ss_curl.getData(media.url, dstPath, SS_TIMEOUT, &http_code);
-    if (res != 0) {
-        printf("Api::download: error: curl failed: %s, http_code: %li\n",
-               curl_easy_strerror((CURLcode) res), http_code);
-        return (int) http_code;
-    }
-
-    return 0;
 }
 
 bool Api::GameInfo::save(const std::string &dstPath) {
@@ -802,3 +888,6 @@ Game::Language Api::toLanguage(const std::string &language) {
     else return Game::Language::UNKNOWN;
 }
 
+bool Api::sortByName(const std::string &g1, const std::string &g2) {
+    return strcasecmp(g1.c_str(), g2.c_str()) <= 0;
+}

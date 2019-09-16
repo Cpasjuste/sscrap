@@ -23,6 +23,16 @@ namespace ss_api {
         public:
             std::vector<Game> games;
             std::string xml;
+            std::vector<std::string> systems;
+            std::vector<std::string> editors;
+            std::vector<std::string> developers;
+            std::vector<std::string> players;
+            std::vector<std::string> ratings;
+            std::vector<std::string> topstaffs;
+            std::vector<std::string> rotations;
+            std::vector<std::string> resolutions;
+            std::vector<std::string> dates;
+            std::vector<std::string> genres;
 
             bool save(const std::string &dstPath);
         };
@@ -46,20 +56,32 @@ namespace ss_api {
         };
 
         static GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
-                              const std::string &ssid = "", const std::string &sspassword = "");
+                                     const std::string &ssid = "", const std::string &sspassword = "");
 
         static GameSearch gameSearch(const std::string &srcPath);
 
         static GameInfo gameInfo(const std::string &crc, const std::string &md5, const std::string &sha1,
-                          const std::string &systemeid, const std::string &romtype,
-                          const std::string &romnom, const std::string &romtaille, const std::string &gameid,
-                          const std::string &ssid = "", const std::string &sspassword = "");
+                                 const std::string &systemeid, const std::string &romtype,
+                                 const std::string &romnom, const std::string &romtaille, const std::string &gameid,
+                                 const std::string &ssid = "", const std::string &sspassword = "");
 
         static GameInfo gameInfo(const std::string &srcPath);
 
         static GameList gameList(const std::string &xmlPath);
 
-        static int download(const Game::Media &media, const std::string &dstPath);
+        static GameList gameList(const std::string &xmlPath, const std::string &romPath);
+
+        static std::vector<Game> gameListFilter(const std::vector<Game> &games,
+                                                const std::string &system = "All",
+                                                const std::string &editor = "All",
+                                                const std::string &developer = "All",
+                                                const std::string &player = "All",
+                                                const std::string &rating = "All",
+                                                const std::string &topstaff = "All",
+                                                const std::string &rotation = "All",
+                                                const std::string &resolution = "All",
+                                                const std::string &date = "All",
+                                                const std::string &genre = "All");
 
         static std::string toString(const Game::Media::Type &type);
 
@@ -90,6 +112,8 @@ namespace ss_api {
         static std::string getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name);
 
         static std::string getXmlText(tinyxml2::XMLElement *element);
+
+        static bool sortByName(const std::string &g1, const std::string &g2);
     };
 }
 
