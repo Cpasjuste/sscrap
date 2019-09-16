@@ -23,7 +23,7 @@ project(sscrap)
 set(INCLUDES include)
 file(GLOB SOURCES source/*.c*)
 set(CFLAGS)
-set(LDFLAGS curl json-c tinyxml2 z)
+set(LDFLAGS curl tinyxml2 z)
 
 #####################
 # PLATORM SPECIFIC
@@ -44,7 +44,7 @@ elseif (PLATFORM_LINUX)
     if (PLATFORM_WINDOWS)
         # TODO: try to fix nghttp2 static linking...
         list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
-        set(LDFLAGS json-c curl.a nghttp2 idn2.a psl.a ssl.a
+        set(LDFLAGS curl.a tinyxml2.a nghttp2 idn2.a psl.a ssl.a
                 crypto.a crypt32.a unistring brotlidec-static.a
                 brotlicommon-static.a intl.a iconv.a wldap32.a ws2_32.a
                 -static -static-libgcc -static-libstdc++)

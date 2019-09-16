@@ -22,7 +22,6 @@ namespace ss_api {
 
         bool save(const std::string &xmlPath);
 
-
         void clear();
 
         std::vector<Game> filter(const std::string &date = "All", const std::string &developer = "All",

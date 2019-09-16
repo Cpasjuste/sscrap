@@ -24,10 +24,15 @@ bool GameList::load(const std::string &xmlPath) {
         return false;
     }
 
-    XMLNode *gameNode = pRoot->FirstChildElement("game");
+    // screenscraper
+    XMLNode *gameNode = pRoot->FirstChildElement("jeu");
     if (!gameNode) {
-        printf("GameList: incorrect xml format (\'game\' tag not found)");
-        return false;
+        // emulationstation compat
+        gameNode = pRoot->FirstChildElement("game");
+        if (!gameNode) {
+            printf("GameList: incorrect xml format (\'game\' tag not found)");
+            return false;
+        }
     }
 
     while (gameNode) {
@@ -40,6 +45,10 @@ bool GameList::load(const std::string &xmlPath) {
         if (gameNode->ToElement()->Attribute("romid")) {
             game.romid = gameNode->ToElement()->Attribute("romid");
         }
+        // screenscraper
+        if (gameNode->ToElement()->Attribute("notgame")) {
+            game.notgame = gameNode->ToElement()->Attribute("notgame");
+        }
         // emulationstation compat
         if (gameNode->ToElement()->Attribute("source")) {
             game.source = gameNode->ToElement()->Attribute("source");
@@ -49,22 +58,17 @@ bool GameList::load(const std::string &xmlPath) {
         if (element && element->GetText()) {
             game.path = element->GetText();
         }
-        // screenscraper
-        element = gameNode->FirstChildElement("notgame");
-        if (element && element->GetText()) {
-            game.notgame = element->GetText();
-        }
         // screenscraper (prioritise screenscraper format)
-        element = gameNode->FirstChildElement("names");
+        element = gameNode->FirstChildElement("noms");
         if (element) {
-            XMLNode *node = element->FirstChildElement("name");
+            XMLNode *node = element->FirstChildElement("nom");
             while (node) {
                 Game::Name gameName{};
-                if (node->ToElement()->Attribute("country")) {
-                    gameName.country = node->ToElement()->Attribute("country");
+                if (node->ToElement()->Attribute("region")) {
+                    gameName.country = node->ToElement()->Attribute("region");
                 }
-                if (node->ToElement()->Attribute("text")) {
-                    gameName.text = node->ToElement()->Attribute("text");
+                if (node->ToElement()->GetText()) {
+                    gameName.text = node->ToElement()->GetText();
                 }
                 game.names.emplace_back(gameName);
                 node = node->NextSibling();
@@ -77,9 +81,9 @@ bool GameList::load(const std::string &xmlPath) {
             }
         }
         // screenscraper
-        element = gameNode->FirstChildElement("countries");
+        element = gameNode->FirstChildElement("regions");
         if (element) {
-            XMLNode *node = element->FirstChildElement("shortname");
+            XMLNode *node = element->FirstChildElement("region");
             while (node) {
                 if (node->ToElement()->GetText()) {
                     game.countries.emplace_back(node->ToElement()->GetText());
@@ -93,26 +97,22 @@ bool GameList::load(const std::string &xmlPath) {
             game.cloneof = element->GetText();
         }
         // screenscraper
-        element = gameNode->FirstChildElement("systemeid");
-        if (element && element->GetText()) {
-            game.systemeid = element->GetText();
-        }
-        // screenscraper
-        element = gameNode->FirstChildElement("systemename");
-        if (element && element->GetText()) {
-            game.systemename = element->GetText();
+        element = gameNode->FirstChildElement("system");
+        if (element->Attribute("id")) {
+            game.system.id = element->Attribute("id");
+            game.system.text = element->GetText();
         }
         // screenscraper (prioritise screenscraper format)
-        element = gameNode->FirstChildElement("synopses");
+        element = gameNode->FirstChildElement("synopsis");
         if (element) {
             XMLNode *node = element->FirstChildElement("synopsis");
             while (node) {
                 Game::Synopsis synopsis{};
-                if (node->ToElement()->Attribute("language")) {
-                    synopsis.language = node->ToElement()->Attribute("language");
+                if (node->ToElement()->Attribute("langue")) {
+                    synopsis.language = node->ToElement()->Attribute("langue");
                 }
-                if (node->ToElement()->Attribute("text")) {
-                    synopsis.text = node->ToElement()->Attribute("text");
+                if (node->ToElement()->GetText()) {
+                    synopsis.text = node->ToElement()->GetText();
                 }
                 game.synopses.emplace_back(synopsis);
                 node = node->NextSibling();
@@ -124,38 +124,38 @@ bool GameList::load(const std::string &xmlPath) {
                 game.synopses.push_back({"wor", element->GetText()});
             }
         }
-
-        // parse image
+        // emulationstation compat
         element = gameNode->FirstChildElement("image");
         if (element && element->GetText()) {
             game.medias.push_back({"sstitle", "", element->GetText(), "wor", "", "", "", "", ""});
         }
-        // parse thumbnail
+        // emulationstation compat
         element = gameNode->FirstChildElement("thumbnail");
         if (element && element->GetText()) {
             game.medias.push_back({"screenshot", "", element->GetText(), "wor", "", "", "", "", ""});
         }
-        // parse rating
-        element = gameNode->FirstChildElement("rating");
+        // screenscraper (prioritise screenscraper format)
+        element = gameNode->FirstChildElement("note");
         if (element && element->GetText()) {
-            char *endPtr = nullptr;
-            double d = strtod(element->GetText(), &endPtr);
-            if (!*endPtr) {
-                game.rating = (float) d;
+            game.rating = element->GetText();
+        } else {
+            // emulationstation compat (use emulationstation format)
+            element = gameNode->FirstChildElement("rating");
+            if (element && element->GetText()) {
+                game.rating = element->GetText();
             }
         }
-
         // screenscraper (prioritise screenscraper format)
         element = gameNode->FirstChildElement("dates");
         if (element) {
             XMLNode *node = element->FirstChildElement("date");
             while (node) {
                 Game::Date date{};
-                if (node->ToElement()->Attribute("country")) {
-                    date.country = node->ToElement()->Attribute("country");
+                if (node->ToElement()->Attribute("region")) {
+                    date.country = node->ToElement()->Attribute("region");
                 }
-                if (node->ToElement()->Attribute("text")) {
-                    date.text = node->ToElement()->Attribute("text");
+                if (node->ToElement()->GetText()) {
+                    date.text = node->ToElement()->GetText();
                 }
                 game.dates.emplace_back(date);
                 node = node->NextSibling();
@@ -168,15 +168,25 @@ bool GameList::load(const std::string &xmlPath) {
                 game.dates.emplace_back(date);
             }
         }
-        // parse developer
-        element = gameNode->FirstChildElement("developer");
-        if (element && element->GetText()) {
+        // screenscraper
+        element = gameNode->FirstChildElement("developpeur");
+        if (element) {
+            game.developer.id = element->Attribute("id");
+            game.developer.text = element->GetText();
+        } else {
+            // emulationstation compat (use emulationstation format)
+            element = gameNode->FirstChildElement("developer");
             game.developer.text = element->GetText();
         }
-        // parse editor
-        element = gameNode->FirstChildElement("publisher");
-        if (element && element->GetText()) {
+        // screenscraper
+        element = gameNode->FirstChildElement("editeur");
+        if (element) {
+            game.editor.id = element->Attribute("id");
             game.editor.text = element->GetText();
+        } else {
+            // emulationstation compat (use emulationstation format)
+            element = gameNode->FirstChildElement("publisher");
+            game.developer.text = element->GetText();
         }
         // screenscraper (prioritise screenscraper format)
         element = gameNode->FirstChildElement("genres");
@@ -187,23 +197,17 @@ bool GameList::load(const std::string &xmlPath) {
                 if (node->ToElement()->Attribute("id")) {
                     genre.id = node->ToElement()->Attribute("id");
                 }
-                if (node->ToElement()->Attribute("main")) {
-                    genre.main = node->ToElement()->Attribute("main");
+                if (node->ToElement()->Attribute("principale")) {
+                    genre.main = node->ToElement()->Attribute("principale");
                 }
                 if (node->ToElement()->Attribute("parentid")) {
                     genre.parentid = node->ToElement()->Attribute("parentid");
                 }
-                XMLNode *childNode = node->FirstChildElement("names");
-                while (childNode) {
-                    Game::Genre::Name name{};
-                    if (childNode->ToElement()->Attribute("language")) {
-                        name.language = node->ToElement()->Attribute("language");
-                    }
-                    if (childNode->ToElement()->Attribute("text")) {
-                        name.text = node->ToElement()->Attribute("text");
-                    }
-                    genre.names.emplace_back(name);
-                    childNode = childNode->NextSibling();
+                if (node->ToElement()->Attribute("langue")) {
+                    genre.language = node->ToElement()->Attribute("langue");
+                }
+                if (node->ToElement()->GetText()) {
+                    genre.text = node->ToElement()->GetText();
                 }
                 game.genres.emplace_back(genre);
                 node = node->NextSibling();
@@ -212,14 +216,20 @@ bool GameList::load(const std::string &xmlPath) {
             // emulationstation compat (use emulationstation format)
             element = gameNode->FirstChildElement("genre");
             if (element && element->GetText()) {
-                Game::Genre genre{"", element->GetText(), "", std::vector<Game::Genre::Name>()};
+                Game::Genre genre{"", "", "", "en", element->GetText()};
                 game.genres.emplace_back(genre);
             }
         }
         // screenscraper
-        element = gameNode->FirstChildElement("players");
+        element = gameNode->FirstChildElement("joueurs");
         if (element && element->GetText()) {
             game.players = element->GetText();
+        } else {
+            // emulationstation compat (use emulationstation format)
+            element = gameNode->FirstChildElement("players");
+            if (element && element->GetText()) {
+                game.players = element->GetText();
+            }
         }
         // screenscraper
         element = gameNode->FirstChildElement("topstaff");
@@ -303,21 +313,18 @@ bool GameList::save(const std::string &path) {
         XMLElement *gameElement = doc.NewElement("game");
         gameElement->SetAttribute("id", game.id.c_str());
         gameElement->SetAttribute("romid", game.romid.c_str());
+        gameElement->SetAttribute("notgame", game.notgame.c_str());
         gameElement->SetAttribute("source", game.source.c_str());
         // emulationstation
         XMLElement *elem = doc.NewElement("path");
         elem->SetText(game.path.c_str());
         gameElement->InsertEndChild(elem);
         // screenscraper
-        elem = doc.NewElement("notgame");
-        elem->SetText(game.notgame.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        XMLElement *names = doc.NewElement("names");
+        XMLElement *names = doc.NewElement("noms");
         for (const auto &name : game.names) {
-            XMLElement *n = doc.NewElement("name");
-            n->SetAttribute("country", name.country.c_str());
-            n->SetAttribute("text", name.text.c_str());
+            XMLElement *n = doc.NewElement("nom");
+            n->SetAttribute("region", name.country.c_str());
+            n->SetText(name.text.c_str());
             names->InsertEndChild(n);
         }
         gameElement->InsertEndChild(names);
@@ -328,9 +335,9 @@ bool GameList::save(const std::string &path) {
         }
         gameElement->InsertEndChild(elem);
         // screenscraper
-        XMLElement *countries = doc.NewElement("countries");
+        XMLElement *countries = doc.NewElement("regions");
         for (const auto &country : game.countries) {
-            XMLElement *n = doc.NewElement("shortname");
+            XMLElement *n = doc.NewElement("region");
             n->SetText(country.c_str());
             countries->InsertEndChild(n);
         }
@@ -342,23 +349,18 @@ bool GameList::save(const std::string &path) {
         }
         gameElement->InsertEndChild(elem);
         // screenscraper
-        elem = doc.NewElement("systemeid");
-        if (!game.systemeid.empty()) {
-            elem->SetText(game.systemeid.c_str());
+        elem = doc.NewElement("systeme");
+        if (!game.system.id.empty()) {
+            elem->SetAttribute("id", game.system.id.c_str());
+            elem->SetText(game.system.text.c_str());
         }
         gameElement->InsertEndChild(elem);
         // screenscraper
-        elem = doc.NewElement("systemename");
-        if (!game.systemename.empty()) {
-            elem->SetText(game.systemename.c_str());
-        }
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        XMLElement *synopses = doc.NewElement("synopses");
+        XMLElement *synopses = doc.NewElement("synopsis");
         for (const auto &synopsis : game.synopses) {
             XMLElement *n = doc.NewElement("synopsis");
-            n->SetAttribute("language", synopsis.language.c_str());
-            n->SetAttribute("text", synopsis.text.c_str());
+            n->SetAttribute("langue", synopsis.language.c_str());
+            n->SetText(synopsis.text.c_str());
             synopses->InsertEndChild(n);
         }
         gameElement->InsertEndChild(synopses);
@@ -387,8 +389,8 @@ bool GameList::save(const std::string &path) {
         XMLElement *dates = doc.NewElement("dates");
         for (const auto &date : game.dates) {
             XMLElement *n = doc.NewElement("date");
-            n->SetAttribute("country", date.country.c_str());
-            n->SetAttribute("text", date.text.c_str());
+            n->SetAttribute("region", date.country.c_str());
+            n->SetText(date.text.c_str());
             dates->InsertEndChild(n);
         }
         gameElement->InsertEndChild(dates);
@@ -398,11 +400,21 @@ bool GameList::save(const std::string &path) {
             elem->SetText(game.dates.at(0).text.c_str());
         }
         gameElement->InsertEndChild(elem);
-        // developer
+        // screenscraper
+        elem = doc.NewElement("developpeur");
+        elem->SetAttribute("id", game.developer.id.c_str());
+        elem->SetText(game.developer.text.c_str());
+        gameElement->InsertEndChild(elem);
+        // emulationstation
         elem = doc.NewElement("developer");
         elem->SetText(game.developer.text.c_str());
         gameElement->InsertEndChild(elem);
-        // screenscraper / emulationstation
+        // screenscraper
+        elem = doc.NewElement("editeur");
+        elem->SetAttribute("id", game.editor.id.c_str());
+        elem->SetText(game.editor.text.c_str());
+        gameElement->InsertEndChild(elem);
+        // emulationstation
         elem = doc.NewElement("publisher");
         elem->SetText(game.editor.text.c_str());
         gameElement->InsertEndChild(elem);
@@ -410,17 +422,11 @@ bool GameList::save(const std::string &path) {
         XMLElement *genres = doc.NewElement("genres");
         for (const auto &genre : game.genres) {
             XMLElement *n = doc.NewElement("genre");
-            n->SetAttribute("country", genre.id.c_str());
-            n->SetAttribute("main", genre.main.c_str());
+            n->SetAttribute("id", genre.id.c_str());
+            n->SetAttribute("principale", genre.main.c_str());
             n->SetAttribute("parentid", genre.parentid.c_str());
-            XMLElement *namesElem = doc.NewElement("names");
-            for (const auto &name : genre.names) {
-                XMLElement *n2 = doc.NewElement("name");
-                n2->SetAttribute("language", name.language.c_str());
-                n2->SetAttribute("text", name.text.c_str());
-                namesElem->InsertEndChild(n2);
-            }
-            n->InsertEndChild(namesElem);
+            n->SetAttribute("langue", genre.language.c_str());
+            n->SetText(genre.text.c_str());
             genres->InsertEndChild(n);
         }
         gameElement->InsertEndChild(genres);
@@ -431,6 +437,10 @@ bool GameList::save(const std::string &path) {
         }
         gameElement->InsertEndChild(elem);
         // screenscraper
+        elem = doc.NewElement("joueurs");
+        elem->SetText(game.players.c_str());
+        gameElement->InsertEndChild(elem);
+        // emulationstation
         elem = doc.NewElement("players");
         elem->SetText(game.players.c_str());
         gameElement->InsertEndChild(elem);

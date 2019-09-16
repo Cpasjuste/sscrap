@@ -21,9 +21,9 @@ void printGame(const Game &game) {
     }
     printf("id: %s\n", game.id.c_str());
     printf("cloneof: %s\n", game.cloneof.c_str());
-    printf("system: %s (id: %s)\n", game.systemename.c_str(), game.systemeid.c_str());
+    printf("system: %s (id: %s)\n", game.system.text.c_str(), game.system.id.c_str());
     printf("editor: %s (id: %s)\n", game.editor.text.c_str(), game.editor.id.c_str());
-    printf("developer: %s (developpeur: %s)\n", game.developer.text.c_str(), game.developer.id.c_str());
+    printf("developer: %s (id: %s)\n", game.developer.text.c_str(), game.developer.id.c_str());
     printf("players: %s\n", game.players.c_str());
     printf("rating: %s\n", game.rating.c_str());
     printf("topstaff: %s\n", game.topstaff.c_str());
@@ -35,7 +35,7 @@ void printGame(const Game &game) {
     printf("synopsis (%s): %s\n", synopsis.language.c_str(), synopsis.text.c_str());
     Game::Date date = game.getDate(Game::Country::WOR);
     printf("date (%s): %s\n", date.country.c_str(), date.text.c_str());
-    Game::Genre::Name genre = game.getGenre(Game::Language::EN);
+    Game::Genre genre = game.getGenre(Game::Language::EN);
     printf("genre (%s): %s\n", genre.language.c_str(), genre.text.c_str());
     // print some medias
     Game::Media media = game.getMedia(Game::Media::Type::SSTitle, Game::Country::WOR);
@@ -70,10 +70,21 @@ int main(int argc, char **argv) {
     }
 
     // ok, continue..
-    Api api(SS_DEV_ID, SS_DEV_PWD, "sscrap");
+    //Api api(SS_DEV_ID, SS_DEV_PWD, "sscrap");
+    Api::ss_devid = SS_DEV_ID;
+    Api::ss_devpassword = SS_DEV_PWD;
+    Api::ss_softname = "sscrap";
 
+    //Api::GameSearch search = api.gameSearch("sonic", "", user, pwd);
+    //search.save("test.xml");
+    Api::GameList gameList = Api::gameList("test.xml");
+    for (auto &game : gameList.games) {
+        printGame(game);
+    }
+
+    /*
     if (args.exist("-gameinfo")) {
-        //Api::GameInfo gameInfo = api.gameInfo(crc, md5, sha1, "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
+        //Api::GameInfo gameInfo = api.gameInfo("", "", "", "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
         Api::GameInfo gameInfo = api.gameInfo(args.get("-crc"), args.get("-md5"), args.get("-sha1"),
                                               args.get("-systemid"), args.get("-romtype"), args.get("-romname"),
                                               args.get("-romsize"), args.get("-gameid"), user, pwd);
@@ -84,10 +95,10 @@ int main(int argc, char **argv) {
         if (!gameInfo.game.id.empty()) {
             printGame(gameInfo.game);
             // save game list as xml (emulationstation + pFBA compatibility)
-            //auto gameList = new GameList();
-            //gameList->games.push_back(gameInfo.game);
-            //gameList->save("test.xml");
-            //delete (gameList);
+            auto gameList = new GameList();
+            gameList->games.push_back(gameInfo.game);
+            gameList->save("test.xml");
+            delete (gameList);
         } else {
             printf("gameInfo: game not found\n");
         }
@@ -104,6 +115,7 @@ int main(int argc, char **argv) {
     } else {
         fprintf(stderr, KRED "TODO: PRINT HELP\n" KRAS);
     }
+    */
 
     return 0;
 }

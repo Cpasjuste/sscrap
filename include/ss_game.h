@@ -34,10 +34,14 @@ namespace ss_api {
             std::string text;
         };
 
+        struct System {
+            std::string id;
+            std::string text;
+        };
+
         struct Editor {
             std::string id;
             std::string text;
-
         };
 
         struct Developer {
@@ -61,14 +65,11 @@ namespace ss_api {
         };
 
         struct Genre {
-            struct Name {
-                std::string language;
-                std::string text;
-            };
             std::string id;
             std::string main;
             std::string parentid;
-            std::vector<Genre::Name> names;
+            std::string language;
+            std::string text;
         };
 
         struct Family {
@@ -112,7 +113,7 @@ namespace ss_api {
 
         Game::Date getDate(const Game::Country &country) const;
 
-        Game::Genre::Name getGenre(const Game::Language &language) const;
+        Game::Genre getGenre(const Game::Language &language) const;
 
         // TODO: to lazy for now
         //Game::Family::Name getFamily(const Game::Language &language) const;
@@ -125,8 +126,7 @@ namespace ss_api {
         std::vector<Name> names;
         std::vector<std::string> countries;
         std::string cloneof;
-        std::string systemeid;
-        std::string systemename;
+        System system;
         Editor editor;
         Developer developer;
         std::string players;

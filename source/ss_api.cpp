@@ -6,26 +6,22 @@
 #include "ss_api.h"
 
 using namespace ss_api;
+using namespace tinyxml2;
 
-Api::Api(const std::string &_devid, const std::string &_devpassword,
-         const std::string &_softname) {
-
-    devid = _devid;
-    devpassword = _devpassword;
-    softname = _softname;
-}
+std::string Api::ss_devid;
+std::string Api::ss_devpassword;
+std::string Api::ss_softname;
 
 Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string &systemeid,
                                 const std::string &ssid, const std::string &sspassword) {
 
     long code = 0;
-    std::string search = curl.escape(recherche);
-    std::string soft = curl.escape(softname);
-
+    Curl ss_curl;
+    std::string search = ss_curl.escape(recherche);
+    std::string soft = ss_curl.escape(ss_softname);
     std::string url = "https://www.screenscraper.fr/api2/jeuRecherche.php?devid="
-                      + devid + "&devpassword=" + devpassword + "&softname=" + soft + "&output=json"
+                      + ss_devid + "&devpassword=" + ss_devpassword + "&softname=" + soft + "&output=xml"
                       + "&recherche=" + search;
-
     if (!ssid.empty()) {
         url += "&ssid=" + ssid;
     }
@@ -38,13 +34,13 @@ Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string 
 
     printf("Api::jeuRecherche: %s\n", url.c_str());
 
-    std::string json = curl.getString(url, SS_TIMEOUT, &code);
-    if (json.empty()) {
+    std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
+    if (xml.empty()) {
         printf("Api::jeuRecherche: error %li\n", code);
         return GameSearch();
     }
 
-    return parseGameSearch(json);
+    return parseGameSearch(xml);
 }
 
 Api::GameSearch Api::gameSearch(const std::string &srcPath) {
@@ -63,55 +59,57 @@ Api::GameSearch Api::gameSearch(const std::string &srcPath) {
         return GameSearch();
     }
     fseek(fp, 0, SEEK_SET);
-    std::string json = std::string((unsigned long) size, '\0');
-    fread(&json[0], sizeof(char), (size_t) size, fp);
+    std::string xml = std::string((unsigned long) size, '\0');
+    fread(&xml[0], sizeof(char), (size_t) size, fp);
     fclose(fp);
 
-    if (json.empty()) {
+    if (xml.empty()) {
         printf("Api::jeuRecherche: error: data is empty\n");
         return GameSearch();
     }
 
-    return parseGameSearch(json);
+    return parseGameSearch(xml);
 }
 
-Api::GameSearch Api::parseGameSearch(const std::string &jsonData) {
+Api::GameSearch Api::parseGameSearch(const std::string &xmlData) {
 
-    GameSearch jr{};
-    jr.json = jsonData;
-    json_object *json_root = json_tokener_parse(jr.json.c_str());
-    json_object *json_response, *json_ssuser, *json_jeux;
+    GameSearch gs{};
+    XMLDocument doc;
 
-    json_bool found = json_object_object_get_ex(json_root, "response", &json_response);
-    if (!found) {
-        printf("Api::parseJeuRecherche: error: response object not found\n");
-        return jr;
+    gs.xml = xmlData;
+    XMLError e = doc.Parse(gs.xml.c_str(), gs.xml.size());
+    if (e != XML_SUCCESS) {
+        printf("Api::parseGameSearch: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        return gs;
     }
 
-    // search and parse "ssuser" object
-    found = json_object_object_get_ex(json_response, "ssuser", &json_ssuser);
-    if (!found) {
-        printf("Api::parseJeuRecherche: error: ssuser object not found\n");
+    XMLNode *pRoot = doc.FirstChildElement("Data");
+    if (!pRoot) {
+        printf("Api::parseGameSearch: wrong xml format: \'Data\' tag not found\n");
+        return gs;
+    }
+
+    XMLNode *userNode = pRoot->FirstChildElement("ssuser");
+    if (!userNode) {
+        printf("Api::parseGameSearch: wrong xml format: \'ssuser\' tag not found\n");
     } else {
-        jr.ssuser = parseUser(json_ssuser);
+        gs.ssuser = parseUser(userNode);
     }
 
-    // search and parse "jeux" object (array)
-    found = json_object_object_get_ex(json_response, "jeux", &json_jeux);
-    if (!found) {
-        printf("Api::parseJeuRecherche: error: jeux object not found\n");
-    }
-
-    int count = json_object_array_length(json_jeux);
-    for (int i = 0; i < count; i++) {
-        json_object *json_jeu = json_object_array_get_idx(json_jeux, i);
-        if (getJsonString(json_jeu, "id").empty()) {
-            continue;
+    XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
+    if (!gamesNode) {
+        printf("Api::parseGameSearch: wrong xml format: \'jeux\' tag not found\n");
+    } else {
+        XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
+        while (gameNode) {
+            // add game to game list
+            gs.games.emplace_back(parseGame(gameNode));
+            // move to next node (game)
+            gameNode = gameNode->NextSibling();
         }
-        jr.games.push_back(parseGame(json_jeu));
     }
 
-    return jr;
+    return gs;
 }
 
 Api::GameInfo
@@ -120,13 +118,12 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
               const std::string &gameid, const std::string &ssid, const std::string &sspassword) {
 
     long code = 0;
-    std::string search = curl.escape(romnom);
-    std::string soft = curl.escape(softname);
-
+    Curl ss_curl;
+    std::string search = ss_curl.escape(romnom);
+    std::string soft = ss_curl.escape(ss_softname);
     std::string url = "https://www.screenscraper.fr/api2/jeuInfos.php?devid="
-                      + devid + "&devpassword=" + devpassword + "&softname=" + soft + "&output=json"
+                      + ss_devid + "&devpassword=" + ss_devpassword + "&softname=" + soft + "&output=xml"
                       + "&romnom=" + search;
-
     if (!ssid.empty()) {
         url += "&ssid=" + ssid;
     }
@@ -160,13 +157,13 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
 
     printf("Api::jeuInfos: %s\n", url.c_str());
 
-    std::string json = curl.getString(url, SS_TIMEOUT, &code);
-    if (json.empty()) {
+    std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
+    if (xml.empty()) {
         printf("Api::jeuInfos: error %li\n", code);
         return GameInfo();
     }
 
-    return parseGameInfo(json);
+    return parseGameInfo(xml);
 }
 
 Api::GameInfo Api::gameInfo(const std::string &srcPath) {
@@ -185,257 +182,282 @@ Api::GameInfo Api::gameInfo(const std::string &srcPath) {
         return GameInfo();
     }
     fseek(fp, 0, SEEK_SET);
-    std::string json = std::string((unsigned long) size, '\0');
-    fread(&json[0], sizeof(char), (size_t) size, fp);
+    std::string xml = std::string((unsigned long) size, '\0');
+    fread(&xml[0], sizeof(char), (size_t) size, fp);
     fclose(fp);
 
-    if (json.empty()) {
+    if (xml.empty()) {
         printf("Api::jeuInfos: error: data is empty\n");
         return GameInfo();
     }
 
-    return parseGameInfo(json);
+    return parseGameInfo(xml);
 }
 
-Api::GameInfo Api::parseGameInfo(const std::string &jsonData) {
+Api::GameInfo Api::parseGameInfo(const std::string &xmlData) {
 
     GameInfo ji{};
-    ji.json = jsonData;
-    json_object *json_root = json_tokener_parse(ji.json.c_str());
-    json_object *json_response, *json_ssuser, *json_jeu;
+    XMLDocument doc;
 
-    json_bool found = json_object_object_get_ex(json_root, "response", &json_response);
-    if (!found) {
-        printf("Api::parseJeuInfos: error: response object not found\n");
+    ji.xml = xmlData;
+    XMLError e = doc.Parse(ji.xml.c_str(), ji.xml.size());
+    if (e != XML_SUCCESS) {
+        printf("Api::parseGameInfo: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         return ji;
     }
 
-    // search and parse "ssuser" object
-    found = json_object_object_get_ex(json_response, "ssuser", &json_ssuser);
-    if (!found) {
-        printf("Api::parseJeuInfos: error: ssuser object not found\n");
+    XMLNode *pRoot = doc.FirstChildElement("Data");
+    if (!pRoot) {
+        printf("Api::parseGameInfo: wrong xml format: \'Data\' tag not found\n");
+        return ji;
+    }
+
+    XMLNode *userNode = pRoot->FirstChildElement("ssuser");
+    if (!userNode) {
+        printf("Api::parseGameInfo: wrong xml format: \'ssuser\' tag not found\n");
     } else {
-        ji.ssuser = parseUser(json_ssuser);
+        ji.ssuser = parseUser(userNode);
     }
 
-    // search and parse "jeu" object
-    found = json_object_object_get_ex(json_response, "jeu", &json_jeu);
-    if (!found) {
-        printf("Api::parseJeuInfos: error: jeu object not found\n");
-    }
-
-    if (!getJsonString(json_jeu, "id").empty()) {
-        ji.game = parseGame(json_jeu);
+    XMLNode *gameNode = pRoot->FirstChildElement("jeu");
+    if (!gameNode) {
+        printf("Api::parseGameInfo: wrong xml format: \'jeu\' tag not found\n");
+    } else {
+        ji.game = parseGame(gameNode);
     }
 
     return ji;
 }
 
-Game Api::parseGame(json_object *root) {
+Api::GameList Api::gameList(const std::string &xmlPath) {
 
-    Game game;
-    json_object *array;
+    GameList gl{};
+    XMLDocument doc;
 
-    game.source = "screenscraper.fr";
-    game.id = getJsonString(root, "id");
-    game.romid = getJsonString(root, "romid");
-    game.notgame = getJsonString(root, "notgame");
-    // parse names array
-    array = getJsonObject(root, "noms");
-    if (array) {
-        int size = json_object_array_length(array);
-        for (int j = 0; j < size; j++) {
-            json_object *json_obj = json_object_array_get_idx(array, j);
-            game.names.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
+    gl.xml = xmlPath;
+    XMLError e = doc.LoadFile(xmlPath.c_str());
+    if (e != XML_SUCCESS) {
+        printf("Api::gameList: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        return gl;
+    }
+
+    XMLNode *pRoot = doc.FirstChildElement("Data");
+    if (!pRoot) {
+        // emulationstation format
+        pRoot = doc.FirstChildElement("gameList");
+        if (!pRoot) {
+            printf("Api::parseGameSearch: wrong xml format: \'Data\' or \'gameList\' tag not found\n");
+            return gl;
         }
     }
-    // parse region array
-    std::string region = getJsonString(getJsonObject(root, "regions"), "shortname");
-    if (!region.empty()) {
-        game.countries.push_back(region);
+
+    XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
+    if (!gamesNode) {
+        // emulationstation format
+        gamesNode = pRoot;
+    }
+
+    XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
+    if (!gameNode) {
+        gameNode = gamesNode->FirstChildElement("game");
+    }
+    while (gameNode) {
+        // add game to game list
+        gl.games.emplace_back(parseGame(gameNode));
+        // move to next node (game)
+        gameNode = gameNode->NextSibling();
+    }
+
+    return gl;
+}
+
+Game Api::parseGame(XMLNode *gameNode) {
+
+    Game game{};
+
+    if (!gameNode) {
+        return game;
+    }
+
+    // screenscraper / emulationstation compat
+    game.id = getXmlAttribute(gameNode->ToElement(), "id");
+    // screenscraper
+    game.romid = getXmlAttribute(gameNode->ToElement(), "romid");
+    // screenscraper
+    game.notgame = getXmlAttribute(gameNode->ToElement(), "notgame");
+    // emulationstation compat
+    game.source = getXmlAttribute(gameNode->ToElement(), "source");
+    // emulationstation compat
+    game.path = getXmlText(gameNode->FirstChildElement("path"));
+    // screenscraper (prioritise screenscraper format)
+    XMLElement *element = gameNode->FirstChildElement("noms");
+    if (element) {
+        XMLNode *node = element->FirstChildElement("nom");
+        while (node) {
+            Game::Name gameName{};
+            gameName.country = getXmlAttribute(node->ToElement(), "region");
+            gameName.text = getXmlText(node->ToElement());
+            game.names.emplace_back(gameName);
+            node = node->NextSibling();
+        }
     } else {
-        array = getJsonObject(root, "regions");
-        if (array) {
-            int size = json_object_array_length(array);
-            for (int j = 0; j < size; j++) {
-                json_object *json_obj = json_object_array_get_idx(array, j);
-                game.countries.push_back(getJsonString(json_obj, "shortname"));
-            }
+        // emulationstation compat (use emulationstation format)
+        game.names.push_back({"wor", getXmlText(gameNode->FirstChildElement("name"))});
+    }
+    // screenscraper
+    element = gameNode->FirstChildElement("regions");
+    if (element) {
+        XMLNode *node = element->FirstChildElement("region");
+        while (node) {
+            game.countries.emplace_back(getXmlText(node->ToElement()));
+            node = node->NextSibling();
         }
     }
-    game.cloneof = getJsonString(root, "cloneof");
-    game.systemeid = getJsonString(root, "systemeid");
-    game.systemename = getJsonString(root, "systemenom");
-    // parse editor object
-    game.editor.id = getJsonString(getJsonObject(root, "editeur"), "id");
-    game.editor.text = getJsonString(getJsonObject(root, "editeur"), "text");
-    game.developer.id = getJsonString(getJsonObject(root, "developpeur"), "id");
-    game.developer.text = getJsonString(getJsonObject(root, "developpeur"), "text");
-    game.players = getJsonString(getJsonObject(root, "joueurs"), "text");
-    game.rating = getJsonString(getJsonObject(root, "note"), "text");
-    game.topstaff = getJsonString(root, "topstaff");
-    game.rotation = getJsonString(root, "rotation");
-    game.resolution = getJsonString(root, "resolution");
-    game.inputs = getJsonString(root, "controles");
-    game.colors = getJsonString(root, "couleurs");
-    // parse synopsis array
-    array = getJsonObject(root, "synopsis");
-    if (array) {
-        int size = json_object_array_length(array);
-        for (int j = 0; j < size; j++) {
-            json_object *json_syn = json_object_array_get_idx(array, j);
-            game.synopses.push_back({getJsonString(json_syn, "langue"), getJsonString(json_syn, "text")});
+    // screenscraper
+    game.cloneof = getXmlText(gameNode->FirstChildElement("cloneof"));
+    // screenscraper
+    game.system.id = getXmlAttribute(gameNode->FirstChildElement("systeme"), "id");
+    game.system.text = getXmlText(gameNode->FirstChildElement("systeme"));
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("synopsis");
+    if (element) {
+        XMLNode *node = element->FirstChildElement("synopsis");
+        while (node) {
+            Game::Synopsis synopsis{};
+            synopsis.language = getXmlAttribute(node->ToElement(), "langue");
+            synopsis.text = getXmlText(node->ToElement());
+            game.synopses.emplace_back(synopsis);
+            node = node->NextSibling();
         }
+    } else {
+        // emulationstation compat (use emulationstation format)
+        game.synopses.push_back({"wor", getXmlText(gameNode->FirstChildElement("desc"))});
     }
-    // parse classification array
-    array = getJsonObject(root, "classifications");
-    if (array) {
-        int size = json_object_array_length(array);
-        for (int j = 0; j < size; j++) {
-            json_object *json_obj = json_object_array_get_idx(array, j);
-            game.classifications.push_back({getJsonString(json_obj, "type"), getJsonString(json_obj, "text")});
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("medias");
+    if (element) {
+        XMLNode *node = element->FirstChildElement("media");
+        while (node) {
+            Game::Media media{};
+            media.parent = getXmlAttribute(node->ToElement(), "parent");
+            media.type = getXmlAttribute(node->ToElement(), "type");
+            media.country = getXmlAttribute(node->ToElement(), "region");
+            media.crc = getXmlAttribute(node->ToElement(), "crc");
+            media.md5 = getXmlAttribute(node->ToElement(), "md5");
+            media.sha1 = getXmlAttribute(node->ToElement(), "sha1");
+            media.format = getXmlAttribute(node->ToElement(), "format");
+            media.support = getXmlAttribute(node->ToElement(), "support");
+            media.url = getXmlText(node->ToElement());
+            game.medias.emplace_back(media);
+            node = node->NextSibling();
         }
+    } else {
+        // emulationstation compat
+        game.medias.push_back({"sstitle", "",
+                               getXmlText(gameNode->FirstChildElement("image")), "wor", "", "", "", "", ""});
+        game.medias.push_back({"screenshot", "",
+                               getXmlText(gameNode->FirstChildElement("thumbnail")), "wor", "", "", "", "", ""});
     }
-    // parse dates array
-    array = getJsonObject(root, "dates");
-    if (array) {
-        int size = json_object_array_length(array);
-        for (int j = 0; j < size; j++) {
-            json_object *json_obj = json_object_array_get_idx(array, j);
-            game.dates.push_back({getJsonString(json_obj, "region"), getJsonString(json_obj, "text")});
+    // screenscraper (prioritise screenscraper format)
+    game.rating = getXmlText(gameNode->FirstChildElement("note"));
+    if (game.rating.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game.rating = getXmlText(gameNode->FirstChildElement("rating"));
+    }
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("dates");
+    if (element) {
+        XMLNode *node = element->FirstChildElement("date");
+        while (node) {
+            Game::Date date{};
+            date.country = getXmlAttribute(node->ToElement(), "region");
+            date.text = getXmlText(node->ToElement());
+            game.dates.emplace_back(date);
+            node = node->NextSibling();
         }
+    } else {
+        // emulationstation compat (use emulationstation format)
+        Game::Date date{"wor", getXmlText(gameNode->FirstChildElement("releasedate"))};
+        game.dates.emplace_back(date);
     }
-    // parse genres array
-    array = getJsonObject(root, "genres");
-    if (array) {
-        int size = json_object_array_length(array);
-        for (int j = 0; j < size; j++) {
-            json_object *json_obj = json_object_array_get_idx(array, j);
-            Game::Genre genre;
-            genre.id = getJsonString(json_obj, "id");
-            genre.main = getJsonString(json_obj, "principale");
-            genre.parentid = getJsonString(json_obj, "parentid");
-            json_object *sub_array = getJsonObject(json_obj, "noms");
-            if (sub_array) {
-                int sub_size = json_object_array_length(sub_array);
-                for (int k = 0; k < sub_size; k++) {
-                    json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
-                    genre.names.push_back({getJsonString(json_sub_obj, "langue"),
-                                           getJsonString(json_sub_obj, "text")});
-                }
-            }
-            game.genres.push_back(genre);
+    // screenscraper
+    game.developer.id = getXmlAttribute(gameNode->FirstChildElement("developpeur"), "id");
+    game.developer.text = getXmlText(gameNode->FirstChildElement("developpeur"));
+    if (game.developer.text.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game.developer.text = getXmlText(gameNode->FirstChildElement("developer"));
+    }
+    // screenscraper
+    game.editor.id = getXmlAttribute(gameNode->FirstChildElement("editeur"), "id");
+    game.editor.text = getXmlText(gameNode->FirstChildElement("editeur"));
+    if (game.editor.text.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game.editor.text = getXmlText(gameNode->FirstChildElement("publisher"));
+    }
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("genres");
+    if (element) {
+        XMLNode *node = element->FirstChildElement("genre");
+        while (node) {
+            Game::Genre genre{};
+            genre.id = getXmlAttribute(node->ToElement(), "id");
+            genre.main = getXmlAttribute(node->ToElement(), "principale");
+            genre.parentid = getXmlAttribute(node->ToElement(), "parentid");
+            genre.language = getXmlAttribute(node->ToElement(), "langue");
+            genre.text = getXmlText(node->ToElement());
+            game.genres.emplace_back(genre);
+            node = node->NextSibling();
         }
+    } else {
+        // emulationstation compat (use emulationstation format)
+        Game::Genre genre{"", "", "", "en", getXmlText(gameNode->FirstChildElement("genre"))};
+        game.genres.emplace_back(genre);
     }
-    // parse familles array
-    array = getJsonObject(root, "familles");
-    if (array) {
-        int size = json_object_array_length(array);
-        for (int j = 0; j < size; j++) {
-            json_object *json_obj = json_object_array_get_idx(array, j);
-            Game::Family famille;
-            famille.id = getJsonString(json_obj, "id");
-            famille.main = getJsonString(json_obj, "principale");
-            famille.parentid = getJsonString(json_obj, "parentid");
-            json_object *sub_array = getJsonObject(json_obj, "noms");
-            if (sub_array) {
-                int sub_size = json_object_array_length(sub_array);
-                for (int k = 0; k < sub_size; k++) {
-                    json_object *json_sub_obj = json_object_array_get_idx(sub_array, k);
-                    famille.names.push_back({getJsonString(json_sub_obj, "langue"),
-                                             getJsonString(json_sub_obj, "text")});
-                }
-            }
-            game.families.push_back(famille);
-        }
+    // screenscraper
+    game.players = getXmlText(gameNode->FirstChildElement("joueurs"));
+    if (game.players.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game.players = getXmlText(gameNode->FirstChildElement("players"));
     }
-    // parse medias array
-    array = getJsonObject(root, "medias");
-    if (array) {
-        int size = json_object_array_length(array);
-        for (int j = 0; j < size; j++) {
-            Game::Media media;
-            json_object *json_obj = json_object_array_get_idx(array, j);
-            media.type = getJsonString(json_obj, "type");
-            media.parent = getJsonString(json_obj, "parent");
-            media.url = getJsonString(json_obj, "url");
-            media.country = getJsonString(json_obj, "region");
-            media.crc = getJsonString(json_obj, "crc");
-            media.md5 = getJsonString(json_obj, "md5");
-            media.sha1 = getJsonString(json_obj, "sha1");
-            media.format = getJsonString(json_obj, "format");
-            media.support = getJsonString(json_obj, "support");
-            game.medias.push_back(media);
-        }
-    }
+    // screenscraper
+    game.topstaff = getXmlText(gameNode->FirstChildElement("topstaff"));
+    // screenscraper
+    game.rotation = getXmlText(gameNode->FirstChildElement("rotation"));
+    // screenscraper
+    game.resolution = getXmlText(gameNode->FirstChildElement("resolution"));
+    // screenscraper
+    game.inputs = getXmlText(gameNode->FirstChildElement("controles"));
+    // screenscraper
+    game.colors = getXmlText(gameNode->FirstChildElement("couleurs"));
 
     return game;
 }
 
-User Api::parseUser(json_object *root) {
+User Api::parseUser(XMLNode *userNode) {
 
-    User user;
+    User user{};
 
-    user.id = getJsonString(root, "id");
-    user.niveau = getJsonString(root, "niveau");
-    user.contribution = getJsonString(root, "contribution");
-    user.uploadsysteme = getJsonString(root, "uploadsysteme");
-    user.uploadinfos = getJsonString(root, "uploadinfos");
-    user.romasso = getJsonString(root, "romasso");
-    user.uploadmedia = getJsonString(root, "uploadmedia");
-    user.maxthreads = getJsonString(root, "maxthreads");
-    user.maxdownloadspeed = getJsonString(root, "maxdownloadspeed");
-    user.requeststoday = getJsonString(root, "requeststoday");
-    user.maxrequestsperday = getJsonString(root, "maxrequestsperday");
-    user.visites = getJsonString(root, "visites");
-    user.datedernierevisite = getJsonString(root, "datedernierevisite");
-    user.favregion = getJsonString(root, "favregion");
+    if (!userNode) {
+        return user;
+    }
+
+    user.id = getXmlText(userNode->FirstChildElement("id"));
+    user.niveau = getXmlText(userNode->FirstChildElement("niveau"));
+    user.contribution = getXmlText(userNode->FirstChildElement("contribution"));
+    user.uploadsysteme = getXmlText(userNode->FirstChildElement("uploadsysteme"));
+    user.uploadinfos = getXmlText(userNode->FirstChildElement("uploadinfos"));
+    user.romasso = getXmlText(userNode->FirstChildElement("romasso"));
+    user.uploadmedia = getXmlText(userNode->FirstChildElement("uploadmedia"));
+    user.maxthreads = getXmlText(userNode->FirstChildElement("maxthreads"));
+    user.maxdownloadspeed = getXmlText(userNode->FirstChildElement("maxdownloadspeed"));
+    user.requeststoday = getXmlText(userNode->FirstChildElement("requeststoday"));
+    user.maxrequestsperday = getXmlText(userNode->FirstChildElement("maxrequestsperday"));
+    user.visites = getXmlText(userNode->FirstChildElement("visites"));
+    user.datedernierevisite = getXmlText(userNode->FirstChildElement("datedernierevisite"));
+    user.favregion = getXmlText(userNode->FirstChildElement("favregion"));
 
     return user;
 }
-
-json_object *Api::getJsonObject(json_object *root, const std::string &key) {
-
-    json_object *object;
-
-    if (root) {
-        json_bool found = json_object_object_get_ex(root, key.c_str(), &object);
-        if (found) {
-            return object;
-        }
-    }
-
-    return nullptr;
-}
-
-std::string Api::getJsonString(json_object *root, const std::string &key) {
-
-    json_object *object;
-
-    if (root) {
-        json_bool found = json_object_object_get_ex(root, key.c_str(), &object);
-        if (found && object) {
-            return json_object_get_string(object);
-        }
-    }
-
-    return "";
-}
-
-/*
-std::vector<Game::Media> Api::getMedia(const Game &game, const Game::Media::Type::Type &type, const Country &country) {
-
-    std::vector<Game::Media> medias;
-
-    remove_copy_if(game.medias.begin(), game.medias.end(), back_inserter(medias),
-                   [type, country](const Game::Media &media) {
-                       return media.type != mediaTypeToString(type)
-                              || (country != Country::ALL && media.country != countryToString(country));
-                   });
-
-    return medias;
-}
-*/
 
 int Api::download(const Game::Media &media, const std::string &dstPath) {
 
@@ -446,7 +468,8 @@ int Api::download(const Game::Media &media, const std::string &dstPath) {
     printf("Api::download: %s\n", media.url.c_str());
 
     long http_code = 0;
-    int res = curl.getData(media.url, dstPath, SS_TIMEOUT, &http_code);
+    Curl ss_curl;
+    int res = ss_curl.getData(media.url, dstPath, SS_TIMEOUT, &http_code);
     if (res != 0) {
         printf("Api::download: error: curl failed: %s, http_code: %li\n",
                curl_easy_strerror((CURLcode) res), http_code);
@@ -460,11 +483,11 @@ bool Api::GameInfo::save(const std::string &dstPath) {
 
     FILE *fp = fopen(dstPath.c_str(), "wb");
     if (!fp) {
-        printf("Api::JeuInfos::save: error: fopen failed\n");
-        return -1;
+        printf("Api::GameInfo::save: error: fopen failed\n");
+        return false;
     }
 
-    fwrite(json.c_str(), sizeof(char), json.length(), fp);
+    fwrite(xml.c_str(), sizeof(char), xml.length(), fp);
     fclose(fp);
 
     return true;
@@ -473,14 +496,45 @@ bool Api::GameInfo::save(const std::string &dstPath) {
 bool Api::GameSearch::save(const std::string &dstPath) {
     FILE *fp = fopen(dstPath.c_str(), "wb");
     if (!fp) {
-        printf("Api::JeuRecherche::save: error: fopen failed\n");
-        return -1;
+        printf("Api::GameSearch::save: error: fopen failed\n");
+        return false;
     }
 
-    fwrite(json.c_str(), sizeof(char), json.length(), fp);
+    fwrite(xml.c_str(), sizeof(char), xml.length(), fp);
     fclose(fp);
 
     return true;
+}
+
+bool Api::GameList::save(const std::string &dstPath) {
+    FILE *fp = fopen(dstPath.c_str(), "wb");
+    if (!fp) {
+        printf("Api::GameList::save: error: fopen failed\n");
+        return -1;
+    }
+
+    fwrite(xml.c_str(), sizeof(char), xml.length(), fp);
+    fclose(fp);
+
+    return true;
+}
+
+std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name) {
+
+    if (!element || !element->Attribute(name.c_str())) {
+        return "";
+    }
+
+    return element->Attribute(name.c_str());
+}
+
+std::string Api::getXmlText(tinyxml2::XMLElement *element) {
+
+    if (!element || !element->GetText()) {
+        return "";
+    }
+
+    return element->GetText();
 }
 
 std::string Api::toString(const Game::Media::Type &type) {
@@ -747,3 +801,4 @@ Game::Language Api::toLanguage(const std::string &language) {
     else if (language == "all") { return Game::Language::ALL; }
     else return Game::Language::UNKNOWN;
 }
+

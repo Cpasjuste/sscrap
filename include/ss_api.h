@@ -5,7 +5,7 @@
 #ifndef SS_API_H
 #define SS_API_H
 
-#include <json-c/json.h>
+#include <tinyxml2.h>
 
 #include "ss_curl.h"
 #include "ss_game.h"
@@ -19,11 +19,19 @@ namespace ss_api {
 
     public:
 
+        class GameList {
+        public:
+            std::vector<Game> games;
+            std::string xml;
+
+            bool save(const std::string &dstPath);
+        };
+
         class GameSearch {
         public:
             User ssuser;
             std::vector<Game> games;
-            std::string json;
+            std::string xml;
 
             bool save(const std::string &dstPath);
         };
@@ -32,27 +40,26 @@ namespace ss_api {
         public:
             User ssuser;
             Game game;
-            std::string json;
+            std::string xml;
 
             bool save(const std::string &dstPath);
         };
 
-        explicit Api(const std::string &devid, const std::string &devpassword,
-                     const std::string &softname);
-
-        GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
+        static GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
                               const std::string &ssid = "", const std::string &sspassword = "");
 
-        GameSearch gameSearch(const std::string &srcPath);
+        static GameSearch gameSearch(const std::string &srcPath);
 
-        GameInfo gameInfo(const std::string &crc, const std::string &md5, const std::string &sha1,
+        static GameInfo gameInfo(const std::string &crc, const std::string &md5, const std::string &sha1,
                           const std::string &systemeid, const std::string &romtype,
                           const std::string &romnom, const std::string &romtaille, const std::string &gameid,
                           const std::string &ssid = "", const std::string &sspassword = "");
 
-        GameInfo gameInfo(const std::string &srcPath);
+        static GameInfo gameInfo(const std::string &srcPath);
 
-        int download(const Game::Media &media, const std::string &dstPath);
+        static GameList gameList(const std::string &xmlPath);
+
+        static int download(const Game::Media &media, const std::string &dstPath);
 
         static std::string toString(const Game::Media::Type &type);
 
@@ -66,25 +73,23 @@ namespace ss_api {
 
         static Game::Language toLanguage(const std::string &language);
 
+        static std::string ss_devid;
+        static std::string ss_devpassword;
+        static std::string ss_softname;
+
     private:
 
-        static GameInfo parseGameInfo(const std::string &jsonData);
+        static GameInfo parseGameInfo(const std::string &xmlData);
 
-        static GameSearch parseGameSearch(const std::string &jsonData);
+        static GameSearch parseGameSearch(const std::string &xmlData);
 
-        static Game parseGame(json_object *root);
+        static Game parseGame(tinyxml2::XMLNode *gameNode);
 
-        static User parseUser(json_object *root);
+        static User parseUser(tinyxml2::XMLNode *userNode);
 
-        static json_object *getJsonObject(json_object *root, const std::string &key);
+        static std::string getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name);
 
-        static std::string getJsonString(json_object *root, const std::string &key);
-
-        std::string devid;
-        std::string devpassword;
-        std::string softname;
-
-        Curl curl;
+        static std::string getXmlText(tinyxml2::XMLElement *element);
     };
 }
 

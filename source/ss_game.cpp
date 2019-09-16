@@ -72,23 +72,25 @@ Game::Date Game::getDate(const Game::Country &country) const {
     return list.at(0);
 }
 
-Game::Genre::Name Game::getGenre(const Game::Language &language) const {
+Game::Genre Game::getGenre(const Game::Language &language) const {
 
-    for (const auto &genre : genres) {
-        for (const auto &name : genre.names) {
-            if (name.language == Api::toString(language)) {
-                return name;
-            }
+    std::vector<Game::Genre> list;
+
+    copy_if(genres.begin(), genres.end(), back_inserter(list),
+            [language](const Game::Genre &p) {
+                return p.language == Api::toString(language);
+            });
+
+    if (list.empty()) {
+        if (language != Game::Language::EN) {
+            return getGenre(Game::Language::EN);
+        } else if (!genres.empty()) {
+            return genres.at(0);
         }
+        return Game::Genre();
     }
 
-    if (language != Game::Language::EN) {
-        return getGenre(Game::Language::EN);
-    } else if (!genres.empty() && !genres.at(0).names.empty()) {
-        return genres.at(0).names.at(0);
-    }
-
-    return Game::Genre::Name();
+    return list.at(0);
 }
 
 Game::Media Game::getMedia(const Game::Media::Type &type, const Game::Country &country) const {
