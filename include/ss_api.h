@@ -42,8 +42,6 @@ namespace ss_api {
             User ssuser;
             std::vector<Game> games;
             std::string xml;
-
-            bool save(const std::string &dstPath);
         };
 
         class GameInfo {
@@ -51,25 +49,17 @@ namespace ss_api {
             User ssuser;
             Game game;
             std::string xml;
-
-            bool save(const std::string &dstPath);
         };
 
         static GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
                                      const std::string &ssid = "", const std::string &sspassword = "");
-
-        static GameSearch gameSearch(const std::string &srcPath);
 
         static GameInfo gameInfo(const std::string &crc, const std::string &md5, const std::string &sha1,
                                  const std::string &systemeid, const std::string &romtype,
                                  const std::string &romnom, const std::string &romtaille, const std::string &gameid,
                                  const std::string &ssid = "", const std::string &sspassword = "");
 
-        static GameInfo gameInfo(const std::string &srcPath);
-
-        static GameList gameList(const std::string &xmlPath);
-
-        static GameList gameList(const std::string &xmlPath, const std::string &romPath);
+        static GameList gameList(const std::string &xmlPath, const std::string &romPath = "");
 
         static std::vector<Game> gameListFilter(const std::vector<Game> &games,
                                                 const std::string &system = "All",
@@ -101,11 +91,11 @@ namespace ss_api {
 
     private:
 
-        static GameInfo parseGameInfo(const std::string &xmlData);
+        static GameInfo parseGameInfo(const std::string &xmlData, const std::string &romName);
 
         static GameSearch parseGameSearch(const std::string &xmlData);
 
-        static Game parseGame(tinyxml2::XMLNode *gameNode);
+        static Game parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName = "");
 
         static User parseUser(tinyxml2::XMLNode *userNode);
 

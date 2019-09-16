@@ -144,6 +144,7 @@ namespace ss_api {
         std::vector<Genre> genres;
         std::vector<Family> families;
         std::vector<Media> medias;
+        bool available = false;
         // emulationstation compatibility
         std::string source;
         std::string path;

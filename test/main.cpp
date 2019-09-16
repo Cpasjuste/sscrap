@@ -3,7 +3,6 @@
 //
 
 #include "ss_api.h"
-#include "ss_gamelist.h"
 #include "args.h"
 
 #define KRED "\x1B[31m"
@@ -16,6 +15,8 @@ void printGame(const Game &game) {
     printf("\n===================================\n");
     Game::Name name = game.getName(Game::Country::SS);
     printf("nom (%s): %s (alternatives: %li)\n", name.country.c_str(), name.text.c_str(), game.names.size() - 1);
+    printf("available: %i\n", game.available);
+    printf("path: %s\n", game.path.c_str());
     for (auto &country : game.countries) {
         printf("country: %s\n", country.c_str());
     }
@@ -72,29 +73,6 @@ int main(int argc, char **argv) {
     Api::ss_devpassword = SS_DEV_PWD;
     Api::ss_softname = "sscrap";
 
-    //Api::GameSearch search = api.gameSearch("sonic", "", user, pwd);
-    //search.save("test.xml");
-    Api::GameList gameList = Api::gameList("test.xml");
-    //for (auto &game : gameList.games) {
-    //    printGame(game);
-    //}
-    printf("systems found: %li: ", gameList.systems.size());
-    for (auto &system : gameList.systems) {
-        printf("%s, ", system.c_str());
-    }
-    printf("\n");
-    printf("dates found: %li: ", gameList.dates.size());
-    for (auto &date : gameList.dates) {
-        printf("%s, ", date.c_str());
-    }
-    printf("\n");
-    printf("genres found: %li: ", gameList.genres.size());
-    for (auto &genre : gameList.genres) {
-        printf("%s, ", genre.c_str());
-    }
-    printf("\n");
-
-    /*
     if (args.exist("-gameinfo")) {
         //Api::GameInfo gameInfo = Api::gameInfo("", "", "", "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
         Api::GameInfo gameInfo = Api::gameInfo(args.get("-crc"), args.get("-md5"), args.get("-sha1"),
@@ -127,7 +105,6 @@ int main(int argc, char **argv) {
     } else {
         fprintf(stderr, KRED "TODO: PRINT HELP\n" KRAS);
     }
-    */
 
     return 0;
 }
