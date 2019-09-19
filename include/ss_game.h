@@ -84,6 +84,10 @@ namespace ss_api {
         };
 
         struct Media {
+            enum class Parent {
+                All, Game, Country, Editor, Developer,
+                Players, Rating, Genre
+            };
             enum class Type {
                 SSTitle, SS, Screenshot, Fanart, Video, Marquee,
                 ScreenMarquee, ScreenMarqueeSmall, ThemeHs, Manuel,
@@ -120,7 +124,7 @@ namespace ss_api {
         // TODO: to lazy for now
         //Game::Family::Name getFamily(const Game::Language &language) const;
 
-        Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country) const;
+        Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country = Game::Country::WOR) const;
 
         std::string id;
         std::string romid;

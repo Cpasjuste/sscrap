@@ -104,8 +104,8 @@ Game::Media Game::getMedia(const Game::Media::Type &type, const Game::Country &c
                    });
 
     if (mediaList.empty()) {
-        if (country != Game::Country::SS) {
-            return getMedia(type, Game::Country::SS);
+        if (country != Game::Country::WOR) {
+            return getMedia(type, Game::Country::WOR);
         }
         return Game::Media();
     }
