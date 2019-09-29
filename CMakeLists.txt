@@ -10,7 +10,6 @@ option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
 option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
 option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
-option(PLATFORM_LDK "LDK Handheld platform target (mips: LDK, RS-97...)" OFF)
 ####################
 # TARGET PLATFORM
 ####################
@@ -20,8 +19,8 @@ project(sscrap)
 ##############
 # SCREENSCRAP
 ##############
-set(INCLUDES include)
-file(GLOB SOURCES source/*.c*)
+set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include)
+file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.c*)
 set(CFLAGS)
 set(LDFLAGS curl tinyxml2 z)
 
@@ -33,7 +32,6 @@ if (PLATFORM_SWITCH)
     # SWITCH PLATORM
     #####################
     list(APPEND CFLAGS -D__SWITCH__)
-    list(APPEND INCLUDES)
     list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 nx)
 elseif (PLATFORM_LINUX)
     #####################
@@ -56,14 +54,14 @@ endif ()
 #####################
 add_library(${PROJECT_NAME} ${SOURCES} source/ss_game.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
-target_compile_options(${PROJECT_NAME} PRIVATE ${CFLAGS})
+target_compile_options(${PROJECT_NAME} PUBLIC ${CFLAGS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LDFLAGS})
 # read tmdb api key
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ss_dev_id.key")
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_dev_id.key" DEVID)
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_dev_pwd.key" DEVPWD)
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_user_id.key" SSID)
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_user_pwd.key" SSPWD)
+if (EXISTS "${CMAKE_SOURCE_DIR}/ss_dev_id.key")
+    file(STRINGS "${CMAKE_SOURCE_DIR}/ss_dev_id.key" DEVID)
+    file(STRINGS "${CMAKE_SOURCE_DIR}/ss_dev_pwd.key" DEVPWD)
+    file(STRINGS "${CMAKE_SOURCE_DIR}/ss_user_id.key" SSID)
+    file(STRINGS "${CMAKE_SOURCE_DIR}/ss_user_pwd.key" SSPWD)
     message("-- Screensraper dev id: ${DEVID}")
 else ()
     message(WARNING "ss_dev_id.key, ss_dev_pwd.key, ss_user_id.key and ss_user_pwd.key files not found, using dummy ss keys. Please fix by creating this files and add your keys...")

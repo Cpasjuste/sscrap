@@ -110,16 +110,16 @@ namespace ss_api {
             int download(const std::string &dstPath);
         };
 
-        Game::Name getName(const Game::Country &country) const;
+        Game::Name getName(const Game::Country &country = Game::Country::WOR) const;
 
-        Game::Synopsis getSynopsis(const Game::Language &language) const;
+        Game::Synopsis getSynopsis(const Game::Language &language = Game::Language::EN) const;
 
         // TODO: to lazy for now
         //Game::Classification getClassification(const Game::Country &country) const;
 
-        Game::Date getDate(const Game::Country &country) const;
+        Game::Date getDate(const Game::Country &country = Game::Country::WOR) const;
 
-        Game::Genre getGenre(const Game::Language &language) const;
+        Game::Genre getGenre(const Game::Language &language = Game::Language::EN) const;
 
         // TODO: to lazy for now
         //Game::Family::Name getFamily(const Game::Language &language) const;
