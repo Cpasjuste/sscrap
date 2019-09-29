@@ -22,7 +22,6 @@ namespace ss_api {
         class GameList {
         public:
             std::vector<Game> games;
-            std::string xml;
             std::vector<std::string> systems;
             std::vector<std::string> editors;
             std::vector<std::string> developers;
@@ -33,6 +32,8 @@ namespace ss_api {
             std::vector<std::string> resolutions;
             std::vector<std::string> dates;
             std::vector<std::string> genres;
+            std::string romPath;
+            std::string xml;
 
             bool save(const std::string &dstPath);
         };

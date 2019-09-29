@@ -174,7 +174,7 @@ Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &
     return ji;
 }
 
-Api::GameList Api::gameList(const std::string &xmlPath, const std::string &romPath) {
+Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath) {
 
     GameList gl{};
     XMLDocument doc;
@@ -208,8 +208,9 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &romPa
         gameNode = gamesNode->FirstChildElement("game");
     }
 
-    if (!romPath.empty()) {
-        files = Io::getDirList(romPath);
+    gl.romPath = rPath;
+    if (!gl.romPath.empty()) {
+        files = Io::getDirList(gl.romPath);
     }
 
     while (gameNode) {
