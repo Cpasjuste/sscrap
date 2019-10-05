@@ -219,6 +219,7 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath
         auto p = std::find(files.begin(), files.end(), game.path);
         if (p != files.end()) {
             game.available = true;
+            gl.roms_count++;
         }
         // add stuff for later filtering
         p = std::find(gl.systems.begin(), gl.systems.end(), game.system.text);

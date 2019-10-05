@@ -34,6 +34,7 @@ namespace ss_api {
             std::vector<std::string> genres;
             std::string romPath;
             std::string xml;
+            int roms_count = 0;
 
             bool save(const std::string &dstPath);
         };
