@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.0)
 ####################
 # TARGET PLATFORM
 ####################
-option(PLATFORM_LINUX "Linux platform target" ON)
+option(PLATFORM_LINUX "Linux platform target" OFF)
 option(PLATFORM_WINDOWS "Windows platform target (msys/mingw64)" OFF)
 option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
