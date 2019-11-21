@@ -72,19 +72,25 @@ static void *scrap_thread(void *ptr) {
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
                     std::string path = "media/images/" + name + media.format;
-                    media.download(path);
+                    if (!Io::exist(path)) {
+                        media.download(path);
+                    }
                 }
                 media = gameInfo.game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
                     std::string path = "media/box3d/" + name + media.format;
-                    media.download(path);
+                    if (!Io::exist(path)) {
+                        media.download(path);
+                    }
                 }
                 media = gameInfo.game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
                     std::string path = "media/videos/" + name + media.format;
-                    media.download(path);
+                    if (!Io::exist(path)) {
+                        media.download(path);
+                    }
                 }
             }
             pthread_mutex_lock(&scrapper->mutex);

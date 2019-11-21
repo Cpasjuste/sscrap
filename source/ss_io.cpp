@@ -30,3 +30,8 @@ std::vector<std::string> Io::getDirList(const std::string &path) {
 void Io::makedir(const std::string &path) {
     mkdir(path.c_str(), 0755);
 }
+
+bool Io::exist(const std::string &file) {
+    struct stat st{};
+    return (stat(file.c_str(), &st) == 0);
+}

@@ -14,6 +14,8 @@ namespace ss_api {
         static std::vector<std::string> getDirList(const std::string &path);
 
         static void makedir(const std::string &path);
+
+        static bool exist(const std::string &file);
     };
 }
 
