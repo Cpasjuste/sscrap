@@ -39,7 +39,7 @@ Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string 
     std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
     if (xml.empty()) {
         SS_PRINT("Api::jeuRecherche: error %li\n", code);
-        return GameSearch();
+        return GameSearch((int) code);
     }
 
     return parseGameSearch(xml);
@@ -134,7 +134,7 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
     std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
     if (xml.empty()) {
         SS_PRINT("Api::jeuInfos: error %li\n", code);
-        return GameInfo();
+        return GameInfo((int) code);
     }
 
     return parseGameInfo(xml, romnom);

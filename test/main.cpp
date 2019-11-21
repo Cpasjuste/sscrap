@@ -8,11 +8,14 @@
 #include "scrap.h"
 #include "args.h"
 
-#define KRED "\x1B[31m"
+#define KRED "\x1B[91m"
 #define KGRE "\x1B[92m"
+#define KYEL "\x1B[93m"
 #define KRAS "\033[0m"
 
 using namespace ss_api;
+
+static Scrap *scrap;
 
 void printGame(const Game &game) {
 
@@ -54,55 +57,97 @@ void printGame(const Game &game) {
 
 static void *scrap_thread(void *ptr) {
 
-    auto scrapper = (Scrap *) ptr;
+    int tid = *((int *) ptr);
+    int retry_delay = 10;
 
-    while (!scrapper->fileList.empty()) {
+    while (!scrap->fileList.empty()) {
 
-        pthread_mutex_lock(&scrapper->mutex);
-        std::string file = scrapper->fileList.at(0);
-        scrapper->fileList.erase(scrapper->fileList.begin());
-        pthread_mutex_unlock(&scrapper->mutex);
+        pthread_mutex_lock(&scrap->mutex);
+        std::string file = scrap->fileList.at(0);
+        scrap->fileList.erase(scrap->fileList.begin());
+        pthread_mutex_unlock(&scrap->mutex);
 
         Api::GameInfo gameInfo = Api::gameInfo("", "", "",
-                                               scrapper->args.get("-systemid"), scrapper->args.get("-romtype"),
-                                               file, "", "", scrapper->user, scrapper->pwd);
+                                               scrap->args.get("-systemid"), scrap->args.get("-romtype"),
+                                               file, "", "", scrap->user, scrap->pwd);
+        // 429 = maximum threads per minute reached
+        while (gameInfo.http_error == 429) {
+            pthread_mutex_lock(&scrap->mutex);
+            fprintf(stderr,
+                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                    tid, retry_delay);
+            pthread_mutex_unlock(&scrap->mutex);
+            sleep(retry_delay);
+            gameInfo = Api::gameInfo("", "", "",
+                                     scrap->args.get("-systemid"), scrap->args.get("-romtype"),
+                                     file, "", "", scrap->user, scrap->pwd);
+        }
+
         if (!gameInfo.game.id.empty()) {
-            if (scrapper->args.exist("-dl")) {
+            if (scrap->args.exist("-medias") && (scrap->dlCloneOff && gameInfo.game.cloneof == "0")) {
                 Game::Media media = gameInfo.game.getMedia(Game::Media::Type::SS, Game::Country::SS);
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                    std::string path = "media/images/" + name + media.format;
+                    std::string path = scrap->romPath + "/media/images/" + name + media.format;
                     if (!Io::exist(path)) {
-                        media.download(path);
+                        int res = media.download(path);
+                        while (res == 429) {
+                            pthread_mutex_lock(&scrap->mutex);
+                            fprintf(stderr,
+                                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                                    tid, retry_delay);
+                            pthread_mutex_unlock(&scrap->mutex);
+                            sleep(retry_delay);
+                            res = media.download(path);
+                        }
                     }
                 }
                 media = gameInfo.game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                    std::string path = "media/box3d/" + name + media.format;
+                    std::string path = scrap->romPath + "/media/box3d/" + name + media.format;
                     if (!Io::exist(path)) {
-                        media.download(path);
+                        int res = media.download(path);
+                        while (res == 429) {
+                            pthread_mutex_lock(&scrap->mutex);
+                            fprintf(stderr,
+                                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                                    tid, retry_delay);
+                            pthread_mutex_unlock(&scrap->mutex);
+                            sleep(retry_delay);
+                            res = media.download(path);
+                        }
                     }
                 }
                 media = gameInfo.game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                    std::string path = "media/videos/" + name + media.format;
+                    std::string path = scrap->romPath + "/media/videos/" + name + media.format;
                     if (!Io::exist(path)) {
-                        media.download(path);
+                        int res = media.download(path);
+                        while (res == 429) {
+                            pthread_mutex_lock(&scrap->mutex);
+                            fprintf(stderr,
+                                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                                    tid, retry_delay);
+                            pthread_mutex_unlock(&scrap->mutex);
+                            sleep(retry_delay);
+                            res = media.download(path);
+                        }
                     }
                 }
             }
-            pthread_mutex_lock(&scrapper->mutex);
+
+            pthread_mutex_lock(&scrap->mutex);
             printf(KGRE "OK: %s => %s (%s)\n" KRAS,
                    file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
-            scrapper->gameList.games.emplace_back(gameInfo.game);
-            pthread_mutex_unlock(&scrapper->mutex);
+            scrap->gameList.games.emplace_back(gameInfo.game);
+            pthread_mutex_unlock(&scrap->mutex);
         } else {
-            pthread_mutex_lock(&scrapper->mutex);
-            fprintf(stderr, KRED "NOK: %s\n" KRAS, file.c_str());
-            scrapper->missList.emplace_back(file);
-            pthread_mutex_unlock(&scrapper->mutex);
+            pthread_mutex_lock(&scrap->mutex);
+            fprintf(stderr, KRED "NOK: %s (%i)\n" KRAS, file.c_str(), gameInfo.http_error);
+            scrap->missList.emplace_back(file);
+            pthread_mutex_unlock(&scrap->mutex);
         };
     }
 
@@ -128,34 +173,42 @@ Scrap::Scrap(const ArgumentParser &parser) {
 void Scrap::run() {
 
     int thread_count = 1;
+    dlCloneOff = args.exist("-mediasclones");
 
     if (args.exist("-gameinfo")) {
         if (args.exist("-rompath")) {
-            fileList = Io::getDirList(args.get("-rompath"));
+            romPath = args.get("-rompath");
+            fileList = Io::getDirList(romPath);
             if (fileList.empty()) {
                 fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
                 return;
             }
-            if (args.exist("-dl")) {
-                Io::makedir("media");
-                Io::makedir("media/box3d");
-                Io::makedir("media/images");
-                Io::makedir("media/videos");
+
+            if (args.exist("-medias")) {
+                Io::makedir(romPath + "/media");
+                Io::makedir(romPath + "/media/box3d");
+                Io::makedir(romPath + "/media/images");
+                Io::makedir(romPath + "/media/videos");
             }
 
             if (args.exist("-threads")) {
                 thread_count = (int) std::strtol(args.get("-threads").c_str(), nullptr, 10);
             }
+
             for (int i = 0; i < thread_count; i++) {
-                pthread_create(&threads[i], nullptr, scrap_thread, this);
+                // yes, there's a minor memory leak there...
+                int *tid = (int *) malloc(sizeof(*tid));
+                *tid = i;
+                pthread_create(&threads[i], nullptr, scrap_thread, (void *) tid);
             }
+
             for (int i = 0; i < thread_count; i++) {
                 pthread_join(threads[i], nullptr);
             }
 
             gameList.roms_count = gameList.games.size();
             if (!gameList.games.empty() && args.exist("-savexml")) {
-                gameList.save(args.get("-savexml"));
+                gameList.save(romPath + "/gamelist.xml");
             }
 
             printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
@@ -206,8 +259,8 @@ int main(int argc, char **argv) {
     Api::ss_softname = "sscrap";
     ss_debug = args.exist("-debug");
 
-    auto scrapper = new Scrap(args);
-    scrapper->run();
+    scrap = new Scrap(args);
+    scrap->run();
 
     return 0;
 }

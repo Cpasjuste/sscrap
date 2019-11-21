@@ -41,16 +41,28 @@ namespace ss_api {
 
         class GameSearch {
         public:
+            GameSearch() = default;
+
+            explicit GameSearch(int err) {
+                http_error = err;
+            };
             User ssuser;
             std::vector<Game> games;
             std::string xml;
+            int http_error = 0;
         };
 
         class GameInfo {
         public:
+            GameInfo() = default;
+
+            explicit GameInfo(int err) {
+                http_error = err;
+            };
             User ssuser;
             Game game;
             std::string xml;
+            int http_error = 0;
         };
 
         static GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,

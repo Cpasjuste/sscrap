@@ -20,9 +20,11 @@ public:
     std::string user;
     std::string pwd;
     ss_api::Game::Language language = ss_api::Game::Language::EN;
+    std::string romPath;
     ss_api::Api::GameList gameList;
     std::vector<std::string> fileList;
     std::vector<std::string> missList;
+    bool dlCloneOff = false;
     pthread_t threads[15];
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 };
