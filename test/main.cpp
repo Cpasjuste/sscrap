@@ -3,12 +3,16 @@
 //
 
 #include "ss_api.h"
+#include "ss_io.h"
 #include "args.h"
 
 #define KRED "\x1B[31m"
+#define KGRE "\x1B[92m"
 #define KRAS "\033[0m"
 
 using namespace ss_api;
+
+std::vector<std::string> missList;
 
 void printGame(const Game &game) {
 
@@ -56,13 +60,13 @@ int main(int argc, char **argv) {
     Game::Language language = Game::Language::EN;
     ArgumentParser args(argc, argv);
 
-    user = args.get("-u");
-    pwd = args.get("-p");
-    if (args.exist("-l")) {
-        language = Api::toLanguage(args.get("-l"));
+    user = args.get("-user");
+    pwd = args.get("-password");
+    if (args.exist("-language")) {
+        language = Api::toLanguage(args.get("-language"));
         if (language == Game::Language::UNKNOWN) {
             fprintf(stderr, KRED "ERROR: language not found: %s, available languages: en, fr, es, pt\n" KRAS,
-                    args.get("-l").c_str());
+                    args.get("-language").c_str());
             return -1;
         }
         printf("language: %s\n", Api::toString(language).c_str());
@@ -72,25 +76,56 @@ int main(int argc, char **argv) {
     Api::ss_devid = SS_DEV_ID;
     Api::ss_devpassword = SS_DEV_PWD;
     Api::ss_softname = "sscrap";
+    ss_debug = args.exist("-debug");
 
     if (args.exist("-gameinfo")) {
-        //Api::GameInfo gameInfo = Api::gameInfo("", "", "", "75", "rom", "dino.zip", "", "", SS_ID, SS_PWD);
-        Api::GameInfo gameInfo = Api::gameInfo(args.get("-crc"), args.get("-md5"), args.get("-sha1"),
-                                               args.get("-systemid"), args.get("-romtype"), args.get("-romname"),
-                                               args.get("-romsize"), args.get("-gameid"), user, pwd);
-        printf("\n===================================\n");
-        printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
-               gameInfo.ssuser.id.c_str(), gameInfo.ssuser.maxrequestsperday.c_str(),
-               gameInfo.ssuser.maxthreads.c_str());
-        if (!gameInfo.game.id.empty()) {
-            printGame(gameInfo.game);
-            // save game list as xml (emulationstation + pFBA compatibility)
-            //auto gameList = new GameList();
-            //gameList->games.push_back(gameInfo.game);
-            //gameList->save("test.xml");
-            //delete (gameList);
+        if (args.exist("-rompath")) {
+            std::vector<std::string> files = Io::getDirList(args.get("-rompath"));
+            if (files.empty()) {
+                fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
+                return -1;
+            }
+
+            Api::GameList gameList;
+            for (const auto &file : files) {
+                Api::GameInfo gameInfo = Api::gameInfo("", "", "",
+                                                       args.get("-systemid"), args.get("-romtype"),
+                                                       file, "", "", user, pwd);
+                if (!gameInfo.game.id.empty()) {
+                    printf(KGRE "OK: %s => %s (%s)\n" KRAS,
+                           file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
+                    gameList.games.emplace_back(gameInfo.game);
+                } else {
+                    fprintf(stderr, KRED "NOK: %s\n" KRAS, file.c_str());
+                    missList.emplace_back(file);
+                };
+            }
+            gameList.roms_count = gameList.games.size();
+            if (!gameList.games.empty() && args.exist("-savexml")) {
+                gameList.save(args.get("-savexml"));
+            }
+            printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
+            printf(KGRE "found %i games on %zu files" KRAS, gameList.roms_count, files.size());
+            if (!missList.empty()) {
+                printf(KGRE ", missing games:\n" KRAS);
+                for (const auto &file : missList) {
+                    printf(KRED "%s, " KRAS, file.c_str());
+                }
+            }
+            printf("\n");
         } else {
-            printf("gameInfo: game not found\n");
+            Api::GameInfo gameInfo = Api::gameInfo(args.get("-crc"), args.get("-md5"), args.get("-sha1"),
+                                                   args.get("-systemid"), args.get("-romtype"), args.get("-romname"),
+                                                   args.get("-romsize"), args.get("-gameid"), user, pwd);
+            printf("\n===================================\n");
+            printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
+                   gameInfo.ssuser.id.c_str(), gameInfo.ssuser.maxrequestsperday.c_str(),
+                   gameInfo.ssuser.maxthreads.c_str());
+            if (!gameInfo.game.id.empty()) {
+                printGame(gameInfo.game);
+            } else {
+                printf("gameInfo: game not found\n");
+            }
         }
     } else if (args.exist("-gamesearch")) {
         Api::GameSearch search = Api::gameSearch(args.get("-gamename"), args.get("-systemid"), user, pwd);

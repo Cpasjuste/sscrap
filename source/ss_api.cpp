@@ -12,6 +12,7 @@ using namespace tinyxml2;
 std::string Api::ss_devid;
 std::string Api::ss_devpassword;
 std::string Api::ss_softname;
+bool ss_debug = false;
 
 Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string &systemeid,
                                 const std::string &ssid, const std::string &sspassword) {
@@ -33,11 +34,11 @@ Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string 
         url += "&systemeid=" + systemeid;
     }
 
-    printf("Api::jeuRecherche: %s\n", url.c_str());
+    SS_PRINT("Api::jeuRecherche: %s\n", url.c_str());
 
     std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
     if (xml.empty()) {
-        printf("Api::jeuRecherche: error %li\n", code);
+        SS_PRINT("Api::jeuRecherche: error %li\n", code);
         return GameSearch();
     }
 
@@ -52,26 +53,26 @@ Api::GameSearch Api::parseGameSearch(const std::string &xmlData) {
     gs.xml = xmlData;
     XMLError e = doc.Parse(gs.xml.c_str(), gs.xml.size());
     if (e != XML_SUCCESS) {
-        printf("Api::parseGameSearch: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("Api::parseGameSearch: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         return gs;
     }
 
     XMLNode *pRoot = doc.FirstChildElement("Data");
     if (!pRoot) {
-        printf("Api::parseGameSearch: wrong xml format: \'Data\' tag not found\n");
+        SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' tag not found\n");
         return gs;
     }
 
     XMLNode *userNode = pRoot->FirstChildElement("ssuser");
     if (!userNode) {
-        printf("Api::parseGameSearch: wrong xml format: \'ssuser\' tag not found\n");
+        SS_PRINT("Api::parseGameSearch: wrong xml format: \'ssuser\' tag not found\n");
     } else {
         gs.ssuser = parseUser(userNode);
     }
 
     XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
     if (!gamesNode) {
-        printf("Api::parseGameSearch: wrong xml format: \'jeux\' tag not found\n");
+        SS_PRINT("Api::parseGameSearch: wrong xml format: \'jeux\' tag not found\n");
     } else {
         XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
         while (gameNode) {
@@ -128,11 +129,11 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
         url += "&gameid=" + gameid;
     }
 
-    printf("Api::jeuInfos: %s\n", url.c_str());
+    SS_PRINT("Api::jeuInfos: %s\n", url.c_str());
 
     std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
     if (xml.empty()) {
-        printf("Api::jeuInfos: error %li\n", code);
+        SS_PRINT("Api::jeuInfos: error %li\n", code);
         return GameInfo();
     }
 
@@ -147,26 +148,26 @@ Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &
     ji.xml = xmlData;
     XMLError e = doc.Parse(ji.xml.c_str(), ji.xml.size());
     if (e != XML_SUCCESS) {
-        printf("Api::parseGameInfo: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("Api::parseGameInfo: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         return ji;
     }
 
     XMLNode *pRoot = doc.FirstChildElement("Data");
     if (!pRoot) {
-        printf("Api::parseGameInfo: wrong xml format: \'Data\' tag not found\n");
+        SS_PRINT("Api::parseGameInfo: wrong xml format: \'Data\' tag not found\n");
         return ji;
     }
 
     XMLNode *userNode = pRoot->FirstChildElement("ssuser");
     if (!userNode) {
-        printf("Api::parseGameInfo: wrong xml format: \'ssuser\' tag not found\n");
+        SS_PRINT("Api::parseGameInfo: wrong xml format: \'ssuser\' tag not found\n");
     } else {
         ji.ssuser = parseUser(userNode);
     }
 
     XMLNode *gameNode = pRoot->FirstChildElement("jeu");
     if (!gameNode) {
-        printf("Api::parseGameInfo: wrong xml format: \'jeu\' tag not found\n");
+        SS_PRINT("Api::parseGameInfo: wrong xml format: \'jeu\' tag not found\n");
     } else {
         ji.game = parseGame(gameNode, romName);
     }
@@ -183,7 +184,7 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath
     gl.xml = xmlPath;
     XMLError e = doc.LoadFile(xmlPath.c_str());
     if (e != XML_SUCCESS) {
-        printf("Api::gameList: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("Api::gameList: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         return gl;
     }
 
@@ -192,7 +193,7 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath
         // emulationstation format
         pRoot = doc.FirstChildElement("gameList");
         if (!pRoot) {
-            printf("Api::parseGameSearch: wrong xml format: \'Data\' or \'gameList\' tag not found\n");
+            SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' or \'gameList\' tag not found\n");
             return gl;
         }
     }
@@ -696,7 +697,7 @@ bool Api::GameList::save(const std::string &dstPath) {
 
     XMLError e = doc.SaveFile(dstPath.c_str());
     if (e != XML_SUCCESS) {
-        printf("GameList::save: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("GameList::save: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         return false;
     }
 

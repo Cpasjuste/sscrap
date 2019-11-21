@@ -118,13 +118,13 @@ int Game::Media::download(const std::string &dstPath) {
         return -1;
     }
 
-    //printf("Game::Media::download: %s\n", url.c_str());
+    SS_PRINT("Game::Media::download: %s\n", url.c_str());
     long http_code = 0;
     Curl ss_curl;
     int res = ss_curl.getData(url, dstPath, SS_TIMEOUT, &http_code);
     if (res != 0) {
-        printf("Game::Media::download: error: curl failed: %s, http_code: %li\n",
-               curl_easy_strerror((CURLcode) res), http_code);
+        SS_PRINT("Game::Media::download: error: curl failed: %s, http_code: %li\n",
+                 curl_easy_strerror((CURLcode) res), http_code);
         return (int) http_code;
     }
 

@@ -3,6 +3,7 @@
 //
 
 #include <curl/curl.h>
+#include "ss_api.h"
 #include "ss_curl.h"
 
 using namespace ss_api;
@@ -34,7 +35,7 @@ std::string Curl::getString(const std::string &url, int timeout, long *http_code
     int res = 0;
 
     if (!curl) {
-        printf("Curl::getString: error: curl_easy_init failed\n");
+        SS_PRINT("Curl::getString: error: curl_easy_init failed\n");
         return data;
     }
 
@@ -52,8 +53,8 @@ std::string Curl::getString(const std::string &url, int timeout, long *http_code
     }
 
     if (res != 0) {
-        printf("Curl::getString: error: curl_easy_perform failed: %s, http_code: %li\n",
-               curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
+        SS_PRINT("Curl::getString: error: curl_easy_perform failed: %s, http_code: %li\n",
+                 curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
         return "";
     }
 
@@ -66,13 +67,13 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
     int res = 0;
 
     if (!curl) {
-        printf("Curl::getData: error: curl_easy_init failed\n");
+        SS_PRINT("Curl::getData: error: curl_easy_init failed\n");
         return -1;
     }
 
     data = fopen(dstPath.c_str(), "wb");
     if (!data) {
-        printf("Curl::getData: error: fopen failed: %s\n", dstPath.c_str());
+        SS_PRINT("Curl::getData: error: fopen failed: %s\n", dstPath.c_str());
         return -1;
     }
 
@@ -91,8 +92,8 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
     }
 
     if (res != 0) {
-        printf("Curl::getData: error: curl_easy_perform failed: %s, http_code: %li\n",
-               curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
+        SS_PRINT("Curl::getData: error: curl_easy_perform failed: %s, http_code: %li\n",
+                 curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
         remove(dstPath.c_str());
         return res;
     }

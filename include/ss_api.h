@@ -109,4 +109,14 @@ namespace ss_api {
     };
 }
 
+// ss_debug print
+extern bool ss_debug;
+#define SS_PRINT(f_, ...) \
+do \
+{ \
+    if(ss_debug) \
+        printf((f_), ##__VA_ARGS__); \
+} \
+while(0)
+
 #endif //SS_API_H
