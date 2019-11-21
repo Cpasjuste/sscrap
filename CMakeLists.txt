@@ -19,6 +19,8 @@ project(sscrap)
 ##############
 # SCREENSCRAP
 ##############
+option(BUILD_TEST "Build sscrap test binary" OFF)
+
 set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.c*)
 set(CFLAGS)
@@ -78,5 +80,7 @@ target_compile_options(
 #####################
 # SCREENSCRAP TEST
 #####################
-add_executable(${PROJECT_NAME}.elf test/main.cpp)
-target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME})
+if (BUILD_TEST)
+    add_executable(${PROJECT_NAME}.elf test/main.cpp)
+    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME})
+endif ()

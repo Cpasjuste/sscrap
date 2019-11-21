@@ -95,9 +95,36 @@ int main(int argc, char **argv) {
                                                        args.get("-systemid"), args.get("-romtype"),
                                                        file, "", "", user, pwd);
                 if (!gameInfo.game.id.empty()) {
-                    printf(KGRE "OK: %s => %s (%s)\n" KRAS,
+                    printf(KGRE "OK: %s => %s (%s)" KRAS,
                            file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
-                    //gameInfo.game.
+                    fflush(stdout);
+                    if (args.exist("-dl")) {
+                        Game::Media media = gameInfo.game.getMedia(Game::Media::Type::SS, Game::Country::SS);
+                        if (!media.url.empty()) {
+                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
+                            std::string path = "media/images/" + name + media.format;
+                            printf(KGRE " - image" KRAS);
+                            fflush(stdout);
+                            media.download(path);
+                        }
+                        media = gameInfo.game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
+                        if (!media.url.empty()) {
+                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
+                            std::string path = "media/box3d/" + name + media.format;
+                            printf(KGRE " - thumbnail" KRAS);
+                            fflush(stdout);
+                            media.download(path);
+                        }
+                        media = gameInfo.game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
+                        if (!media.url.empty()) {
+                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
+                            std::string path = "media/videos/" + name + media.format;
+                            printf(KGRE " - video" KRAS);
+                            fflush(stdout);
+                            media.download(path);
+                        }
+                    }
+                    printf("\n");
                     gameList.games.emplace_back(gameInfo.game);
                 } else {
                     fprintf(stderr, KRED "NOK: %s\n" KRAS, file.c_str());
