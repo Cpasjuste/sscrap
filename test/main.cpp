@@ -60,6 +60,8 @@ static void *scrap_thread(void *ptr) {
     int tid = *((int *) ptr);
     int retry_delay = 10;
 
+    // TODO: handle http error 400 (quota exceeded)
+
     while (!scrap->fileList.empty()) {
 
         pthread_mutex_lock(&scrap->mutex);
