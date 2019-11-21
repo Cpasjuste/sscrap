@@ -82,5 +82,5 @@ target_compile_options(
 #####################
 if (BUILD_TEST)
     add_executable(${PROJECT_NAME}.elf test/main.cpp)
-    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME} pthread)
 endif ()

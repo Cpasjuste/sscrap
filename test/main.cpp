@@ -2,8 +2,10 @@
 // Created by cpasjuste on 29/03/19.
 //
 
+#include <unistd.h>
 #include "ss_api.h"
 #include "ss_io.h"
+#include "scrap.h"
 #include "args.h"
 
 #define KRED "\x1B[31m"
@@ -11,8 +13,6 @@
 #define KRAS "\033[0m"
 
 using namespace ss_api;
-
-std::vector<std::string> missList;
 
 void printGame(const Game &game) {
 
@@ -52,14 +52,60 @@ void printGame(const Game &game) {
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
 }
 
-int main(int argc, char **argv) {
+static void *scrap_thread(void *ptr) {
 
-    // default values
-    std::string user;
-    std::string pwd;
-    Game::Language language = Game::Language::EN;
-    ArgumentParser args(argc, argv);
+    auto scrapper = (Scrap *) ptr;
 
+    while (!scrapper->fileList.empty()) {
+
+        pthread_mutex_lock(&scrapper->mutex);
+        std::string file = scrapper->fileList.at(0);
+        scrapper->fileList.erase(scrapper->fileList.begin());
+        pthread_mutex_unlock(&scrapper->mutex);
+
+        Api::GameInfo gameInfo = Api::gameInfo("", "", "",
+                                               scrapper->args.get("-systemid"), scrapper->args.get("-romtype"),
+                                               file, "", "", scrapper->user, scrapper->pwd);
+        if (!gameInfo.game.id.empty()) {
+            if (scrapper->args.exist("-dl")) {
+                Game::Media media = gameInfo.game.getMedia(Game::Media::Type::SS, Game::Country::SS);
+                if (!media.url.empty()) {
+                    std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
+                    std::string path = "media/images/" + name + media.format;
+                    media.download(path);
+                }
+                media = gameInfo.game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
+                if (!media.url.empty()) {
+                    std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
+                    std::string path = "media/box3d/" + name + media.format;
+                    media.download(path);
+                }
+                media = gameInfo.game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
+                if (!media.url.empty()) {
+                    std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
+                    std::string path = "media/videos/" + name + media.format;
+                    media.download(path);
+                }
+            }
+            pthread_mutex_lock(&scrapper->mutex);
+            printf(KGRE "OK: %s => %s (%s)\n" KRAS,
+                   file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
+            scrapper->gameList.games.emplace_back(gameInfo.game);
+            pthread_mutex_unlock(&scrapper->mutex);
+        } else {
+            pthread_mutex_lock(&scrapper->mutex);
+            fprintf(stderr, KRED "NOK: %s\n" KRAS, file.c_str());
+            scrapper->missList.emplace_back(file);
+            pthread_mutex_unlock(&scrapper->mutex);
+        };
+    }
+
+    return nullptr;
+}
+
+Scrap::Scrap(const ArgumentParser &parser) {
+
+    args = parser;
     user = args.get("-user");
     pwd = args.get("-password");
     if (args.exist("-language")) {
@@ -67,76 +113,47 @@ int main(int argc, char **argv) {
         if (language == Game::Language::UNKNOWN) {
             fprintf(stderr, KRED "ERROR: language not found: %s, available languages: en, fr, es, pt\n" KRAS,
                     args.get("-language").c_str());
-            return -1;
+            return;
         }
         printf("language: %s\n", Api::toString(language).c_str());
     }
+}
 
-    // setup screenscraper api
-    Api::ss_devid = SS_DEV_ID;
-    Api::ss_devpassword = SS_DEV_PWD;
-    Api::ss_softname = "sscrap";
-    ss_debug = args.exist("-debug");
+void Scrap::run() {
+
+    int thread_count = 1;
 
     if (args.exist("-gameinfo")) {
         if (args.exist("-rompath")) {
-            std::vector<std::string> files = Io::getDirList(args.get("-rompath"));
-            if (files.empty()) {
+            fileList = Io::getDirList(args.get("-rompath"));
+            if (fileList.empty()) {
                 fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
-                return -1;
+                return;
             }
-            Io::makedir("media");
-            Io::makedir("media/box3d");
-            Io::makedir("media/images");
-            Io::makedir("media/videos");
-            Api::GameList gameList;
-            for (const auto &file : files) {
-                Api::GameInfo gameInfo = Api::gameInfo("", "", "",
-                                                       args.get("-systemid"), args.get("-romtype"),
-                                                       file, "", "", user, pwd);
-                if (!gameInfo.game.id.empty()) {
-                    printf(KGRE "OK: %s => %s (%s)" KRAS,
-                           file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
-                    fflush(stdout);
-                    if (args.exist("-dl")) {
-                        Game::Media media = gameInfo.game.getMedia(Game::Media::Type::SS, Game::Country::SS);
-                        if (!media.url.empty()) {
-                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                            std::string path = "media/images/" + name + media.format;
-                            printf(KGRE " - image" KRAS);
-                            fflush(stdout);
-                            media.download(path);
-                        }
-                        media = gameInfo.game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
-                        if (!media.url.empty()) {
-                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                            std::string path = "media/box3d/" + name + media.format;
-                            printf(KGRE " - thumbnail" KRAS);
-                            fflush(stdout);
-                            media.download(path);
-                        }
-                        media = gameInfo.game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
-                        if (!media.url.empty()) {
-                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                            std::string path = "media/videos/" + name + media.format;
-                            printf(KGRE " - video" KRAS);
-                            fflush(stdout);
-                            media.download(path);
-                        }
-                    }
-                    printf("\n");
-                    gameList.games.emplace_back(gameInfo.game);
-                } else {
-                    fprintf(stderr, KRED "NOK: %s\n" KRAS, file.c_str());
-                    missList.emplace_back(file);
-                };
+            if (args.exist("-dl")) {
+                Io::makedir("media");
+                Io::makedir("media/box3d");
+                Io::makedir("media/images");
+                Io::makedir("media/videos");
             }
+
+            if (args.exist("-threads")) {
+                thread_count = (int) std::strtol(args.get("-threads").c_str(), nullptr, 10);
+            }
+            for (int i = 0; i < thread_count; i++) {
+                pthread_create(&threads[i], nullptr, scrap_thread, this);
+            }
+            for (int i = 0; i < thread_count; i++) {
+                pthread_join(threads[i], nullptr);
+            }
+
             gameList.roms_count = gameList.games.size();
             if (!gameList.games.empty() && args.exist("-savexml")) {
                 gameList.save(args.get("-savexml"));
             }
+
             printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
-            printf(KGRE "found %i games on %zu files" KRAS, gameList.roms_count, files.size());
+            printf(KGRE "found %i games, %zu was not found:" KRAS, gameList.roms_count, missList.size());
             if (!missList.empty()) {
                 printf(KGRE ", missing games:\n" KRAS);
                 for (const auto &file : missList) {
@@ -171,6 +188,20 @@ int main(int argc, char **argv) {
     } else {
         fprintf(stderr, KRED "TODO: PRINT HELP\n" KRAS);
     }
+}
+
+int main(int argc, char **argv) {
+
+    ArgumentParser args(argc, argv);
+
+    // setup screenscraper api
+    Api::ss_devid = SS_DEV_ID;
+    Api::ss_devpassword = SS_DEV_PWD;
+    Api::ss_softname = "sscrap";
+    ss_debug = args.exist("-debug");
+
+    auto scrapper = new Scrap(args);
+    scrapper->run();
 
     return 0;
 }
