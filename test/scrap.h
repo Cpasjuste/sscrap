@@ -24,7 +24,7 @@ public:
     ss_api::Api::GameList gameList;
     std::vector<std::string> fileList;
     std::vector<std::string> missList;
-    bool dlCloneOff = false;
+    bool mediaClone = false;
     pthread_t threads[15];
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 };

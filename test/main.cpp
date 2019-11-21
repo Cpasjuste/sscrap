@@ -70,7 +70,7 @@ static void *scrap_thread(void *ptr) {
         Api::GameInfo gameInfo = Api::gameInfo("", "", "",
                                                scrap->args.get("-systemid"), scrap->args.get("-romtype"),
                                                file, "", "", scrap->user, scrap->pwd);
-        // 429 = maximum threads per minute reached
+        // 429 = maximum requests per minute reached
         while (gameInfo.http_error == 429) {
             pthread_mutex_lock(&scrap->mutex);
             fprintf(stderr,
@@ -84,7 +84,7 @@ static void *scrap_thread(void *ptr) {
         }
 
         if (!gameInfo.game.id.empty()) {
-            if (scrap->args.exist("-medias") && (scrap->dlCloneOff && gameInfo.game.cloneof == "0")) {
+            if (scrap->args.exist("-medias") && (scrap->mediaClone && gameInfo.game.cloneof == "0")) {
                 Game::Media media = gameInfo.game.getMedia(Game::Media::Type::SS, Game::Country::SS);
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
@@ -159,6 +159,8 @@ Scrap::Scrap(const ArgumentParser &parser) {
     args = parser;
     user = args.get("-user");
     pwd = args.get("-password");
+    mediaClone = args.exist("-mediasclone");
+
     if (args.exist("-language")) {
         language = Api::toLanguage(args.get("-language"));
         if (language == Game::Language::UNKNOWN) {
@@ -173,7 +175,6 @@ Scrap::Scrap(const ArgumentParser &parser) {
 void Scrap::run() {
 
     int thread_count = 1;
-    dlCloneOff = args.exist("-mediasclones");
 
     if (args.exist("-gameinfo")) {
         if (args.exist("-rompath")) {
