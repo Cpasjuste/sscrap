@@ -85,7 +85,10 @@ int main(int argc, char **argv) {
                 fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
                 return -1;
             }
-
+            Io::makedir("media");
+            Io::makedir("media/box3d");
+            Io::makedir("media/images");
+            Io::makedir("media/videos");
             Api::GameList gameList;
             for (const auto &file : files) {
                 Api::GameInfo gameInfo = Api::gameInfo("", "", "",
@@ -94,6 +97,7 @@ int main(int argc, char **argv) {
                 if (!gameInfo.game.id.empty()) {
                     printf(KGRE "OK: %s => %s (%s)\n" KRAS,
                            file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
+                    //gameInfo.game.
                     gameList.games.emplace_back(gameInfo.game);
                 } else {
                     fprintf(stderr, KRED "NOK: %s\n" KRAS, file.c_str());

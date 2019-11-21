@@ -3,6 +3,7 @@
 //
 
 #include <dirent.h>
+#include <sys/stat.h>
 #include "ss_io.h"
 
 using namespace ss_api;
@@ -24,4 +25,8 @@ std::vector<std::string> Io::getDirList(const std::string &path) {
         closedir(dir);
     }
     return files;
+}
+
+void Io::makedir(const std::string &path) {
+    mkdir(path.c_str(), 0755);
 }

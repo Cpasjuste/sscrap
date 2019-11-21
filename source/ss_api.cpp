@@ -417,6 +417,8 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
                                getXmlText(gameNode->FirstChildElement("image")), "wor", "", "", "", "", ""});
         game.medias.push_back({"screenshot", "",
                                getXmlText(gameNode->FirstChildElement("thumbnail")), "wor", "", "", "", "", ""});
+        game.medias.push_back({"video", "",
+                               getXmlText(gameNode->FirstChildElement("video")), "wor", "", "", "", "", ""});
     }
     // screenscraper (prioritise screenscraper format)
     game.rating = getXmlText(gameNode->FirstChildElement("note"));
@@ -600,16 +602,29 @@ bool Api::GameList::save(const std::string &dstPath) {
         gameElement->InsertEndChild(elem);
         // image
         elem = doc.NewElement("image");
-        Game::Media image = game.getMedia(Game::Media::Type::SS, Game::Country::WOR);
+        Game::Media image = game.getMedia(Game::Media::Type::SS, Game::Country::SS);
         if (!image.url.empty()) {
-            elem->SetText(image.url.c_str());
+            //elem->SetText(image.url.c_str());
+            elem->SetText(("media/images/"
+                           + game.path.substr(0, game.path.find_last_of('.') + 1) + image.format).c_str());
         }
         gameElement->InsertEndChild(elem);
         // thumbnail
         elem = doc.NewElement("thumbnail");
-        Game::Media thumbnail = game.getMedia(Game::Media::Type::Box3D, Game::Country::WOR);
+        Game::Media thumbnail = game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
         if (!thumbnail.url.empty()) {
-            elem->SetText(thumbnail.url.c_str());
+            //elem->SetText(thumbnail.url.c_str());
+            elem->SetText(("media/box3d/"
+                           + game.path.substr(0, game.path.find_last_of('.') + 1) + thumbnail.format).c_str());
+        }
+        gameElement->InsertEndChild(elem);
+        // video
+        elem = doc.NewElement("video");
+        Game::Media video = game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
+        if (!video.url.empty()) {
+            //elem->SetText(video.url.c_str());
+            elem->SetText(("media/videos/"
+                           + game.path.substr(0, game.path.find_last_of('.') + 1) + video.format).c_str());
         }
         gameElement->InsertEndChild(elem);
         // screenscraper
