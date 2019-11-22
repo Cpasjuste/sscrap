@@ -86,7 +86,7 @@ static void *scrap_thread(void *ptr) {
         }
 
         if (!gameInfo.game.id.empty()) {
-            if (scrap->args.exist("-medias") && (scrap->mediasClone && gameInfo.game.cloneof == "0")) {
+            if (scrap->args.exist("-medias") && (!scrap->mediasClone && gameInfo.game.cloneof == "0")) {
                 Game::Media media = gameInfo.game.getMedia(Game::Media::Type::SS, Game::Country::SS);
                 if (!media.url.empty()) {
                     std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
