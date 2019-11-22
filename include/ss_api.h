@@ -76,6 +76,8 @@ namespace ss_api {
         static GameList gameList(const std::string &xmlPath, const std::string &romPath = "");
 
         static std::vector<Game> gameListFilter(const std::vector<Game> &games,
+                                                bool available = false,
+                                                bool clones = false,
                                                 const std::string &system = "All",
                                                 const std::string &editor = "All",
                                                 const std::string &developer = "All",
@@ -118,6 +120,9 @@ namespace ss_api {
         static std::string getXmlText(tinyxml2::XMLElement *element);
 
         static bool sortByName(const std::string &g1, const std::string &g2);
+
+        static bool sortGameByName(const Game &g1, const Game &g2);
+
     };
 }
 

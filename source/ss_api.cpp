@@ -275,6 +275,8 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath
         gameNode = gameNode->NextSibling();
     }
 
+    // sort games
+    std::sort(gl.games.begin(), gl.games.end(), sortGameByName);
     // sort lists
     std::sort(gl.systems.begin(), gl.systems.end(), sortByName);
     std::sort(gl.editors.begin(), gl.editors.end(), sortByName);
@@ -302,7 +304,7 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath
 }
 
 std::vector<Game>
-Api::gameListFilter(const std::vector<Game> &games,
+Api::gameListFilter(const std::vector<Game> &games, bool available, bool clones,
                     const std::string &system, const std::string &editor, const std::string &developer,
                     const std::string &player, const std::string &rating, const std::string &topstaff,
                     const std::string &rotation, const std::string &resolution, const std::string &date,
@@ -311,9 +313,11 @@ Api::gameListFilter(const std::vector<Game> &games,
     std::vector<Game> newGameList;
 
     std::copy_if(games.begin(), games.end(), std::back_inserter(newGameList),
-                 [system, editor, developer, player, rating,
+                 [available, clones, system, editor, developer, player, rating,
                          topstaff, rotation, resolution, date, genre](const Game &game) {
-                     return (system == "All" || game.system.text == system)
+                     return (available || game.available)
+                            && (clones || game.cloneof == "0")
+                            && (system == "All" || game.system.text == system)
                             && (editor == "All" || game.editor.text == editor)
                             && (developer == "All" || game.developer.text == developer)
                             && (player == "All" || game.players == player)
@@ -1001,4 +1005,8 @@ Game::Language Api::toLanguage(const std::string &language) {
 
 bool Api::sortByName(const std::string &g1, const std::string &g2) {
     return strcasecmp(g1.c_str(), g2.c_str()) <= 0;
+}
+
+bool Api::sortGameByName(const Game &g1, const Game &g2) {
+    return strcasecmp(g1.getName().text.c_str(), g2.getName().text.c_str()) <= 0;
 }
