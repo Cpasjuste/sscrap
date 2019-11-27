@@ -176,6 +176,31 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
 void Scrap::run() {
 
+    gameList = Api::gameList("gamelist_sorted.xml");
+    printf("total games: %zu\n", gameList.games.size());
+
+    //gameList.save("gamelist_sorted.xml");
+
+    /*
+    std::vector<Game> games = Api::gameListFilter(gameList.games, true, false);
+    printf("total parents: %zu\n", games.size());
+
+    std::vector<Game> clones;
+    for (const auto &game : games) {
+
+        std::string name = game.getName().text;
+        std::copy_if(games.begin(), games.end(), std::back_inserter(clones), [name](const Game &g) {
+            return g.getName().text == name;
+        });
+
+        if (clones.size() > 1) {
+            printf("%s: found %zu clones\n", name.c_str(), clones.size());
+            break;
+        }
+    }
+    */
+
+#if 0
     int thread_count = 1;
 
     if (args.exist("-gameinfo")) {
@@ -250,6 +275,7 @@ void Scrap::run() {
     } else {
         fprintf(stderr, KRED "TODO: PRINT HELP\n" KRAS);
     }
+#endif
 }
 
 int main(int argc, char **argv) {

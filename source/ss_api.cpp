@@ -417,9 +417,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
         }
     } else {
         // emulationstation compat
-        game.medias.push_back({"sstitle", "",
+        game.medias.push_back({"ss", "",
                                getXmlText(gameNode->FirstChildElement("image")), "wor", "", "", "", "", ""});
-        game.medias.push_back({"screenshot", "",
+        game.medias.push_back({"box-3D", "",
                                getXmlText(gameNode->FirstChildElement("thumbnail")), "wor", "", "", "", "", ""});
         game.medias.push_back({"video", "",
                                getXmlText(gameNode->FirstChildElement("video")), "wor", "", "", "", "", ""});
@@ -608,24 +608,36 @@ bool Api::GameList::save(const std::string &dstPath) {
         elem = doc.NewElement("image");
         Game::Media image = game.getMedia(Game::Media::Type::SS, Game::Country::SS);
         if (!image.url.empty()) {
-            elem->SetText(("media/images/"
-                           + game.path.substr(0, game.path.find_last_of('.') + 1) + image.format).c_str());
+            if (image.url.rfind("http", 0) == 0) {
+                elem->SetText(("media/images/"
+                               + game.path.substr(0, game.path.find_last_of('.') + 1) + image.format).c_str());
+            } else {
+                elem->SetText(image.url.c_str());
+            }
         }
         gameElement->InsertEndChild(elem);
         // thumbnail
         elem = doc.NewElement("thumbnail");
         Game::Media thumbnail = game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
         if (!thumbnail.url.empty()) {
-            elem->SetText(("media/box3d/"
-                           + game.path.substr(0, game.path.find_last_of('.') + 1) + thumbnail.format).c_str());
+            if (thumbnail.url.rfind("http", 0) == 0) {
+                elem->SetText(("media/box3d/"
+                               + game.path.substr(0, game.path.find_last_of('.') + 1) + thumbnail.format).c_str());
+            } else {
+                elem->SetText(thumbnail.url.c_str());
+            }
         }
         gameElement->InsertEndChild(elem);
         // video
         elem = doc.NewElement("video");
         Game::Media video = game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
         if (!video.url.empty()) {
-            elem->SetText(("media/videos/"
-                           + game.path.substr(0, game.path.find_last_of('.') + 1) + video.format).c_str());
+            if (video.url.rfind("http", 0) == 0) {
+                elem->SetText(("media/videos/"
+                               + game.path.substr(0, game.path.find_last_of('.') + 1) + video.format).c_str());
+            } else {
+                elem->SetText(video.url.c_str());
+            }
         }
         gameElement->InsertEndChild(elem);
         // screenscraper
@@ -1008,5 +1020,6 @@ bool Api::sortByName(const std::string &g1, const std::string &g2) {
 }
 
 bool Api::sortGameByName(const Game &g1, const Game &g2) {
+    printf("g1: %s, g2: %s\n", g1.getName().text.c_str(), g2.getName().text.c_str());
     return strcasecmp(g1.getName().text.c_str(), g2.getName().text.c_str()) <= 0;
 }
