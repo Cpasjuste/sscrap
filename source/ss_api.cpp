@@ -712,11 +712,11 @@ bool Api::GameList::save(const std::string &dstPath) {
         elem->SetText(game.resolution.c_str());
         gameElement->InsertEndChild(elem);
         // screenscraper
-        elem = doc.NewElement("inputs");
+        elem = doc.NewElement("controles");
         elem->SetText(game.inputs.c_str());
         gameElement->InsertEndChild(elem);
         // screenscraper
-        elem = doc.NewElement("colors");
+        elem = doc.NewElement("couleurs");
         elem->SetText(game.colors.c_str());
         gameElement->InsertEndChild(elem);
         // add game element
@@ -1020,6 +1020,97 @@ bool Api::sortByName(const std::string &g1, const std::string &g2) {
 }
 
 bool Api::sortGameByName(const Game &g1, const Game &g2) {
-    printf("g1: %s, g2: %s\n", g1.getName().text.c_str(), g2.getName().text.c_str());
-    return strcasecmp(g1.getName().text.c_str(), g2.getName().text.c_str()) <= 0;
+    return g1.getName().text < g2.getName().text;
+}
+
+// pfba: fix screenscraper missing clonesof
+void Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) {
+
+    ///
+    /// build fbneo game list START
+    ///
+    std::vector<Game> fbaList;
+    XMLDocument doc;
+    XMLError e = doc.LoadFile(fbaGamelist.c_str());
+    if (e != XML_SUCCESS) {
+        SS_PRINT("Api::gameListFixClones: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        doc.Clear();
+        return;
+    }
+
+    XMLNode *pRoot = doc.FirstChildElement("datafile");
+    if (pRoot == nullptr) {
+        SS_PRINT("Api::gameListFixClones: wrong xml format: \'datafile\' tag not found\n");
+        doc.Clear();
+        return;
+    }
+
+    XMLNode *gameNode = pRoot->FirstChildElement("game");
+    if (gameNode == nullptr) {
+        SS_PRINT("Api::gameListFixClones: no \'game\' node found\n");
+        doc.Clear();
+        return;
+    }
+
+    while (gameNode != nullptr) {
+        Game game;
+        game.names.push_back({"wor", getXmlText(gameNode->FirstChildElement("description"))});
+        game.path = getXmlAttribute(gameNode->ToElement(), "name");
+        if (!game.path.empty()) {
+            game.path += ".zip";
+        }
+        game.cloneof = getXmlAttribute(gameNode->ToElement(), "cloneof");
+        fbaList.emplace_back(game);
+        gameNode = gameNode->NextSibling();
+    }
+
+    doc.Clear();
+
+    ///
+    /// build fbneo game list END
+    ///
+
+    for (size_t i = 0; i < gameList->games.size(); i++) {
+
+        // screenscraper game "cloneof" is set, continue
+        if (gameList->games.at(i).cloneof != "0") {
+            continue;
+        }
+
+        // search fba list for zip name (path), as game name may differ
+        std::string zipName = gameList->games.at(i).path;
+        auto fbaGame = std::find_if(fbaList.begin(), fbaList.end(), [zipName](const Game &g) {
+            return zipName == g.path;
+        });
+        // screenscraper game not found in fbneo dat, continue...
+        if (fbaGame == fbaList.end()) {
+            continue;
+        }
+
+        // game is not a clone, even in fba dat, continue...
+        if ((*fbaGame).cloneof.empty()) {
+            continue;
+        }
+
+        // we found a bad/wrong screenscaper "cloneof", find screenscraper parent id
+        std::string parentZipName = (*fbaGame).cloneof + ".zip";
+        auto sscrapParent = std::find_if(gameList->games.begin(), gameList->games.end(),
+                                         [parentZipName](const Game &g) {
+                                             return parentZipName == g.path;
+                                         });
+        // screenscraper parent not found (?!), continue...
+        if (sscrapParent == gameList->games.end()) {
+            continue;
+        }
+
+        // fix screenscraper cloneof !
+        gameList->games.at(i).cloneof = (*sscrapParent).romid;
+        //printf("fix: %s (%s) => %s (%s)\n",
+        //       game.getName().text.c_str(), game.romid.c_str(),
+        //      (*sscrapParent).getName().text.c_str(), (*sscrapParent).romid.c_str());
+
+        // screenscrap db
+        //printf("UPDATE Roms SET cloneof=%s WHERE id=%s;\n",
+        //       (*sscrapParent).romid.c_str(), gameList->games.at(i).romid.c_str());
+    }
 }
