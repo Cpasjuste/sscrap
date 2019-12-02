@@ -315,7 +315,7 @@ Api::gameListFilter(const std::vector<Game> &games, bool available, bool clones,
     std::copy_if(games.begin(), games.end(), std::back_inserter(newGameList),
                  [available, clones, system, editor, developer, player, rating,
                          topstaff, rotation, resolution, date, genre](const Game &game) {
-                     return (available || game.available)
+                     return (!available || (available && game.available))
                             && (clones || game.cloneof == "0")
                             && (system == "All" || game.system.text == system)
                             && (editor == "All" || game.editor.text == editor)
