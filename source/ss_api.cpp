@@ -104,9 +104,6 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
     if (!sspassword.empty()) {
         url += "&sspassword=" + sspassword;
     }
-    if (!systemeid.empty()) {
-        url += "&systemeid=" + systemeid;
-    }
     if (!crc.empty()) {
         url += "&crc=" + crc;
     }
@@ -189,23 +186,23 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath
     }
 
     XMLNode *pRoot = doc.FirstChildElement("Data");
-    if (!pRoot) {
+    if (pRoot == nullptr) {
         // emulationstation format
         pRoot = doc.FirstChildElement("gameList");
-        if (!pRoot) {
+        if (pRoot == nullptr) {
             SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' or \'gameList\' tag not found\n");
             return gl;
         }
     }
 
     XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
-    if (!gamesNode) {
+    if (gamesNode == nullptr) {
         // emulationstation format
         gamesNode = pRoot;
     }
 
     XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
-    if (!gameNode) {
+    if (gameNode == nullptr) {
         gameNode = gamesNode->FirstChildElement("game");
     }
 
@@ -214,7 +211,7 @@ Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath
         files = Io::getDirList(gl.romPath);
     }
 
-    while (gameNode) {
+    while (gameNode != nullptr) {
         Game game = parseGame(gameNode);
         // is rom available?
         auto p = std::find(files.begin(), files.end(), game.path);
@@ -337,7 +334,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
 
     Game game{};
 
-    if (!gameNode) {
+    if (gameNode == nullptr) {
         return game;
     }
 
@@ -356,9 +353,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     }
     // screenscraper (prioritise screenscraper format)
     XMLElement *element = gameNode->FirstChildElement("noms");
-    if (element) {
+    if (element != nullptr) {
         XMLNode *node = element->FirstChildElement("nom");
-        while (node) {
+        while (node != nullptr) {
             game.names.emplace_back(getXmlAttribute(node->ToElement(), "region"),
                                     getXmlText(node->ToElement()));
             node = node->NextSibling();
@@ -370,9 +367,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     }
     // screenscraper
     element = gameNode->FirstChildElement("regions");
-    if (element) {
+    if (element != nullptr) {
         XMLNode *node = element->FirstChildElement("region");
-        while (node) {
+        while (node != nullptr) {
             game.countries.emplace_back(getXmlText(node->ToElement()));
             node = node->NextSibling();
         }
@@ -384,9 +381,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     game.system.text = getXmlText(gameNode->FirstChildElement("systeme"));
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("synopsis");
-    if (element) {
+    if (element != nullptr) {
         XMLNode *node = element->FirstChildElement("synopsis");
-        while (node) {
+        while (node != nullptr) {
             Game::Synopsis synopsis{};
             synopsis.language = getXmlAttribute(node->ToElement(), "langue");
             synopsis.text = getXmlText(node->ToElement());
@@ -399,9 +396,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     }
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("medias");
-    if (element) {
+    if (element != nullptr) {
         XMLNode *node = element->FirstChildElement("media");
-        while (node) {
+        while (node != nullptr) {
             Game::Media media{};
             media.parent = getXmlAttribute(node->ToElement(), "parent");
             media.type = getXmlAttribute(node->ToElement(), "type");
@@ -432,9 +429,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     }
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("dates");
-    if (element) {
+    if (element != nullptr) {
         XMLNode *node = element->FirstChildElement("date");
-        while (node) {
+        while (node != nullptr) {
             Game::Date date{};
             date.country = getXmlAttribute(node->ToElement(), "region");
             date.text = getXmlText(node->ToElement());
@@ -465,9 +462,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     }
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("genres");
-    if (element) {
+    if (element != nullptr) {
         XMLNode *node = element->FirstChildElement("genre");
-        while (node) {
+        while (node != nullptr) {
             Game::Genre genre{};
             genre.id = getXmlAttribute(node->ToElement(), "id");
             genre.main = getXmlAttribute(node->ToElement(), "principale");
@@ -479,8 +476,8 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        Game::Genre genre{"", "", "", "en", getXmlText(gameNode->FirstChildElement("genre"))};
-        game.genres.emplace_back(genre);
+        game.genres.emplace_back(
+                "", "", "", "en", getXmlText(gameNode->FirstChildElement("genre")));
     }
     // screenscraper
     game.players = getXmlText(gameNode->FirstChildElement("joueurs"));
@@ -506,7 +503,7 @@ User Api::parseUser(XMLNode *userNode) {
 
     User user{};
 
-    if (!userNode) {
+    if (userNode == nullptr) {
         return user;
     }
 
@@ -688,7 +685,7 @@ bool Api::GameList::save(const std::string &dstPath) {
         // emulationstation
         elem = doc.NewElement("genre");
         if (!game.genres.empty()) {
-            elem->SetText(game.genres.at(0).main.c_str());
+            elem->SetText(game.getGenre(Game::Language::EN).text.c_str());
         }
         gameElement->InsertEndChild(elem);
         // screenscraper

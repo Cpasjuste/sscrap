@@ -11,7 +11,8 @@
 namespace ss_api {
     class Io {
     public:
-        static std::vector<std::string> getDirList(const std::string &path);
+        static std::vector<std::string> getDirList(const std::string &path,
+                                                   const std::string &ext = "zip");
 
         static void makedir(const std::string &path);
 

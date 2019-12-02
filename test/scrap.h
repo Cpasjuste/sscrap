@@ -22,8 +22,9 @@ public:
     ss_api::Game::Language language = ss_api::Game::Language::EN;
     std::string romPath;
     ss_api::Api::GameList gameList;
-    std::vector<std::string> fileList;
+    std::vector<std::string> filesList;
     std::vector<std::string> missList;
+    int filesCount = 0;
     bool mediasClone = false;
     pthread_t threads[15];
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;

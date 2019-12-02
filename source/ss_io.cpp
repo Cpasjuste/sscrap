@@ -8,7 +8,7 @@
 
 using namespace ss_api;
 
-std::vector<std::string> Io::getDirList(const std::string &path) {
+std::vector<std::string> Io::getDirList(const std::string &path, const std::string &ext) {
 
     std::vector<std::string> files;
     struct dirent *ent;
@@ -20,7 +20,15 @@ std::vector<std::string> Io::getDirList(const std::string &path) {
             if (ent->d_name[0] == '.' || ent->d_type != DT_REG) {
                 continue;
             }
-            files.emplace_back(ent->d_name);
+            std::string file = ent->d_name;
+            if (!ext.empty()) {
+                if (file.rfind('.') != std::string::npos
+                    && file.substr(file.find_last_of('.') + 1) == ext) {
+                    files.emplace_back(file);
+                }
+            } else {
+                files.emplace_back(file);
+            }
         }
         closedir(dir);
     }
