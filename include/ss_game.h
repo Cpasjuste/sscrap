@@ -14,6 +14,8 @@ namespace ss_api {
 
     public:
 
+        Game() = default;
+
         enum class Country {
             ALL, DE, ASI, AU, BR, BG, CA, CL,
             CN, AME, KR, CUS, DK, SP, EU,
@@ -186,8 +188,8 @@ namespace ss_api {
 
         Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country = Game::Country::WOR) const;
 
-        std::string id = "0";
-        std::string romid = "0";
+        std::string id;
+        std::string romid;
         std::string notgame;
         std::vector<Name> names;
         std::vector<std::string> countries;
