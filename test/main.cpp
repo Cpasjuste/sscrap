@@ -176,45 +176,7 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
 void Scrap::run() {
 
-#if 0
-    gameList = Api::gameList("gamelist.xml");
-    //Api::gameListFixClones(&gameList, "fbneo.dat");
-    //gameList.save("gamelist_fixed.xml");
-
-    printf("total games: %zu\n", gameList.games.size());
-
-    std::vector<Game> games = Api::gameListFilter(gameList.games, true, false);
-    printf("total parents: %zu\n", games.size());
-
-    std::vector<std::string> names;
-    for (const auto &game : games) {
-
-        std::vector<Game> clones;
-        std::string name = game.getName().text;
-        auto found = std::find_if(names.begin(), names.end(), [&name](const std::string &n) {
-            return name == n;
-        });
-
-        if(found != names.end())
-            continue;
-
-        names.emplace_back(name);
-        std::copy_if(games.begin(), games.end(), std::back_inserter(clones), [name](const Game &g) {
-            return g.getName().text == name;
-        });
-
-        if (clones.size() > 1) {
-            printf("%s: found %zu clones: ", name.c_str(), clones.size());
-            for (const auto &g : clones) {
-                printf("%s (%s) - ", g.romid.c_str(), g.path.c_str());
-                //printGame(g);
-            }
-            printf("\n");
-            //break;
-        }
-    }
-#endif
-
+#if 1
     int thread_count = 1;
 
     if (args.exist("-gameinfo")) {
@@ -289,6 +251,45 @@ void Scrap::run() {
     } else {
         fprintf(stderr, KRED "TODO: PRINT HELP\n" KRAS);
     }
+#endif
+
+#if 0
+    gameList = Api::gameList("gamelist.xml");
+    //Api::gameListFixClones(&gameList, "fbneo.dat");
+    //gameList.save("gamelist_fixed.xml");
+
+    printf("total games: %zu\n", gameList.games.size());
+    std::vector<Game> games = Api::gameListFilter(gameList.games);
+    printf("total parents: %zu\n", games.size());
+
+    std::vector<std::string> names;
+    for (const auto &game : games) {
+
+        std::vector<Game> clones;
+        std::string name = game.getName().text;
+        auto found = std::find_if(names.begin(), names.end(), [&name](const std::string &n) {
+            return name == n;
+        });
+
+        if(found != names.end())
+            continue;
+
+        names.emplace_back(name);
+        std::copy_if(games.begin(), games.end(), std::back_inserter(clones), [name](const Game &g) {
+            return g.getName().text == name;
+        });
+
+        if (clones.size() > 1) {
+            printf("%s: found %zu clones: ", name.c_str(), clones.size());
+            for (const auto &g : clones) {
+                printf("%s (%s) - ", g.romid.c_str(), g.path.c_str());
+                //printGame(g);
+            }
+            printf("\n");
+            //break;
+        }
+    }
+#endif
 }
 
 int main(int argc, char **argv) {
