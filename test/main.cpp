@@ -8,11 +8,6 @@
 #include "scrap.h"
 #include "args.h"
 
-#define KRED "\x1B[91m"
-#define KGRE "\x1B[92m"
-#define KYEL "\x1B[93m"
-#define KRAS "\033[0m"
-
 using namespace ss_api;
 
 static Scrap *scrap;
@@ -147,10 +142,15 @@ static void *scrap_thread(void *ptr) {
             pthread_mutex_unlock(&scrap->mutex);
         } else {
             pthread_mutex_lock(&scrap->mutex);
+            // game not found, but add it to the list with default values
+            Game game;
+            game.names.emplace_back(Api::toString(Game::Country::WOR), file);
+            game.path = file;
+            scrap->gameList.games.emplace_back(game);
             fprintf(stderr, KRED "NOK: %s (%i)\n" KRAS, file.c_str(), gameInfo.http_error);
             scrap->missList.emplace_back(file);
             pthread_mutex_unlock(&scrap->mutex);
-        };
+        }
     }
 
     return nullptr;
@@ -176,9 +176,10 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
 void Scrap::run() {
 
+#if 0
     gameList = Api::gameList("gamelist.xml");
-    Api::gameListFixClones(&gameList, "fbneo.dat");
-    gameList.save("gamelist_fixed.xml");
+    //Api::gameListFixClones(&gameList, "fbneo.dat");
+    //gameList.save("gamelist_fixed.xml");
 
     printf("total games: %zu\n", gameList.games.size());
 
@@ -212,8 +213,8 @@ void Scrap::run() {
             //break;
         }
     }
+#endif
 
-#if 0
     int thread_count = 1;
 
     if (args.exist("-gameinfo")) {
@@ -253,7 +254,7 @@ void Scrap::run() {
             }
 
             printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
-            printf(KGRE "found %i games, %zu was not found:" KRAS, gameList.roms_count, missList.size());
+            printf(KGRE "found %i games, %zu was not scrapped:" KRAS, gameList.roms_count, missList.size());
             if (!missList.empty()) {
                 printf(KGRE ", missing games:\n" KRAS);
                 for (const auto &file : missList) {
@@ -288,7 +289,6 @@ void Scrap::run() {
     } else {
         fprintf(stderr, KRED "TODO: PRINT HELP\n" KRAS);
     }
-#endif
 }
 
 int main(int argc, char **argv) {
@@ -300,6 +300,9 @@ int main(int argc, char **argv) {
     Api::ss_devpassword = SS_DEV_PWD;
     Api::ss_softname = "sscrap";
     ss_debug = args.exist("-debug");
+#ifndef NDEBUG
+    ss_debug = true;
+#endif
 
     scrap = new Scrap(args);
     scrap->run();

@@ -11,6 +11,11 @@
 #include "ss_game.h"
 #include "ss_user.h"
 
+#define KRED "\x1B[91m"
+#define KGRE "\x1B[92m"
+#define KYEL "\x1B[93m"
+#define KRAS "\033[0m"
+
 #define SS_TIMEOUT 10
 
 namespace ss_api {
@@ -135,6 +140,17 @@ do \
 { \
     if(ss_debug) \
         printf((f_), ##__VA_ARGS__); \
+} \
+while(0)
+
+#define SS_PRINT_RED(f_, ...) \
+do \
+{ \
+    if(ss_debug) { \
+        printf(KRED "err: "); \
+        printf((f_), ##__VA_ARGS__); \
+        printf(KRAS); \
+    } \
 } \
 while(0)
 

@@ -358,15 +358,14 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     if (element) {
         XMLNode *node = element->FirstChildElement("nom");
         while (node) {
-            Game::Name gameName{};
-            gameName.country = getXmlAttribute(node->ToElement(), "region");
-            gameName.text = getXmlText(node->ToElement());
-            game.names.emplace_back(gameName);
+            game.names.emplace_back(getXmlAttribute(node->ToElement(), "region"),
+                                    getXmlText(node->ToElement()));
             node = node->NextSibling();
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        game.names.push_back({"wor", getXmlText(gameNode->FirstChildElement("name"))});
+        game.names.emplace_back(Api::toString(Game::Country::WOR),
+                                getXmlText(gameNode->FirstChildElement("name")));
     }
     // screenscraper
     element = gameNode->FirstChildElement("regions");
@@ -1054,7 +1053,7 @@ void Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) 
 
     while (gameNode != nullptr) {
         Game game;
-        game.names.push_back({"wor", getXmlText(gameNode->FirstChildElement("description"))});
+        game.names.emplace_back("wor", getXmlText(gameNode->FirstChildElement("description")));
         game.path = getXmlAttribute(gameNode->ToElement(), "name");
         if (!game.path.empty()) {
             game.path += ".zip";
@@ -1105,12 +1104,27 @@ void Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) 
 
         // fix screenscraper cloneof !
         gameList->games.at(i).cloneof = (*sscrapParent).romid;
-        //printf("fix: %s (%s) => %s (%s)\n",
-        //       game.getName().text.c_str(), game.romid.c_str(),
-        //      (*sscrapParent).getName().text.c_str(), (*sscrapParent).romid.c_str());
 
-        // screenscrap db
-        //printf("UPDATE Roms SET cloneof=%s WHERE id=%s;\n",
-        //       (*sscrapParent).romid.c_str(), gameList->games.at(i).romid.c_str());
+        // debug
+        if (gameList->games.at(i).cloneof == gameList->games.at(i).romid) {
+            SS_PRINT_RED("clone: %s (%s, id: %s) => parent: %s (%s, id: %s): cloneof can't equal romid\n",
+                         gameList->games.at(i).getName().text.c_str(),
+                         gameList->games.at(i).path.c_str(),
+                         gameList->games.at(i).romid.c_str(),
+                         (*sscrapParent).getName().text.c_str(),
+                         (*sscrapParent).path.c_str(),
+                         (*sscrapParent).romid.c_str());
+        } else {
+            SS_PRINT("fix: clone: %s (%s, id: %s) => parent: %s (%s, id: %s)\n",
+                     gameList->games.at(i).getName().text.c_str(),
+                     gameList->games.at(i).path.c_str(),
+                     gameList->games.at(i).romid.c_str(),
+                     (*sscrapParent).getName().text.c_str(),
+                     (*sscrapParent).path.c_str(),
+                     (*sscrapParent).romid.c_str());
+            // screenscrap db
+            //SS_PRINT("UPDATE Roms SET cloneof=%s WHERE id=%s;\n",
+            //         (*sscrapParent).romid.c_str(), gameList->games.at(i).romid.c_str());
+        }
     }
 }

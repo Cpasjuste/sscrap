@@ -30,46 +30,106 @@ namespace ss_api {
         };
 
         struct Name {
-            std::string country;
-            std::string text;
+            Name() = default;
+
+            Name(const std::string &c, const std::string &t) {
+                country = c;
+                text = t;
+            }
+
+            std::string country = "wor";
+            std::string text = "Unknown";
         };
 
         struct System {
-            std::string id;
-            std::string text;
+            System() = default;
+
+            System(const std::string &i, const std::string &t) {
+                id = i;
+                text = t;
+            }
+
+            std::string id = "0";
+            std::string text = "Unknown";
         };
 
         struct Editor {
-            std::string id;
-            std::string text;
+            Editor() = default;
+
+            Editor(const std::string &c, const std::string &t) {
+                id = c;
+                text = t;
+            }
+
+            std::string id = "0";
+            std::string text = "Unknown";
         };
 
         struct Developer {
-            std::string id;
-            std::string text;
+            Developer() = default;
+
+            Developer(const std::string &c, const std::string &t) {
+                id = c;
+                text = t;
+            }
+
+            std::string id = "0";
+            std::string text = "Unknown";
         };
 
         struct Synopsis {
-            std::string language;
-            std::string text;
+            Synopsis() = default;
+
+            Synopsis(const std::string &l, const std::string &t) {
+                language = l;
+                text = t;
+            }
+
+            std::string language = "en";
+            std::string text = "Unknown";
         };
 
         struct Classification {
-            std::string type;
-            std::string text;
+            Classification() = default;
+
+            Classification(const std::string &ty, const std::string &tx) {
+                type = ty;
+                text = tx;
+            }
+
+            std::string type = "Unknown";
+            std::string text = "Unknown";
         };
 
         struct Date {
-            std::string country;
-            std::string text;
+            Date() = default;
+
+            Date(const std::string &c, const std::string &t) {
+                country = c;
+                text = t;
+            }
+
+            std::string country = "wor";
+            std::string text = "Unknown";
         };
 
         struct Genre {
-            std::string id;
-            std::string main;
-            std::string parentid;
-            std::string language;
-            std::string text;
+            Genre() = default;
+
+            Genre(const std::string &i, const std::string &m, const std::string &p,
+                  const std::string &l, const std::string &t) {
+                id = i;
+                main = m;
+                parentid = p;
+                language = l;
+                text = t;
+            }
+
+            std::string id = "0";
+            std::string main = "0";
+            std::string parentid = "0";
+            std::string language = "en";
+            std::string text = "Unknown";
         };
 
         struct Family {
@@ -77,9 +137,9 @@ namespace ss_api {
                 std::string language;
                 std::string text;
             };
-            std::string id;
-            std::string main;
-            std::string parentid;
+            std::string id = "0";
+            std::string main = "0";
+            std::string parentid = "0";
             std::vector<Family::Name> names;
         };
 
@@ -126,8 +186,8 @@ namespace ss_api {
 
         Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country = Game::Country::WOR) const;
 
-        std::string id;
-        std::string romid;
+        std::string id = "0";
+        std::string romid = "0";
         std::string notgame;
         std::vector<Name> names;
         std::vector<std::string> countries;
