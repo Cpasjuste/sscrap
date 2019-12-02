@@ -351,7 +351,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     game.source = getXmlAttribute(gameNode->ToElement(), "source");
     // emulationstation compat
     game.path = getXmlText(gameNode->FirstChildElement("path"));
-    if (game.path.empty()) {
+    if (game.path.empty() || game.path == "Unknown") {
         game.path = romName;
     }
     // screenscraper (prioritise screenscraper format)
@@ -1041,21 +1041,21 @@ void Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) 
     XMLDocument doc;
     XMLError e = doc.LoadFile(fbaGamelist.c_str());
     if (e != XML_SUCCESS) {
-        SS_PRINT("Api::gameListFixClones: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT_RED("Api::gameListFixClones: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         doc.Clear();
         return;
     }
 
     XMLNode *pRoot = doc.FirstChildElement("datafile");
     if (pRoot == nullptr) {
-        SS_PRINT("Api::gameListFixClones: wrong xml format: \'datafile\' tag not found\n");
+        SS_PRINT_RED("Api::gameListFixClones: wrong xml format: \'datafile\' tag not found\n");
         doc.Clear();
         return;
     }
 
     XMLNode *gameNode = pRoot->FirstChildElement("game");
     if (gameNode == nullptr) {
-        SS_PRINT("Api::gameListFixClones: no \'game\' node found\n");
+        SS_PRINT_RED("Api::gameListFixClones: no \'game\' node found\n");
         doc.Clear();
         return;
     }

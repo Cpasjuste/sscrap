@@ -176,7 +176,7 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
 void Scrap::run() {
 
-#if 1
+#if 0
     int thread_count = 1;
 
     if (args.exist("-gameinfo")) {
@@ -253,10 +253,11 @@ void Scrap::run() {
     }
 #endif
 
-#if 0
+#if 1
     gameList = Api::gameList("gamelist.xml");
-    //Api::gameListFixClones(&gameList, "fbneo.dat");
-    //gameList.save("gamelist_fixed.xml");
+    Api::gameListFixClones(&gameList, "fbneo.dat");
+    gameList.save("gamelist_fixed.xml");
+    exit(0);
 
     printf("total games: %zu\n", gameList.games.size());
     std::vector<Game> games = Api::gameListFilter(gameList.games);
