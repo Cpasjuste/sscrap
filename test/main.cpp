@@ -291,9 +291,11 @@ void Scrap::run() {
 
 #if 0
     gameList = Api::gameList("gamelist.xml");
-    Api::gameListFixClones(&gameList, "fbneo.dat");
-    gameList.save("gamelist_fixed.xml");
-    exit(0);
+    if(!Api::gameListFixClones(&gameList, "fbneo.dat")) {
+        exit(-1);
+    }
+    // gameList.save("gamelist_fixed.xml");
+    // exit(0);
 
     printf("total games: %zu\n", gameList.games.size());
     std::vector<Game> games = Api::gameListFilter(gameList.games);

@@ -94,7 +94,7 @@ namespace ss_api {
                                                 const std::string &date = "All",
                                                 const std::string &genre = "All");
 
-        static void gameListFixClones(GameList *gameList, const std::string &fbaGamelist);
+        static bool gameListFixClones(GameList *gameList, const std::string &fbaGamelist);
 
         static std::string toString(const Game::Media::Type &type);
 

@@ -1029,7 +1029,7 @@ bool Api::sortGameByName(const Game &g1, const Game &g2) {
 }
 
 // pfba: fix screenscraper missing clonesof
-void Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) {
+bool Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) {
 
     ///
     /// build fbneo game list START
@@ -1038,23 +1038,24 @@ void Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) 
     XMLDocument doc;
     XMLError e = doc.LoadFile(fbaGamelist.c_str());
     if (e != XML_SUCCESS) {
-        SS_PRINT_RED("Api::gameListFixClones: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT_RED("Api::gameListFixClones: could not load dat: %s (%s)\n",
+                     fbaGamelist.c_str(), tinyxml2::XMLDocument::ErrorIDToName(e));
         doc.Clear();
-        return;
+        return false;
     }
 
     XMLNode *pRoot = doc.FirstChildElement("datafile");
     if (pRoot == nullptr) {
         SS_PRINT_RED("Api::gameListFixClones: wrong xml format: \'datafile\' tag not found\n");
         doc.Clear();
-        return;
+        return false;
     }
 
     XMLNode *gameNode = pRoot->FirstChildElement("game");
     if (gameNode == nullptr) {
         SS_PRINT_RED("Api::gameListFixClones: no \'game\' node found\n");
         doc.Clear();
-        return;
+        return false;
     }
 
     while (gameNode != nullptr) {
@@ -1133,4 +1134,6 @@ void Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) 
             //         (*sscrapParent).romid.c_str(), gameList->games.at(i).romid.c_str());
         }
     }
+
+    return true;
 }
