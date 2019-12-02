@@ -315,17 +315,18 @@ Api::gameListFilter(const std::vector<Game> &games, bool available, bool clones,
     std::copy_if(games.begin(), games.end(), std::back_inserter(newGameList),
                  [available, clones, system, editor, developer, player, rating,
                          topstaff, rotation, resolution, date, genre](const Game &game) {
+                     // TODO: use integer for rating, resolution and date
                      return (!available || (available && game.available))
                             && (clones || game.cloneof == "0")
                             && (system == "All" || game.system.text == system)
                             && (editor == "All" || game.editor.text == editor)
                             && (developer == "All" || game.developer.text == developer)
                             && (player == "All" || game.players == player)
-                            && (rating == "All" || game.rating >= rating)
+                            && (rating == "All" || game.rating == rating)
                             && (topstaff == "All" || game.topstaff == topstaff)
                             && (rotation == "All" || game.rotation == rotation)
                             && (resolution == "All" || game.resolution == resolution)
-                            && (date == "All" || game.getDate(Game::Country::WOR).text >= date)
+                            && (date == "All" || game.getDate(Game::Country::WOR).text == date)
                             && (genre == "All" || game.getGenre(Game::Language::EN).text == genre);
                  });
 
@@ -394,7 +395,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        game.synopses.push_back({"wor", getXmlText(gameNode->FirstChildElement("desc"))});
+        game.synopses.emplace_back("wor", getXmlText(gameNode->FirstChildElement("desc")));
     }
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("medias");
@@ -703,6 +704,14 @@ bool Api::GameList::save(const std::string &dstPath) {
         elem->SetText(game.topstaff.c_str());
         gameElement->InsertEndChild(elem);
         // screenscraper
+        elem = doc.NewElement("note");
+        elem->SetText(game.rating.c_str());
+        gameElement->InsertEndChild(elem);
+        // emulationstation
+        elem = doc.NewElement("rating");
+        elem->SetText(game.rating.c_str());
+        gameElement->InsertEndChild(elem);
+        // screenscraper
         elem = doc.NewElement("rotation");
         elem->SetText(game.rotation.c_str());
         gameElement->InsertEndChild(elem);
@@ -734,7 +743,7 @@ bool Api::GameList::save(const std::string &dstPath) {
 std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name) {
 
     if (!element || !element->Attribute(name.c_str())) {
-        return "";
+        return "Unknown";
     }
 
     return element->Attribute(name.c_str());
@@ -743,7 +752,7 @@ std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::strin
 std::string Api::getXmlText(tinyxml2::XMLElement *element) {
 
     if (!element || !element->GetText()) {
-        return "";
+        return "Unknown";
     }
 
     return element->GetText();
