@@ -230,7 +230,7 @@ void Scrap::run() {
             }
 
             printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
-            printf(KGRE "found %i/%i games\n" KRAS, gameList.roms_count, filesCount);
+            printf(KGRE "found %i/%i games\n" KRAS, gameList.roms_count - (int) missList.size(), filesCount);
             if (!missList.empty()) {
                 printf(KGRE "%zu was not found:\n" KRAS, missList.size());
                 for (const auto &file : missList) {
