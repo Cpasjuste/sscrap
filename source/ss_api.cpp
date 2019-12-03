@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "ss_io.h"
 #include "ss_api.h"
+#include "ss_gamelist.h"
 
 using namespace ss_api;
 using namespace tinyxml2;
@@ -22,17 +23,12 @@ Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string 
     std::string search = ss_curl.escape(recherche);
     std::string soft = ss_curl.escape(ss_softname);
     std::string url = "https://www.screenscraper.fr/api2/jeuRecherche.php?devid="
-                      + ss_devid + "&devpassword=" + ss_devpassword + "&softname=" + soft + "&output=xml"
-                      + "&recherche=" + search;
-    if (!ssid.empty()) {
-        url += "&ssid=" + ssid;
-    }
-    if (!sspassword.empty()) {
-        url += "&sspassword=" + sspassword;
-    }
-    if (!systemeid.empty()) {
-        url += "&systemeid=" + systemeid;
-    }
+                      + ss_devid + "&devpassword=" + ss_devpassword
+                      + "&softname=" + soft + "&output=xml" + "&recherche=" + search;
+
+    url += ssid.empty() ? "" : "&ssid=" + ssid;
+    url += sspassword.empty() ? "" : "&sspassword=" + sspassword;
+    url += systemeid.empty() ? "" : "&systemeid=" + systemeid;
 
     SS_PRINT("Api::jeuRecherche: %s\n", url.c_str());
 
@@ -58,24 +54,24 @@ Api::GameSearch Api::parseGameSearch(const std::string &xmlData) {
     }
 
     XMLNode *pRoot = doc.FirstChildElement("Data");
-    if (!pRoot) {
+    if (pRoot == nullptr) {
         SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' tag not found\n");
         return gs;
     }
 
     XMLNode *userNode = pRoot->FirstChildElement("ssuser");
-    if (!userNode) {
+    if (userNode == nullptr) {
         SS_PRINT("Api::parseGameSearch: wrong xml format: \'ssuser\' tag not found\n");
     } else {
         gs.ssuser = parseUser(userNode);
     }
 
     XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
-    if (!gamesNode) {
+    if (gamesNode == nullptr) {
         SS_PRINT("Api::parseGameSearch: wrong xml format: \'jeux\' tag not found\n");
     } else {
         XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
-        while (gameNode) {
+        while (gameNode != nullptr) {
             // add game to game list
             gs.games.emplace_back(parseGame(gameNode, ""));
             // move to next node (game)
@@ -98,33 +94,16 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
     std::string url = "https://www.screenscraper.fr/api2/jeuInfos.php?devid="
                       + ss_devid + "&devpassword=" + ss_devpassword + "&softname=" + soft + "&output=xml"
                       + "&romnom=" + search;
-    if (!ssid.empty()) {
-        url += "&ssid=" + ssid;
-    }
-    if (!sspassword.empty()) {
-        url += "&sspassword=" + sspassword;
-    }
-    if (!crc.empty()) {
-        url += "&crc=" + crc;
-    }
-    if (!md5.empty()) {
-        url += "&md5=" + md5;
-    }
-    if (!sha1.empty()) {
-        url += "&sha1=" + sha1;
-    }
-    if (!systemeid.empty()) {
-        url += "&systemeid=" + systemeid;
-    }
-    if (!romtype.empty()) {
-        url += "&romtype=" + romtype;
-    }
-    if (!romtaille.empty()) {
-        url += "&romtaille=" + romtaille;
-    }
-    if (!gameid.empty()) {
-        url += "&gameid=" + gameid;
-    }
+
+    url += ssid.empty() ? "" : "&ssid=" + ssid;
+    url += sspassword.empty() ? "" : "&sspassword=" + sspassword;
+    url += crc.empty() ? "" : "&crc=" + crc;
+    url += md5.empty() ? "" : "&md5=" + md5;
+    url += sha1.empty() ? "" : "&sha1=" + sha1;
+    url += systemeid.empty() ? "" : "&systemeid=" + systemeid;
+    url += romtype.empty() ? "" : "&romtype=" + romtype;
+    url += romtaille.empty() ? "" : "&romtaille=" + romtaille;
+    url += gameid.empty() ? "" : "&gameid=" + gameid;
 
     SS_PRINT("Api::jeuInfos: %s\n", url.c_str());
 
@@ -150,184 +129,26 @@ Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &
     }
 
     XMLNode *pRoot = doc.FirstChildElement("Data");
-    if (!pRoot) {
+    if (pRoot == nullptr) {
         SS_PRINT("Api::parseGameInfo: wrong xml format: \'Data\' tag not found\n");
         return ji;
     }
 
     XMLNode *userNode = pRoot->FirstChildElement("ssuser");
-    if (!userNode) {
+    if (userNode == nullptr) {
         SS_PRINT("Api::parseGameInfo: wrong xml format: \'ssuser\' tag not found\n");
     } else {
         ji.ssuser = parseUser(userNode);
     }
 
     XMLNode *gameNode = pRoot->FirstChildElement("jeu");
-    if (!gameNode) {
+    if (gameNode == nullptr) {
         SS_PRINT("Api::parseGameInfo: wrong xml format: \'jeu\' tag not found\n");
     } else {
         ji.game = parseGame(gameNode, romName);
     }
 
     return ji;
-}
-
-Api::GameList Api::gameList(const std::string &xmlPath, const std::string &rPath) {
-
-    GameList gl{};
-    XMLDocument doc;
-    std::vector<std::string> files;
-
-    gl.xml = xmlPath;
-    XMLError e = doc.LoadFile(xmlPath.c_str());
-    if (e != XML_SUCCESS) {
-        SS_PRINT("Api::gameList: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
-        return gl;
-    }
-
-    XMLNode *pRoot = doc.FirstChildElement("Data");
-    if (pRoot == nullptr) {
-        // emulationstation format
-        pRoot = doc.FirstChildElement("gameList");
-        if (pRoot == nullptr) {
-            SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' or \'gameList\' tag not found\n");
-            return gl;
-        }
-    }
-
-    XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
-    if (gamesNode == nullptr) {
-        // emulationstation format
-        gamesNode = pRoot;
-    }
-
-    XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
-    if (gameNode == nullptr) {
-        gameNode = gamesNode->FirstChildElement("game");
-    }
-
-    gl.romPath = rPath;
-    if (!gl.romPath.empty()) {
-        files = Io::getDirList(gl.romPath);
-    }
-
-    while (gameNode != nullptr) {
-        Game game = parseGame(gameNode);
-        // is rom available?
-        auto p = std::find(files.begin(), files.end(), game.path);
-        if (p != files.end()) {
-            game.available = true;
-            gl.roms_count++;
-        }
-        // add stuff for later filtering
-        p = std::find(gl.systems.begin(), gl.systems.end(), game.system.text);
-        if (p == gl.systems.end()) {
-            gl.systems.emplace_back(game.system.text);
-        }
-        p = std::find(gl.editors.begin(), gl.editors.end(), game.editor.text);
-        if (p == gl.editors.end()) {
-            gl.editors.emplace_back(game.editor.text);
-        }
-        p = std::find(gl.developers.begin(), gl.developers.end(), game.developer.text);
-        if (p == gl.developers.end()) {
-            gl.developers.emplace_back(game.developer.text);
-        }
-        p = std::find(gl.players.begin(), gl.players.end(), game.players);
-        if (p == gl.players.end()) {
-            gl.players.emplace_back(game.players);
-        }
-        p = std::find(gl.ratings.begin(), gl.ratings.end(), game.rating);
-        if (p == gl.ratings.end()) {
-            gl.ratings.emplace_back(game.rating);
-        }
-        p = std::find(gl.topstaffs.begin(), gl.topstaffs.end(), game.topstaff);
-        if (p == gl.topstaffs.end()) {
-            gl.topstaffs.emplace_back(game.topstaff);
-        }
-        p = std::find(gl.rotations.begin(), gl.rotations.end(), game.rotation);
-        if (p == gl.rotations.end()) {
-            gl.rotations.emplace_back(game.rotation);
-        }
-        p = std::find(gl.resolutions.begin(), gl.resolutions.end(), game.resolution);
-        if (p == gl.resolutions.end()) {
-            gl.resolutions.emplace_back(game.resolution);
-        }
-        if (!game.dates.empty()) {
-            std::string date = game.getDate(Game::Country::WOR).text;
-            p = std::find(gl.dates.begin(), gl.dates.end(), date);
-            if (p == gl.dates.end()) {
-                gl.dates.emplace_back(date);
-            }
-        }
-        if (!game.genres.empty()) {
-            std::string genre = game.getGenre(Game::Language::EN).text;
-            p = std::find(gl.genres.begin(), gl.genres.end(), genre);
-            if (p == gl.genres.end()) {
-                gl.genres.emplace_back(genre);
-            }
-        }
-        // add game to game list
-        gl.games.emplace_back(game);
-        // move to next node (game)
-        gameNode = gameNode->NextSibling();
-    }
-
-    // sort games
-    std::sort(gl.games.begin(), gl.games.end(), sortGameByName);
-    // sort lists
-    std::sort(gl.systems.begin(), gl.systems.end(), sortByName);
-    std::sort(gl.editors.begin(), gl.editors.end(), sortByName);
-    std::sort(gl.developers.begin(), gl.developers.end(), sortByName);
-    std::sort(gl.players.begin(), gl.players.end(), sortByName);
-    std::sort(gl.ratings.begin(), gl.ratings.end(), sortByName);
-    std::sort(gl.topstaffs.begin(), gl.topstaffs.end(), sortByName);
-    std::sort(gl.rotations.begin(), gl.rotations.end(), sortByName);
-    std::sort(gl.resolutions.begin(), gl.resolutions.end(), sortByName);
-    std::sort(gl.dates.begin(), gl.dates.end(), sortByName);
-    std::sort(gl.genres.begin(), gl.genres.end(), sortByName);
-    // default lists values
-    gl.systems.insert(gl.systems.begin(), "All");
-    gl.editors.insert(gl.editors.begin(), "All");
-    gl.developers.insert(gl.developers.begin(), "All");
-    gl.players.insert(gl.players.begin(), "All");
-    gl.ratings.insert(gl.ratings.begin(), "All");
-    gl.topstaffs.insert(gl.topstaffs.begin(), "All");
-    gl.rotations.insert(gl.rotations.begin(), "All");
-    gl.resolutions.insert(gl.resolutions.begin(), "All");
-    gl.dates.insert(gl.dates.begin(), "All");
-    gl.genres.insert(gl.genres.begin(), "All");
-
-    return gl;
-}
-
-std::vector<Game>
-Api::gameListFilter(const std::vector<Game> &games, bool available, bool clones,
-                    const std::string &system, const std::string &editor, const std::string &developer,
-                    const std::string &player, const std::string &rating, const std::string &topstaff,
-                    const std::string &rotation, const std::string &resolution, const std::string &date,
-                    const std::string &genre) {
-
-    std::vector<Game> newGameList;
-
-    std::copy_if(games.begin(), games.end(), std::back_inserter(newGameList),
-                 [available, clones, system, editor, developer, player, rating,
-                         topstaff, rotation, resolution, date, genre](const Game &game) {
-                     // TODO: use integer for rating, resolution and date
-                     return (!available || (available && game.available))
-                            && (clones || game.cloneof == "0")
-                            && (system == "All" || game.system.text == system)
-                            && (editor == "All" || game.editor.text == editor)
-                            && (developer == "All" || game.developer.text == developer)
-                            && (player == "All" || game.players == player)
-                            && (rating == "All" || game.rating == rating)
-                            && (topstaff == "All" || game.topstaff == topstaff)
-                            && (rotation == "All" || game.rotation == rotation)
-                            && (resolution == "All" || game.resolution == resolution)
-                            && (date == "All" || game.getDate(Game::Country::WOR).text == date)
-                            && (genre == "All" || game.getGenre(Game::Language::EN).text == genre);
-                 });
-
-    return newGameList;
 }
 
 Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
@@ -523,218 +344,6 @@ User Api::parseUser(XMLNode *userNode) {
     user.favregion = getXmlText(userNode->FirstChildElement("favregion"));
 
     return user;
-}
-
-bool Api::GameList::save(const std::string &dstPath) {
-
-    XMLDocument doc;
-
-    XMLDeclaration *dec = doc.NewDeclaration();
-    doc.InsertFirstChild(dec);
-
-    XMLNode *pRoot = doc.NewElement("Data");
-    doc.InsertEndChild(pRoot);
-
-    XMLElement *pGames = doc.NewElement("jeux");
-    pRoot->InsertEndChild(pGames);
-
-    for (const auto &game : games) {
-        // screenscraper / emulationstation
-        XMLElement *gameElement = doc.NewElement("jeu");
-        gameElement->SetAttribute("id", game.id.c_str());
-        gameElement->SetAttribute("romid", game.romid.c_str());
-        gameElement->SetAttribute("notgame", game.notgame.c_str());
-        gameElement->SetAttribute("source", game.source.c_str());
-        // emulationstation
-        XMLElement *elem = doc.NewElement("path");
-        elem->SetText(game.path.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        XMLElement *names = doc.NewElement("noms");
-        for (const auto &name : game.names) {
-            XMLElement *n = doc.NewElement("nom");
-            n->SetAttribute("region", name.country.c_str());
-            n->SetText(name.text.c_str());
-            names->InsertEndChild(n);
-        }
-        gameElement->InsertEndChild(names);
-        // emulationstation
-        elem = doc.NewElement("name");
-        if (!game.names.empty()) {
-            elem->SetText(game.getName(Game::Country::WOR).text.c_str());
-        }
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        XMLElement *countries = doc.NewElement("regions");
-        for (const auto &country : game.countries) {
-            XMLElement *n = doc.NewElement("region");
-            n->SetText(country.c_str());
-            countries->InsertEndChild(n);
-        }
-        gameElement->InsertEndChild(countries);
-        // screenscraper
-        elem = doc.NewElement("cloneof");
-        if (!game.cloneof.empty()) {
-            elem->SetText(game.cloneof.c_str());
-        }
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("systeme");
-        if (!game.system.id.empty()) {
-            elem->SetAttribute("id", game.system.id.c_str());
-            elem->SetText(game.system.text.c_str());
-        }
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        XMLElement *synopses = doc.NewElement("synopsis");
-        for (const auto &synopsis : game.synopses) {
-            XMLElement *n = doc.NewElement("synopsis");
-            n->SetAttribute("langue", synopsis.language.c_str());
-            n->SetText(synopsis.text.c_str());
-            synopses->InsertEndChild(n);
-        }
-        gameElement->InsertEndChild(synopses);
-        // emulationstation
-        elem = doc.NewElement("desc");
-        if (!game.synopses.empty()) {
-            elem->SetText(game.synopses.at(0).text.c_str());
-            elem->SetText(game.getSynopsis(Game::Language::EN).text.c_str());
-        }
-        gameElement->InsertEndChild(elem);
-        // image
-        elem = doc.NewElement("image");
-        Game::Media image = game.getMedia(Game::Media::Type::SS, Game::Country::SS);
-        if (!image.url.empty()) {
-            if (image.url.rfind("http", 0) == 0) {
-                elem->SetText(("media/images/"
-                               + game.path.substr(0, game.path.find_last_of('.') + 1) + image.format).c_str());
-            } else {
-                elem->SetText(image.url.c_str());
-            }
-        }
-        gameElement->InsertEndChild(elem);
-        // thumbnail
-        elem = doc.NewElement("thumbnail");
-        Game::Media thumbnail = game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
-        if (!thumbnail.url.empty()) {
-            if (thumbnail.url.rfind("http", 0) == 0) {
-                elem->SetText(("media/box3d/"
-                               + game.path.substr(0, game.path.find_last_of('.') + 1) + thumbnail.format).c_str());
-            } else {
-                elem->SetText(thumbnail.url.c_str());
-            }
-        }
-        gameElement->InsertEndChild(elem);
-        // video
-        elem = doc.NewElement("video");
-        Game::Media video = game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
-        if (!video.url.empty()) {
-            if (video.url.rfind("http", 0) == 0) {
-                elem->SetText(("media/videos/"
-                               + game.path.substr(0, game.path.find_last_of('.') + 1) + video.format).c_str());
-            } else {
-                elem->SetText(video.url.c_str());
-            }
-        }
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        XMLElement *_dates = doc.NewElement("dates");
-        for (const auto &date : game.dates) {
-            XMLElement *n = doc.NewElement("date");
-            n->SetAttribute("region", date.country.c_str());
-            n->SetText(date.text.c_str());
-            _dates->InsertEndChild(n);
-        }
-        gameElement->InsertEndChild(_dates);
-        // emulationstation
-        elem = doc.NewElement("releasedate");
-        if (!game.dates.empty()) {
-            elem->SetText(game.dates.at(0).text.c_str());
-        }
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("developpeur");
-        elem->SetAttribute("id", game.developer.id.c_str());
-        elem->SetText(game.developer.text.c_str());
-        gameElement->InsertEndChild(elem);
-        // emulationstation
-        elem = doc.NewElement("developer");
-        elem->SetText(game.developer.text.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("editeur");
-        elem->SetAttribute("id", game.editor.id.c_str());
-        elem->SetText(game.editor.text.c_str());
-        gameElement->InsertEndChild(elem);
-        // emulationstation
-        elem = doc.NewElement("publisher");
-        elem->SetText(game.editor.text.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        XMLElement *_genres = doc.NewElement("genres");
-        for (const auto &genre : game.genres) {
-            XMLElement *n = doc.NewElement("genre");
-            n->SetAttribute("id", genre.id.c_str());
-            n->SetAttribute("principale", genre.main.c_str());
-            n->SetAttribute("parentid", genre.parentid.c_str());
-            n->SetAttribute("langue", genre.language.c_str());
-            n->SetText(genre.text.c_str());
-            _genres->InsertEndChild(n);
-        }
-        gameElement->InsertEndChild(_genres);
-        // emulationstation
-        elem = doc.NewElement("genre");
-        if (!game.genres.empty()) {
-            elem->SetText(game.getGenre(Game::Language::EN).text.c_str());
-        }
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("joueurs");
-        elem->SetText(game.players.c_str());
-        gameElement->InsertEndChild(elem);
-        // emulationstation
-        elem = doc.NewElement("players");
-        elem->SetText(game.players.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("topstaff");
-        elem->SetText(game.topstaff.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("note");
-        elem->SetText(game.rating.c_str());
-        gameElement->InsertEndChild(elem);
-        // emulationstation
-        elem = doc.NewElement("rating");
-        elem->SetText(game.rating.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("rotation");
-        elem->SetText(game.rotation.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("resolution");
-        elem->SetText(game.resolution.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("controles");
-        elem->SetText(game.inputs.c_str());
-        gameElement->InsertEndChild(elem);
-        // screenscraper
-        elem = doc.NewElement("couleurs");
-        elem->SetText(game.colors.c_str());
-        gameElement->InsertEndChild(elem);
-        // add game element
-        pGames->InsertEndChild(gameElement);
-    }
-
-    XMLError e = doc.SaveFile(dstPath.c_str());
-    if (e != XML_SUCCESS) {
-        SS_PRINT("GameList::save: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
-        return false;
-    }
-
-    return true;
 }
 
 std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name) {
@@ -950,11 +559,9 @@ Game::Media::Type Api::toMedia(const std::string &type) {
     else if (type == "box-2D-side") { return Game::Media::Type::Box2DSide; }
     else if (type == "box-2D-back") { return Game::Media::Type::Box2DBack; }
     else if (type == "box-texture") { return Game::Media::Type::BoxTexture; }
-    else if (type == "box-2D-side") { return Game::Media::Type::Box2DSide; }
     else if (type == "box-3D") { return Game::Media::Type::Box3D; }
     else if (type == "box-scan") { return Game::Media::Type::BoxScan; }
     else if (type == "support-texture") { return Game::Media::Type::SupportTexture; }
-    else if (type == "box-2D-side") { return Game::Media::Type::Box2DSide; }
     else if (type == "bezel-4-3") { return Game::Media::Type::Bezel43; }
     else if (type == "bezel-16-9") { return Game::Media::Type::Bezel169; }
     else if (type == "bezel-16-10") { return Game::Media::Type::Bezel1610; }
@@ -1026,114 +633,4 @@ bool Api::sortByName(const std::string &g1, const std::string &g2) {
 
 bool Api::sortGameByName(const Game &g1, const Game &g2) {
     return g1.getName().text < g2.getName().text;
-}
-
-// pfba: fix screenscraper missing clonesof
-bool Api::gameListFixClones(GameList *gameList, const std::string &fbaGamelist) {
-
-    ///
-    /// build fbneo game list START
-    ///
-    std::vector<Game> fbaList;
-    XMLDocument doc;
-    XMLError e = doc.LoadFile(fbaGamelist.c_str());
-    if (e != XML_SUCCESS) {
-        SS_PRINT_RED("Api::gameListFixClones: could not load dat: %s (%s)\n",
-                     fbaGamelist.c_str(), tinyxml2::XMLDocument::ErrorIDToName(e));
-        doc.Clear();
-        return false;
-    }
-
-    XMLNode *pRoot = doc.FirstChildElement("datafile");
-    if (pRoot == nullptr) {
-        SS_PRINT_RED("Api::gameListFixClones: wrong xml format: \'datafile\' tag not found\n");
-        doc.Clear();
-        return false;
-    }
-
-    XMLNode *gameNode = pRoot->FirstChildElement("game");
-    if (gameNode == nullptr) {
-        SS_PRINT_RED("Api::gameListFixClones: no \'game\' node found\n");
-        doc.Clear();
-        return false;
-    }
-
-    while (gameNode != nullptr) {
-        Game game;
-        game.names.emplace_back("wor", getXmlText(gameNode->FirstChildElement("description")));
-        game.path = getXmlAttribute(gameNode->ToElement(), "name");
-        if (!game.path.empty()) {
-            game.path += ".zip";
-        }
-        game.cloneof = getXmlAttribute(gameNode->ToElement(), "cloneof");
-        fbaList.emplace_back(game);
-        gameNode = gameNode->NextSibling();
-    }
-
-    doc.Clear();
-
-    ///
-    /// build fbneo game list END
-    ///
-
-    for (size_t i = 0; i < gameList->games.size(); i++) {
-
-        // screenscraper game "cloneof" is set, continue
-        if (gameList->games.at(i).cloneof != "0") {
-            continue;
-        }
-
-        // search fba list for zip name (path), as game name may differ
-        std::string zipName = gameList->games.at(i).path;
-        auto fbaGame = std::find_if(fbaList.begin(), fbaList.end(), [zipName](const Game &g) {
-            return zipName == g.path;
-        });
-        // screenscraper game not found in fbneo dat, continue...
-        if (fbaGame == fbaList.end()) {
-            continue;
-        }
-
-        // game is not a clone, even in fba dat, continue...
-        if ((*fbaGame).cloneof.empty()) {
-            continue;
-        }
-
-        // we found a bad/wrong screenscaper "cloneof", find screenscraper parent id
-        std::string parentZipName = (*fbaGame).cloneof + ".zip";
-        auto sscrapParent = std::find_if(gameList->games.begin(), gameList->games.end(),
-                                         [parentZipName](const Game &g) {
-                                             return parentZipName == g.path;
-                                         });
-        // screenscraper parent not found (?!), continue...
-        if (sscrapParent == gameList->games.end()) {
-            continue;
-        }
-
-        // fix screenscraper cloneof !
-        gameList->games.at(i).cloneof = (*sscrapParent).romid;
-
-        // debug
-        if (gameList->games.at(i).cloneof == gameList->games.at(i).romid) {
-            SS_PRINT_RED("clone: %s (%s, id: %s) => parent: %s (%s, id: %s): cloneof can't equal romid\n",
-                         gameList->games.at(i).getName().text.c_str(),
-                         gameList->games.at(i).path.c_str(),
-                         gameList->games.at(i).romid.c_str(),
-                         (*sscrapParent).getName().text.c_str(),
-                         (*sscrapParent).path.c_str(),
-                         (*sscrapParent).romid.c_str());
-        } else {
-            SS_PRINT("fix: clone: %s (%s, id: %s) => parent: %s (%s, id: %s)\n",
-                     gameList->games.at(i).getName().text.c_str(),
-                     gameList->games.at(i).path.c_str(),
-                     gameList->games.at(i).romid.c_str(),
-                     (*sscrapParent).getName().text.c_str(),
-                     (*sscrapParent).path.c_str(),
-                     (*sscrapParent).romid.c_str());
-            // screenscrap db
-            //SS_PRINT("UPDATE Roms SET cloneof=%s WHERE id=%s;\n",
-            //         (*sscrapParent).romid.c_str(), gameList->games.at(i).romid.c_str());
-        }
-    }
-
-    return true;
 }

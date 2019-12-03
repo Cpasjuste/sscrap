@@ -21,7 +21,7 @@ public:
     std::string pwd;
     ss_api::Game::Language language = ss_api::Game::Language::EN;
     std::string romPath;
-    ss_api::Api::GameList gameList;
+    ss_api::GameList gameList;
     std::vector<std::string> filesList;
     std::vector<std::string> missList;
     int filesCount = 0;

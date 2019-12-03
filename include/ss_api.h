@@ -24,26 +24,6 @@ namespace ss_api {
 
     public:
 
-        class GameList {
-        public:
-            std::vector<Game> games;
-            std::vector<std::string> systems;
-            std::vector<std::string> editors;
-            std::vector<std::string> developers;
-            std::vector<std::string> players;
-            std::vector<std::string> ratings;
-            std::vector<std::string> topstaffs;
-            std::vector<std::string> rotations;
-            std::vector<std::string> resolutions;
-            std::vector<std::string> dates;
-            std::vector<std::string> genres;
-            std::string romPath;
-            std::string xml;
-            int roms_count = 0;
-
-            bool save(const std::string &dstPath);
-        };
-
         class GameSearch {
         public:
             GameSearch() = default;
@@ -78,24 +58,6 @@ namespace ss_api {
                                  const std::string &romnom, const std::string &romtaille, const std::string &gameid,
                                  const std::string &ssid = "", const std::string &sspassword = "");
 
-        static GameList gameList(const std::string &xmlPath, const std::string &romPath = "");
-
-        static std::vector<Game> gameListFilter(const std::vector<Game> &games,
-                                                bool available = false,
-                                                bool clones = false,
-                                                const std::string &system = "All",
-                                                const std::string &editor = "All",
-                                                const std::string &developer = "All",
-                                                const std::string &player = "All",
-                                                const std::string &rating = "All",
-                                                const std::string &topstaff = "All",
-                                                const std::string &rotation = "All",
-                                                const std::string &resolution = "All",
-                                                const std::string &date = "All",
-                                                const std::string &genre = "All");
-
-        static bool gameListFixClones(GameList *gameList, const std::string &fbaGamelist);
-
         static std::string toString(const Game::Media::Type &type);
 
         static std::string toString(const Game::Country &country);
@@ -112,24 +74,24 @@ namespace ss_api {
         static std::string ss_devpassword;
         static std::string ss_softname;
 
+        // internal
+        static Game parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName = "");
+
+        static bool sortByName(const std::string &g1, const std::string &g2);
+
+        static bool sortGameByName(const Game &g1, const Game &g2);
+
+        static std::string getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name);
+
+        static std::string getXmlText(tinyxml2::XMLElement *element);
+
     private:
 
         static GameInfo parseGameInfo(const std::string &xmlData, const std::string &romName);
 
         static GameSearch parseGameSearch(const std::string &xmlData);
 
-        static Game parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName = "");
-
         static User parseUser(tinyxml2::XMLNode *userNode);
-
-        static std::string getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name);
-
-        static std::string getXmlText(tinyxml2::XMLElement *element);
-
-        static bool sortByName(const std::string &g1, const std::string &g2);
-
-        static bool sortGameByName(const Game &g1, const Game &g2);
-
     };
 }
 

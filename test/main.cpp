@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "ss_api.h"
 #include "ss_io.h"
+#include "ss_gamelist.h"
 #include "scrap.h"
 #include "args.h"
 
@@ -80,6 +81,7 @@ static void *scrap_thread(void *ptr) {
                                      scrap->args.get("-systemid"), romType,
                                      file, "", "", scrap->user, scrap->pwd);
         }
+
         // 28 = CURLE_OPERATION_TIMEDOUT
         while (gameInfo.http_error == 28) {
             pthread_mutex_lock(&scrap->mutex);
@@ -224,13 +226,12 @@ void Scrap::run() {
                 pthread_join(threads[i], nullptr);
             }
 
-            gameList.roms_count = gameList.games.size();
             if (!gameList.games.empty() && args.exist("-savexml")) {
                 gameList.save(romPath + "/gamelist.xml");
             }
 
             printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
-            printf(KGRE "found %i/%i games\n" KRAS, gameList.roms_count - (int) missList.size(), filesCount);
+            printf(KGRE "found %zu/%i games\n" KRAS, gameList.games.size() - missList.size(), filesCount);
             if (!missList.empty()) {
                 printf(KGRE "%zu was not found:\n" KRAS, missList.size());
                 for (const auto &file : missList) {
@@ -290,19 +291,19 @@ void Scrap::run() {
 #endif
 
 #if 0
-    gameList = Api::gameList("gamelist.xml");
-    if(!Api::gameListFixClones(&gameList, "fbneo.dat")) {
+    gameList = GameList("gamelist.xml");
+    if (!gameList.fixClones("fbneo.dat")) {
         exit(-1);
     }
     // gameList.save("gamelist_fixed.xml");
     // exit(0);
 
     printf("total games: %zu\n", gameList.games.size());
-    std::vector<Game> games = Api::gameListFilter(gameList.games);
-    printf("total parents: %zu\n", games.size());
+    gameList = gameList.filter();
+    printf("total parents: %zu\n", gameList.games.size());
 
     std::vector<std::string> names;
-    for (const auto &game : games) {
+    for (const auto &game : gameList.games) {
 
         std::vector<Game> clones;
         std::string name = game.getName().text;
@@ -314,7 +315,7 @@ void Scrap::run() {
             continue;
 
         names.emplace_back(name);
-        std::copy_if(games.begin(), games.end(), std::back_inserter(clones), [name](const Game &g) {
+        std::copy_if(gameList.games.begin(), gameList.games.end(), std::back_inserter(clones), [name](const Game &g) {
             return g.getName().text == name;
         });
 
