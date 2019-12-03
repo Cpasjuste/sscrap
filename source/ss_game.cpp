@@ -3,9 +3,8 @@
 //
 
 #include <algorithm>
-#include <ss_game.h>
-
 #include "ss_api.h"
+#include "ss_game.h"
 
 using namespace ss_api;
 
@@ -93,22 +92,25 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
     return list.at(0);
 }
 
-Game::Media Game::getMedia(const Game::Media::Type &type, const Game::Country &country) const {
+Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country &country) const {
 
     std::vector<Game::Media> mediaList;
 
     remove_copy_if(medias.begin(), medias.end(), back_inserter(mediaList),
-                   [type, country](const Game::Media &media) {
-                       return media.type != Api::toString(type)
+                   [mediaTypeName, country](const Game::Media &media) {
+                       return media.type != mediaTypeName
                               || (country != Country::ALL && media.country != Api::toString(country));
                    });
 
     if (mediaList.empty()) {
-        if (country != Game::Country::WOR) {
-            return getMedia(type, Game::Country::WOR);
+        if (country != Game::Country::WOR && country != Game::Country::UNKNOWN) {
+            return getMedia(mediaTypeName, Game::Country::WOR);
+        } else if (country != Game::Country::UNKNOWN) {
+            return getMedia(mediaTypeName, Game::Country::UNKNOWN);
         }
         return Game::Media();
     }
+
     return mediaList.at(0);
 }
 

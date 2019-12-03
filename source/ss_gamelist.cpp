@@ -285,10 +285,10 @@ bool GameList::save(const std::string &dstPath) {
         // emulationstation medias
         // image
         elem = doc.NewElement("image");
-        Game::Media image = game.getMedia(Game::Media::Type::SS, Game::Country::SS);
+        Game::Media image = game.getMedia("sstitle", Game::Country::SS);
         if (!image.url.empty()) {
             if (image.url.rfind("http", 0) == 0) {
-                elem->SetText(("media/images/"
+                elem->SetText(("media/ss/"
                                + game.path.substr(0, game.path.find_last_of('.') + 1) + image.format).c_str());
             } else {
                 elem->SetText(image.url.c_str());
@@ -297,10 +297,10 @@ bool GameList::save(const std::string &dstPath) {
         gameElement->InsertEndChild(elem);
         // thumbnail
         elem = doc.NewElement("thumbnail");
-        Game::Media thumbnail = game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
+        Game::Media thumbnail = game.getMedia("ss", Game::Country::SS);
         if (!thumbnail.url.empty()) {
             if (thumbnail.url.rfind("http", 0) == 0) {
-                elem->SetText(("media/box3d/"
+                elem->SetText(("media/sstitle/"
                                + game.path.substr(0, game.path.find_last_of('.') + 1) + thumbnail.format).c_str());
             } else {
                 elem->SetText(thumbnail.url.c_str());
@@ -309,10 +309,10 @@ bool GameList::save(const std::string &dstPath) {
         gameElement->InsertEndChild(elem);
         // video
         elem = doc.NewElement("video");
-        Game::Media video = game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
+        Game::Media video = game.getMedia("video", Game::Country::ALL);
         if (!video.url.empty()) {
             if (video.url.rfind("http", 0) == 0) {
-                elem->SetText(("media/videos/"
+                elem->SetText(("media/video/"
                                + game.path.substr(0, game.path.find_last_of('.') + 1) + video.format).c_str());
             } else {
                 elem->SetText(video.url.c_str());

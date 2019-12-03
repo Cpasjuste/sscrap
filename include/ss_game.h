@@ -150,15 +150,6 @@ namespace ss_api {
                 All, Game, Country, Editor, Developer,
                 Players, Rating, Genre
             };
-            enum class Type {
-                SSTitle, SS, Screenshot, Fanart, Video, Marquee,
-                ScreenMarquee, ScreenMarqueeSmall, ThemeHs, Manuel,
-                Flyer, SteamGrid, Wheel, WheelHD, WheelCarbon, WheelSteel,
-                Box2D, Box2DSide, Box2DBack, BoxTexture, Box3D, BoxScan,
-                SupportTexture, Bezel43, Bezel169, Bezel1610, Mixrbv1, Mixrbv2,
-                Pictoliste, Pictocouleur, Pictomonochrome,
-                Unknow
-            };
             std::string type;
             std::string parent;
             std::string url;
@@ -186,7 +177,7 @@ namespace ss_api {
         // TODO: to lazy for now
         //Game::Family::Name getFamily(const Game::Language &language) const;
 
-        Game::Media getMedia(const Game::Media::Type &type, const Game::Country &country = Game::Country::WOR) const;
+        Game::Media getMedia(const std::string &mediaTypeName, const Game::Country &country = Game::Country::WOR) const;
 
         std::string id;
         std::string romid;

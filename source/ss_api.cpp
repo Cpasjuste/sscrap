@@ -15,6 +15,57 @@ std::string Api::ss_devpassword;
 std::string Api::ss_softname;
 bool ss_debug = false;
 
+std::vector<Api::MediaType> Api::mediaTypes(const std::string &ssid, const std::string &sspassword) {
+
+    std::vector<Api::MediaType> mediaTypes;
+    long code = 0;
+    Curl ss_curl;
+    std::string soft = ss_curl.escape(ss_softname);
+    std::string url = "https://www.screenscraper.fr/api2/mediasJeuListe.php?devid="
+                      + ss_devid + "&devpassword=" + ss_devpassword
+                      + "&softname=" + soft + "&output=xml";
+
+    url += ssid.empty() ? "" : "&ssid=" + ssid;
+    url += sspassword.empty() ? "" : "&sspassword=" + sspassword;
+
+    SS_PRINT("Api::mediaTypes: %s\n", url.c_str());
+
+    std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
+    if (xml.empty()) {
+        SS_PRINT("Api::mediaTypes: error %li\n", code);
+        return mediaTypes;
+    }
+
+    XMLDocument doc;
+    XMLError e = doc.Parse(xml.c_str(), xml.size());
+    if (e != XML_SUCCESS) {
+        SS_PRINT("Api::mediaTypes: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        doc.Clear();
+        return mediaTypes;
+    }
+
+    XMLNode *pRoot = doc.FirstChildElement("Data");
+    if (pRoot == nullptr) {
+        SS_PRINT("Api::mediaTypes: wrong xml format: \'Data\' tag not found\n");
+        doc.Clear();
+        return mediaTypes;
+    }
+
+    XMLNode *medias = pRoot->FirstChildElement("medias");
+    if (medias == nullptr) {
+        SS_PRINT("Api::mediaTypes: wrong xml format: \'medias\' tag not found\n");
+    } else {
+        XMLNode *media = medias->FirstChildElement("media");
+        while (media != nullptr) {
+            mediaTypes.emplace_back(getXmlText(media->FirstChildElement("id")),
+                                    getXmlText(media->FirstChildElement("nomcourt")));
+            media = media->NextSibling();
+        }
+    }
+
+    return mediaTypes;
+}
+
 Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string &systemeid,
                                 const std::string &ssid, const std::string &sspassword) {
 
@@ -50,12 +101,14 @@ Api::GameSearch Api::parseGameSearch(const std::string &xmlData) {
     XMLError e = doc.Parse(gs.xml.c_str(), gs.xml.size());
     if (e != XML_SUCCESS) {
         SS_PRINT("Api::parseGameSearch: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        doc.Clear();
         return gs;
     }
 
     XMLNode *pRoot = doc.FirstChildElement("Data");
     if (pRoot == nullptr) {
         SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' tag not found\n");
+        doc.Clear();
         return gs;
     }
 
@@ -78,6 +131,8 @@ Api::GameSearch Api::parseGameSearch(const std::string &xmlData) {
             gameNode = gameNode->NextSibling();
         }
     }
+
+    doc.Clear();
 
     return gs;
 }
@@ -235,9 +290,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
         }
     } else {
         // emulationstation compat
-        game.medias.push_back({"ss", "",
+        game.medias.push_back({"sstitle", "",
                                getXmlText(gameNode->FirstChildElement("image")), "wor", "", "", "", "", ""});
-        game.medias.push_back({"box-3D", "",
+        game.medias.push_back({"ss", "",
                                getXmlText(gameNode->FirstChildElement("thumbnail")), "wor", "", "", "", "", ""});
         game.medias.push_back({"video", "",
                                getXmlText(gameNode->FirstChildElement("video")), "wor", "", "", "", "", ""});
@@ -364,75 +419,6 @@ std::string Api::getXmlText(tinyxml2::XMLElement *element) {
     return element->GetText();
 }
 
-std::string Api::toString(const Game::Media::Type &type) {
-    switch (type) {
-        case Game::Media::Type::SSTitle:
-            return "sstitle";
-        case Game::Media::Type::SS:
-            return "ss";
-        case Game::Media::Type::Screenshot:
-            return "screenshot";
-        case Game::Media::Type::Fanart:
-            return "fanart";
-        case Game::Media::Type::Video:
-            return "video";
-        case Game::Media::Type::Marquee:
-            return "marquee";
-        case Game::Media::Type::ScreenMarquee:
-            return "screenmarquee";
-        case Game::Media::Type::ScreenMarqueeSmall:
-            return "screenmarqueesmall";
-        case Game::Media::Type::ThemeHs:
-            return "themehs";
-        case Game::Media::Type::Manuel:
-            return "manuel";
-        case Game::Media::Type::Flyer:
-            return "flyer";
-        case Game::Media::Type::SteamGrid:
-            return "steamgrid";
-        case Game::Media::Type::Wheel:
-            return "wheel";
-        case Game::Media::Type::WheelHD:
-            return "wheel-hd";
-        case Game::Media::Type::WheelCarbon:
-            return "wheel-carbon";
-        case Game::Media::Type::WheelSteel:
-            return "wheel-steel";
-        case Game::Media::Type::Box2D:
-            return "box-2D";
-        case Game::Media::Type::Box2DSide:
-            return "box-2D-side";
-        case Game::Media::Type::Box2DBack:
-            return "box-2D-back";
-        case Game::Media::Type::BoxTexture:
-            return "box-texture";
-        case Game::Media::Type::Box3D:
-            return "box-3D";
-        case Game::Media::Type::BoxScan:
-            return "box-scan";
-        case Game::Media::Type::SupportTexture:
-            return "support-texture";
-        case Game::Media::Type::Bezel43:
-            return "bezel-4-3";
-        case Game::Media::Type::Bezel169:
-            return "bezel-16-9";
-        case Game::Media::Type::Bezel1610:
-            return "bezel-16-10";
-        case Game::Media::Type::Mixrbv1:
-            return "mixrbv1";
-        case Game::Media::Type::Mixrbv2:
-            return "mixrbv2";
-        case Game::Media::Type::Pictoliste:
-            return "pictoliste";
-        case Game::Media::Type::Pictocouleur:
-            return "pictocouleur";
-        case Game::Media::Type::Pictomonochrome:
-            return "pictomonochrome";
-        default:
-            return "unknown";
-    }
-}
-
 std::string Api::toString(const Game::Language &language) {
     switch (language) {
         case Game::Language::EN:
@@ -533,44 +519,8 @@ std::string Api::toString(const Game::Country &region) {
         case Game::Country::ALL:
             return "all";
         default:
-            return "unknown";
+            return "Unknown";
     }
-}
-
-Game::Media::Type Api::toMedia(const std::string &type) {
-
-    if (type == "sstitle") { return Game::Media::Type::SSTitle; }
-    else if (type == "ss") { return Game::Media::Type::SS; }
-    else if (type == "screenshot") { return Game::Media::Type::Screenshot; }
-    else if (type == "fanart") { return Game::Media::Type::Fanart; }
-    else if (type == "video") { return Game::Media::Type::Video; }
-    else if (type == "marquee") { return Game::Media::Type::Marquee; }
-    else if (type == "screenmarquee") { return Game::Media::Type::ScreenMarquee; }
-    else if (type == "screenmarqueesmall") { return Game::Media::Type::ScreenMarqueeSmall; }
-    else if (type == "themehs") { return Game::Media::Type::ThemeHs; }
-    else if (type == "manuel") { return Game::Media::Type::Manuel; }
-    else if (type == "flyer") { return Game::Media::Type::Flyer; }
-    else if (type == "steamgrid") { return Game::Media::Type::SteamGrid; }
-    else if (type == "wheel") { return Game::Media::Type::Wheel; }
-    else if (type == "wheel-hd") { return Game::Media::Type::WheelHD; }
-    else if (type == "wheel-carbon") { return Game::Media::Type::WheelCarbon; }
-    else if (type == "wheel-steel") { return Game::Media::Type::WheelSteel; }
-    else if (type == "box-2D") { return Game::Media::Type::Box2D; }
-    else if (type == "box-2D-side") { return Game::Media::Type::Box2DSide; }
-    else if (type == "box-2D-back") { return Game::Media::Type::Box2DBack; }
-    else if (type == "box-texture") { return Game::Media::Type::BoxTexture; }
-    else if (type == "box-3D") { return Game::Media::Type::Box3D; }
-    else if (type == "box-scan") { return Game::Media::Type::BoxScan; }
-    else if (type == "support-texture") { return Game::Media::Type::SupportTexture; }
-    else if (type == "bezel-4-3") { return Game::Media::Type::Bezel43; }
-    else if (type == "bezel-16-9") { return Game::Media::Type::Bezel169; }
-    else if (type == "bezel-16-10") { return Game::Media::Type::Bezel1610; }
-    else if (type == "mixrbv1") { return Game::Media::Type::Mixrbv1; }
-    else if (type == "mixrbv2") { return Game::Media::Type::Mixrbv2; }
-    else if (type == "pictoliste") { return Game::Media::Type::Pictoliste; }
-    else if (type == "pictocouleur") { return Game::Media::Type::Pictocouleur; }
-    else if (type == "pictomonochrome") { return Game::Media::Type::Pictomonochrome; }
-    else { return Game::Media::Type::Unknow; }
 }
 
 Game::Country Api::toCountry(const std::string &country) {

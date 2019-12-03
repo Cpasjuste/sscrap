@@ -24,6 +24,7 @@ public:
     ss_api::GameList gameList;
     std::vector<std::string> filesList;
     std::vector<std::string> missList;
+    std::vector<ss_api::Api::MediaType> mediaTypes;
     int filesCount = 0;
     bool mediasClone = false;
     pthread_t threads[15];

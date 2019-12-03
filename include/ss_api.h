@@ -50,6 +50,18 @@ namespace ss_api {
             int http_error = 0;
         };
 
+        struct MediaType {
+            MediaType() = default;
+
+            MediaType(const std::string &_id, const std::string &_name) {
+                id = _id;
+                name = _name;
+            }
+
+            std::string id;
+            std::string name;
+        };
+
         static GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
                                      const std::string &ssid = "", const std::string &sspassword = "");
 
@@ -58,13 +70,11 @@ namespace ss_api {
                                  const std::string &romnom, const std::string &romtaille, const std::string &gameid,
                                  const std::string &ssid = "", const std::string &sspassword = "");
 
-        static std::string toString(const Game::Media::Type &type);
+        static std::vector<MediaType> mediaTypes(const std::string &ssid = "", const std::string &sspassword = "");
 
         static std::string toString(const Game::Country &country);
 
         static std::string toString(const Game::Language &language);
-
-        static Game::Media::Type toMedia(const std::string &type);
 
         static Game::Country toCountry(const std::string &country);
 

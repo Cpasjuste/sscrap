@@ -42,12 +42,11 @@ void printGame(const Game &game) {
     Game::Genre genre = game.getGenre(Game::Language::EN);
     printf("genre (%s): %s\n", genre.language.c_str(), genre.text.c_str());
     // print some medias
-    Game::Media media = game.getMedia(Game::Media::Type::SSTitle, Game::Country::WOR);
-    //media.download("cache/" + game.id + "_" + media.type + "_" + media.country + "." + media.format);
+    Game::Media media = game.getMedia("sstitle", Game::Country::WOR);
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-    media = game.getMedia(Game::Media::Type::SS, Game::Country::WOR);
+    media = game.getMedia("ss", Game::Country::WOR);
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-    media = game.getMedia(Game::Media::Type::Mixrbv2, Game::Country::WOR);
+    media = game.getMedia("mixrbv2", Game::Country::WOR);
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
 }
 
@@ -97,54 +96,29 @@ static void *scrap_thread(void *ptr) {
 
         if (gameInfo.http_error != 404) {
             if (scrap->args.exist("-medias") && (!scrap->mediasClone && gameInfo.game.cloneof == "0")) {
-                Game::Media media = gameInfo.game.getMedia(Game::Media::Type::SS, Game::Country::SS);
-                if (!media.url.empty()) {
-                    std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                    std::string path = scrap->romPath + "/media/images/" + name + media.format;
-                    if (!Io::exist(path)) {
-                        int res = media.download(path);
-                        while (res == 429) {
-                            pthread_mutex_lock(&scrap->mutex);
-                            fprintf(stderr,
-                                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
-                                    tid, retry_delay);
-                            pthread_mutex_unlock(&scrap->mutex);
-                            sleep(retry_delay);
-                            res = media.download(path);
-                        }
-                    }
-                }
-                media = gameInfo.game.getMedia(Game::Media::Type::Box3D, Game::Country::SS);
-                if (!media.url.empty()) {
-                    std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                    std::string path = scrap->romPath + "/media/box3d/" + name + media.format;
-                    if (!Io::exist(path)) {
-                        int res = media.download(path);
-                        while (res == 429) {
-                            pthread_mutex_lock(&scrap->mutex);
-                            fprintf(stderr,
-                                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
-                                    tid, retry_delay);
-                            pthread_mutex_unlock(&scrap->mutex);
-                            sleep(retry_delay);
-                            res = media.download(path);
-                        }
-                    }
-                }
-                media = gameInfo.game.getMedia(Game::Media::Type::Video, Game::Country::ALL);
-                if (!media.url.empty()) {
-                    std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1);
-                    std::string path = scrap->romPath + "/media/videos/" + name + media.format;
-                    if (!Io::exist(path)) {
-                        int res = media.download(path);
-                        while (res == 429) {
-                            pthread_mutex_lock(&scrap->mutex);
-                            fprintf(stderr,
-                                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
-                                    tid, retry_delay);
-                            pthread_mutex_unlock(&scrap->mutex);
-                            sleep(retry_delay);
-                            res = media.download(path);
+                for (const auto &mediaType : scrap->mediaTypes) {
+                    if (scrap->args.exist(mediaType.name)) {
+                        Game::Media media = gameInfo.game.getMedia(mediaType.name, Game::Country::SS);
+                        if (!media.url.empty()) {
+                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1)
+                                               + media.format;
+                            std::string path = scrap->romPath + "/media/" + media.type + "/";
+                            if (!Io::exist(path)) {
+                                Io::makedir(path);
+                            }
+                            path += name;
+                            if (!Io::exist(path)) {
+                                int res = media.download(path);
+                                while (res == 429) {
+                                    pthread_mutex_lock(&scrap->mutex);
+                                    fprintf(stderr,
+                                            KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                                            tid, retry_delay);
+                                    pthread_mutex_unlock(&scrap->mutex);
+                                    sleep(retry_delay);
+                                    res = media.download(path);
+                                }
+                            }
                         }
                     }
                 }
@@ -199,6 +173,7 @@ void Scrap::run() {
             romPath = args.get("-romspath");
             filesList = Io::getDirList(romPath);
             filesCount = filesList.size();
+            mediaTypes = Api::mediaTypes(user, pwd);
             if (filesList.empty()) {
                 fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
                 return;
@@ -206,9 +181,6 @@ void Scrap::run() {
 
             if (args.exist("-medias")) {
                 Io::makedir(romPath + "/media");
-                Io::makedir(romPath + "/media/box3d");
-                Io::makedir(romPath + "/media/images");
-                Io::makedir(romPath + "/media/videos");
             }
 
             if (args.exist("-threads")) {
@@ -263,6 +235,12 @@ void Scrap::run() {
         printf("games found: %li\n", search.games.size());
         for (auto &game : search.games) {
             printGame(game);
+        }
+    } else if (args.exist("-mediatypes")) {
+        mediaTypes = Api::mediaTypes(user, pwd);
+        printf("\nAvailable screenscraper medias:\n");
+        for (const auto &mediaType : mediaTypes) {
+            printf("\t%s\n", mediaType.name.c_str());
         }
     } else {
         printf("usage: sscrap -user <screenscraper_user> -password <screenscraper_password> [options]\n");
