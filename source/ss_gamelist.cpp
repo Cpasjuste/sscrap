@@ -142,6 +142,16 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
     GameList gameList;
     gameList.xml = xml;
     gameList.romPath = romPath;
+    gameList.systems = systems;
+    gameList.editors = editors;
+    gameList.developers = developers;
+    gameList.players = players;
+    gameList.ratings = ratings;
+    gameList.topstaffs = topstaffs;
+    gameList.rotations = rotations;
+    gameList.resolutions = resolutions;
+    gameList.dates = dates;
+    gameList.genres = genres;
 
     std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
                  [available, clones, system, editor, developer, player, rating,
@@ -247,6 +257,32 @@ bool GameList::save(const std::string &dstPath) {
             elem->SetText(game.getSynopsis(Game::Language::EN).text.c_str());
         }
         gameElement->InsertEndChild(elem);
+
+        // screenscraper medias
+        XMLElement *medias = doc.NewElement("medias");
+        for (const auto &media : game.medias) {
+            XMLElement *n = doc.NewElement("media");
+            n->SetAttribute("parent", media.parent.c_str());
+            n->SetAttribute("type", media.type.c_str());
+            n->SetAttribute("region", media.country.c_str());
+            n->SetAttribute("crc", media.crc.c_str());
+            n->SetAttribute("md5", media.md5.c_str());
+            n->SetAttribute("sha1", media.sha1.c_str());
+            n->SetAttribute("format", media.format.c_str());
+            n->SetAttribute("support", media.support.c_str());
+            if (!media.url.empty()) {
+                if (media.url.rfind("http", 0) == 0) {
+                    n->SetText(("media/" + media.type + "/"
+                                + game.path.substr(0, game.path.find_last_of('.') + 1) + media.format).c_str());
+                } else {
+                    n->SetText(media.url.c_str());
+                }
+            }
+            medias->InsertEndChild(n);
+        }
+        gameElement->InsertEndChild(medias);
+
+        // emulationstation medias
         // image
         elem = doc.NewElement("image");
         Game::Media image = game.getMedia(Game::Media::Type::SS, Game::Country::SS);
@@ -283,6 +319,7 @@ bool GameList::save(const std::string &dstPath) {
             }
         }
         gameElement->InsertEndChild(elem);
+
         // screenscraper
         XMLElement *_dates = doc.NewElement("dates");
         for (const auto &date : game.dates) {
