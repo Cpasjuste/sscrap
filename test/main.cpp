@@ -270,11 +270,12 @@ void Scrap::run() {
 
 #if 0
     gameList = GameList("gamelist.xml");
-    if (!gameList.fixClones("fbneo.dat")) {
-        exit(-1);
-    }
-    // gameList.save("gamelist_fixed.xml");
-    // exit(0);
+    //if (!gameList.fixClones("fbneo.dat")) {
+    //    exit(-1);
+    //}
+    gameList.save("gamelist_fixed.xml",
+                  Game::Language::EN, GameList::Format::ScreenScrapper);
+    exit(0);
 
     printf("total games: %zu\n", gameList.games.size());
     gameList = gameList.filter();

@@ -409,7 +409,7 @@ User Api::parseUser(XMLNode *userNode) {
 
 std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name) {
 
-    if (!element || !element->Attribute(name.c_str())) {
+    if (element == nullptr || element->Attribute(name.c_str()) == nullptr) {
         return "Unknown";
     }
 
@@ -418,11 +418,25 @@ std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::strin
 
 std::string Api::getXmlText(tinyxml2::XMLElement *element) {
 
-    if (!element || !element->GetText()) {
+    if (element == nullptr || element->GetText() == nullptr) {
         return "Unknown";
     }
 
     return element->GetText();
+}
+
+tinyxml2::XMLElement *Api::addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,
+                                         const std::string &name, const std::string &value) {
+
+    if (parent == nullptr) {
+        return nullptr;
+    }
+
+    XMLElement *element = doc->NewElement(name.c_str());
+    element->SetText(value.c_str());
+    parent->InsertEndChild(element);
+
+    return element;
 }
 
 std::string Api::toString(const Game::Language &language) {
@@ -590,3 +604,4 @@ bool Api::sortByName(const std::string &g1, const std::string &g2) {
 bool Api::sortGameByName(const Game &g1, const Game &g2) {
     return g1.getName().text < g2.getName().text;
 }
+

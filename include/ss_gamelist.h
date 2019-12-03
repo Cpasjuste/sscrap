@@ -13,6 +13,11 @@ namespace ss_api {
     class GameList {
     public:
 
+        enum Format {
+            EmulationStation,
+            ScreenScrapper
+        };
+
         GameList() = default;
 
         explicit GameList(const std::string &xmlPath, const std::string &romPath = "");
@@ -28,7 +33,9 @@ namespace ss_api {
 
         int getAvailableCount();
 
-        bool save(const std::string &dstPath);
+        bool save(const std::string &dstPath,
+                  const Game::Language &language = Game::Language::EN,
+                  const Format &format = EmulationStation);
 
         std::string xml;
         std::string romPath;

@@ -95,6 +95,9 @@ namespace ss_api {
 
         static std::string getXmlText(tinyxml2::XMLElement *element);
 
+        static tinyxml2::XMLElement *addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,
+                                                   const std::string &name, const std::string &value);
+
     private:
 
         static GameInfo parseGameInfo(const std::string &xmlData, const std::string &romName);
