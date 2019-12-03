@@ -63,6 +63,8 @@ std::vector<Api::MediaType> Api::mediaTypes(const std::string &ssid, const std::
         }
     }
 
+    doc.Clear();
+
     return mediaTypes;
 }
 
@@ -180,12 +182,14 @@ Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &
     XMLError e = doc.Parse(ji.xml.c_str(), ji.xml.size());
     if (e != XML_SUCCESS) {
         SS_PRINT("Api::parseGameInfo: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        doc.Clear();
         return ji;
     }
 
     XMLNode *pRoot = doc.FirstChildElement("Data");
     if (pRoot == nullptr) {
         SS_PRINT("Api::parseGameInfo: wrong xml format: \'Data\' tag not found\n");
+        doc.Clear();
         return ji;
     }
 
@@ -202,6 +206,8 @@ Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &
     } else {
         ji.game = parseGame(gameNode, romName);
     }
+
+    doc.Clear();
 
     return ji;
 }

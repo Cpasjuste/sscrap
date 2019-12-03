@@ -23,7 +23,7 @@ Curl::Curl() {
 }
 
 Curl::~Curl() {
-    if (curl) {
+    if (curl != nullptr) {
         curl_easy_cleanup(curl);
     }
 }
@@ -34,7 +34,7 @@ std::string Curl::getString(const std::string &url, int timeout, long *http_code
 
     int res = 0;
 
-    if (!curl) {
+    if (curl == nullptr) {
         SS_PRINT("Curl::getString: error: curl_easy_init failed\n");
         return data;
     }
@@ -48,7 +48,7 @@ std::string Curl::getString(const std::string &url, int timeout, long *http_code
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 
     res = curl_easy_perform(curl);
-    if (http_code) {
+    if (http_code != nullptr) {
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
     }
 
@@ -69,13 +69,13 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
     FILE *data;
     int res = 0;
 
-    if (!curl) {
+    if (curl == nullptr) {
         SS_PRINT("Curl::getData: error: curl_easy_init failed\n");
         return -1;
     }
 
     data = fopen(dstPath.c_str(), "wb");
-    if (!data) {
+    if (data == nullptr) {
         SS_PRINT("Curl::getData: error: fopen failed: %s\n", dstPath.c_str());
         return -1;
     }
@@ -90,7 +90,7 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
 
     res = curl_easy_perform(curl);
     fclose(data);
-    if (http_code) {
+    if (http_code != nullptr) {
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
     }
 
@@ -108,9 +108,9 @@ std::string Curl::escape(const std::string &url) {
 
     std::string escaped = url;
 
-    if (curl) {
+    if (curl != nullptr) {
         char *ret = curl_easy_escape(curl, url.c_str(), (int) url.length());
-        if (ret) {
+        if (ret != nullptr) {
             escaped = ret;
             free(ret);
         }
