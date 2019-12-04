@@ -177,6 +177,8 @@ namespace ss_api {
         // TODO: to lazy for now
         //Game::Family::Name getFamily(const Game::Language &language) const;
 
+        Game::Classification getClassification() const;
+
         Game::Media getMedia(const std::string &mediaTypeName, const Game::Country &country = Game::Country::WOR) const;
 
         std::string id;

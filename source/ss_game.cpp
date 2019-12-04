@@ -92,6 +92,10 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
     return list.at(0);
 }
 
+Game::Classification Game::getClassification() const {
+    return classifications.empty() ? Game::Classification() : classifications.at(0);
+}
+
 Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country &country) const {
 
     std::vector<Game::Media> mediaList;
