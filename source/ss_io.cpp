@@ -18,6 +18,9 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
     std::vector<std::string> files;
     struct dirent *ent;
     DIR *dir;
+#ifdef __WINDOWS__
+    std::string filePath;
+#endif
 
     if ((dir = opendir(path.c_str())) != nullptr) {
         while ((ent = readdir(dir)) != nullptr) {
@@ -26,7 +29,9 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
                 continue;
             }
 #ifdef __WINDOWS__
-			if(GetFileAttributes(ent->d_name) & FILE_ATTRIBUTE_DIRECTORY) {
+			filePath = path + "\\" + ent->d_name;
+			if(GetFileAttributes(filePath.c_str()) & FILE_ATTRIBUTE_DIRECTORY) {
+				printf("skip: %s\n", ent->d_name);
 				continue;
 			}
 #else
