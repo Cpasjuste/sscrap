@@ -8,7 +8,6 @@
 #include "ss_gamelist.h"
 
 using namespace ss_api;
-using namespace tinyxml2;
 
 std::string Api::ss_devid;
 std::string Api::ss_devpassword;
@@ -36,26 +35,26 @@ std::vector<Api::MediaType> Api::mediaTypes(const std::string &ssid, const std::
         return mediaTypes;
     }
 
-    XMLDocument doc;
-    XMLError e = doc.Parse(xml.c_str(), xml.size());
-    if (e != XML_SUCCESS) {
+    tinyxml2::XMLDocument doc;
+    tinyxml2::XMLError e = doc.Parse(xml.c_str(), xml.size());
+    if (e != tinyxml2::XML_SUCCESS) {
         SS_PRINT("Api::mediaTypes: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         doc.Clear();
         return mediaTypes;
     }
 
-    XMLNode *pRoot = doc.FirstChildElement("Data");
+    tinyxml2::XMLNode *pRoot = doc.FirstChildElement("Data");
     if (pRoot == nullptr) {
         SS_PRINT("Api::mediaTypes: wrong xml format: \'Data\' tag not found\n");
         doc.Clear();
         return mediaTypes;
     }
 
-    XMLNode *medias = pRoot->FirstChildElement("medias");
+    tinyxml2::XMLNode *medias = pRoot->FirstChildElement("medias");
     if (medias == nullptr) {
         SS_PRINT("Api::mediaTypes: wrong xml format: \'medias\' tag not found\n");
     } else {
-        XMLNode *media = medias->FirstChildElement("media");
+        tinyxml2::XMLNode *media = medias->FirstChildElement("media");
         while (media != nullptr) {
             mediaTypes.emplace_back(getXmlText(media->FirstChildElement("id")),
                                     getXmlText(media->FirstChildElement("nomcourt")));
@@ -97,35 +96,35 @@ Api::GameSearch Api::gameSearch(const std::string &recherche, const std::string 
 Api::GameSearch Api::parseGameSearch(const std::string &xmlData) {
 
     GameSearch gs{};
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
 
     gs.xml = xmlData;
-    XMLError e = doc.Parse(gs.xml.c_str(), gs.xml.size());
-    if (e != XML_SUCCESS) {
+    tinyxml2::XMLError e = doc.Parse(gs.xml.c_str(), gs.xml.size());
+    if (e != tinyxml2::XML_SUCCESS) {
         SS_PRINT("Api::parseGameSearch: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         doc.Clear();
         return gs;
     }
 
-    XMLNode *pRoot = doc.FirstChildElement("Data");
+    tinyxml2::XMLNode *pRoot = doc.FirstChildElement("Data");
     if (pRoot == nullptr) {
         SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' tag not found\n");
         doc.Clear();
         return gs;
     }
 
-    XMLNode *userNode = pRoot->FirstChildElement("ssuser");
+    tinyxml2::XMLNode *userNode = pRoot->FirstChildElement("ssuser");
     if (userNode == nullptr) {
         SS_PRINT("Api::parseGameSearch: wrong xml format: \'ssuser\' tag not found\n");
     } else {
         gs.ssuser = parseUser(userNode);
     }
 
-    XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
+    tinyxml2::XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
     if (gamesNode == nullptr) {
         SS_PRINT("Api::parseGameSearch: wrong xml format: \'jeux\' tag not found\n");
     } else {
-        XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
+        tinyxml2::XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
         while (gameNode != nullptr) {
             // add game to game list
             gs.games.emplace_back(parseGame(gameNode, ""));
@@ -176,31 +175,31 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
 Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &romName) {
 
     GameInfo ji{};
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
 
     ji.xml = xmlData;
-    XMLError e = doc.Parse(ji.xml.c_str(), ji.xml.size());
-    if (e != XML_SUCCESS) {
+    tinyxml2::XMLError e = doc.Parse(ji.xml.c_str(), ji.xml.size());
+    if (e != tinyxml2::XML_SUCCESS) {
         SS_PRINT("Api::parseGameInfo: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         doc.Clear();
         return ji;
     }
 
-    XMLNode *pRoot = doc.FirstChildElement("Data");
+    tinyxml2::XMLNode *pRoot = doc.FirstChildElement("Data");
     if (pRoot == nullptr) {
         SS_PRINT("Api::parseGameInfo: wrong xml format: \'Data\' tag not found\n");
         doc.Clear();
         return ji;
     }
 
-    XMLNode *userNode = pRoot->FirstChildElement("ssuser");
+    tinyxml2::XMLNode *userNode = pRoot->FirstChildElement("ssuser");
     if (userNode == nullptr) {
         SS_PRINT("Api::parseGameInfo: wrong xml format: \'ssuser\' tag not found\n");
     } else {
         ji.ssuser = parseUser(userNode);
     }
 
-    XMLNode *gameNode = pRoot->FirstChildElement("jeu");
+    tinyxml2::XMLNode *gameNode = pRoot->FirstChildElement("jeu");
     if (gameNode == nullptr) {
         SS_PRINT("Api::parseGameInfo: wrong xml format: \'jeu\' tag not found\n");
     } else {
@@ -212,7 +211,7 @@ Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &
     return ji;
 }
 
-Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
+Game Api::parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName) {
 
     Game game{};
 
@@ -234,9 +233,9 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
         game.path = romName;
     }
     // screenscraper (prioritise screenscraper format)
-    XMLElement *element = gameNode->FirstChildElement("noms");
+    tinyxml2::XMLElement *element = gameNode->FirstChildElement("noms");
     if (element != nullptr) {
-        XMLNode *node = element->FirstChildElement("nom");
+        tinyxml2::XMLNode *node = element->FirstChildElement("nom");
         while (node != nullptr) {
             game.names.emplace_back(getXmlAttribute(node->ToElement(), "region"),
                                     getXmlText(node->ToElement()));
@@ -250,7 +249,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     // screenscraper
     element = gameNode->FirstChildElement("regions");
     if (element != nullptr) {
-        XMLNode *node = element->FirstChildElement("region");
+        tinyxml2::XMLNode *node = element->FirstChildElement("region");
         while (node != nullptr) {
             game.countries.emplace_back(getXmlText(node->ToElement()));
             node = node->NextSibling();
@@ -264,7 +263,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("synopsis");
     if (element != nullptr) {
-        XMLNode *node = element->FirstChildElement("synopsis");
+        tinyxml2::XMLNode *node = element->FirstChildElement("synopsis");
         while (node != nullptr) {
             Game::Synopsis synopsis{};
             synopsis.language = getXmlAttribute(node->ToElement(), "langue");
@@ -279,7 +278,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("medias");
     if (element != nullptr) {
-        XMLNode *node = element->FirstChildElement("media");
+        tinyxml2::XMLNode *node = element->FirstChildElement("media");
         while (node != nullptr) {
             Game::Media media{};
             media.parent = getXmlAttribute(node->ToElement(), "parent");
@@ -312,7 +311,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("dates");
     if (element != nullptr) {
-        XMLNode *node = element->FirstChildElement("date");
+        tinyxml2::XMLNode *node = element->FirstChildElement("date");
         while (node != nullptr) {
             Game::Date date{};
             date.country = getXmlAttribute(node->ToElement(), "region");
@@ -345,7 +344,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("genres");
     if (element != nullptr) {
-        XMLNode *node = element->FirstChildElement("genre");
+        tinyxml2::XMLNode *node = element->FirstChildElement("genre");
         while (node != nullptr) {
             Game::Genre genre{};
             genre.id = getXmlAttribute(node->ToElement(), "id");
@@ -381,7 +380,7 @@ Game Api::parseGame(XMLNode *gameNode, const std::string &romName) {
     return game;
 }
 
-User Api::parseUser(XMLNode *userNode) {
+User Api::parseUser(tinyxml2::XMLNode *userNode) {
 
     User user{};
 
@@ -432,7 +431,7 @@ tinyxml2::XMLElement *Api::addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::X
         return nullptr;
     }
 
-    XMLElement *element = doc->NewElement(name.c_str());
+    tinyxml2::XMLElement *element = doc->NewElement(name.c_str());
     element->SetText(value.c_str());
     parent->InsertEndChild(element);
 

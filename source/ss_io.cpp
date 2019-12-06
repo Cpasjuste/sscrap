@@ -6,6 +6,11 @@
 #include <sys/stat.h>
 #include "ss_io.h"
 
+#ifdef __WINDOWS__
+#define mkdir(x, y) mkdir(x)
+#include <windows.h>
+#endif
+
 using namespace ss_api;
 
 std::vector<std::string> Io::getDirList(const std::string &path, const std::string &ext) {
@@ -17,9 +22,18 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
     if ((dir = opendir(path.c_str())) != nullptr) {
         while ((ent = readdir(dir)) != nullptr) {
             // skip "."
-            if (ent->d_name[0] == '.' || ent->d_type != DT_REG) {
+            if (ent->d_name[0] == '.') {
                 continue;
             }
+#ifdef __WINDOWS__
+			if(GetFileAttributes(ent->d_name) & FILE_ATTRIBUTE_DIRECTORY) {
+				continue;
+			}
+#else
+			if (ent->d_type != DT_REG) {
+				continue;
+			}
+#endif
             std::string file = ent->d_name;
             if (!ext.empty()) {
                 if (file.rfind('.') != std::string::npos

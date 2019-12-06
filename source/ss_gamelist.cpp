@@ -8,21 +8,20 @@
 #include "ss_gamelist.h"
 
 using namespace ss_api;
-using namespace tinyxml2;
 
 GameList::GameList(const std::string &xmlPath, const std::string &rPath) {
 
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
     std::vector<std::string> files;
 
     xml = xmlPath;
-    XMLError e = doc.LoadFile(xmlPath.c_str());
-    if (e != XML_SUCCESS) {
+    tinyxml2::XMLError e = doc.LoadFile(xmlPath.c_str());
+    if (e != tinyxml2::XML_SUCCESS) {
         SS_PRINT("Api::gameList: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         return;
     }
 
-    XMLNode *pRoot = doc.FirstChildElement("Data");
+    tinyxml2::XMLNode *pRoot = doc.FirstChildElement("Data");
     if (pRoot == nullptr) {
         // emulationstation format
         pRoot = doc.FirstChildElement("gameList");
@@ -32,13 +31,13 @@ GameList::GameList(const std::string &xmlPath, const std::string &rPath) {
         }
     }
 
-    XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
+    tinyxml2::XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
     if (gamesNode == nullptr) {
         // emulationstation format
         gamesNode = pRoot;
     }
 
-    XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
+    tinyxml2::XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
     if (gameNode == nullptr) {
         gameNode = gamesNode->FirstChildElement("game");
     }
@@ -183,16 +182,16 @@ int GameList::getAvailableCount() {
 
 bool GameList::save(const std::string &dstPath, const Game::Language &language, const Format &format) {
 
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
 
-    XMLDeclaration *dec = doc.NewDeclaration();
+    tinyxml2::XMLDeclaration *dec = doc.NewDeclaration();
     doc.InsertFirstChild(dec);
 
-    XMLNode *pRoot = format == Format::EmulationStation ?
+    tinyxml2::XMLNode *pRoot = format == Format::EmulationStation ?
                      doc.NewElement("gameList") : doc.NewElement("Data");
     doc.InsertEndChild(pRoot);
 
-    XMLElement *pGames = format == Format::EmulationStation ?
+    tinyxml2::XMLElement *pGames = format == Format::EmulationStation ?
                          pRoot->ToElement() : doc.NewElement("jeux");
     if (format == Format::ScreenScrapper) {
         pRoot->InsertEndChild(pGames);
@@ -200,7 +199,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
 
     for (const auto &game : games) {
         if (format == Format::EmulationStation) {
-            XMLElement *gameElement = doc.NewElement("game");
+            tinyxml2::XMLElement *gameElement = doc.NewElement("game");
             gameElement->SetAttribute("id", game.id.c_str());
             gameElement->SetAttribute("source", game.source.c_str());
             Api::addXmlElement(&doc, gameElement, "path", game.path);
@@ -229,25 +228,25 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
 
             pGames->InsertEndChild(gameElement);
         } else {
-            XMLElement *elem;
-            XMLElement *gameElement = doc.NewElement("jeu");
+            tinyxml2::XMLElement *elem;
+            tinyxml2::XMLElement *gameElement = doc.NewElement("jeu");
             gameElement->SetAttribute("id", game.id.c_str());
             gameElement->SetAttribute("romid", game.romid.c_str());
             gameElement->SetAttribute("notgame", game.notgame.c_str());
             Api::addXmlElement(&doc, gameElement, "path", game.path);
 
-            XMLElement *names = doc.NewElement("noms");
+            tinyxml2::XMLElement *names = doc.NewElement("noms");
             for (const auto &name : game.names) {
-                XMLElement *n = doc.NewElement("nom");
+                tinyxml2::XMLElement *n = doc.NewElement("nom");
                 n->SetAttribute("region", name.country.c_str());
                 n->SetText(name.text.c_str());
                 names->InsertEndChild(n);
             }
             gameElement->InsertEndChild(names);
 
-            XMLElement *countries = doc.NewElement("regions");
+            tinyxml2::XMLElement *countries = doc.NewElement("regions");
             for (const auto &country : game.countries) {
-                XMLElement *n = doc.NewElement("region");
+                tinyxml2::XMLElement *n = doc.NewElement("region");
                 n->SetText(country.c_str());
                 countries->InsertEndChild(n);
             }
@@ -262,26 +261,26 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
             }
             gameElement->InsertEndChild(elem);
 
-            XMLElement *synopses = doc.NewElement("synopsis");
+            tinyxml2::XMLElement *synopses = doc.NewElement("synopsis");
             for (const auto &synopsis : game.synopses) {
                 if (synopsis.language != Api::toString(language)) {
                     continue;
                 }
-                XMLElement *n = doc.NewElement("synopsis");
+                tinyxml2::XMLElement *n = doc.NewElement("synopsis");
                 n->SetAttribute("langue", synopsis.language.c_str());
                 n->SetText(synopsis.text.c_str());
                 synopses->InsertEndChild(n);
             }
             gameElement->InsertEndChild(synopses);
 
-            XMLElement *medias = doc.NewElement("medias");
+            tinyxml2::XMLElement *medias = doc.NewElement("medias");
             for (const auto &media : game.medias) {
 #if 1
                 if (media.type != "mixrbv2" && media.type != "video") {
                     continue;
                 }
 #endif
-                XMLElement *n = doc.NewElement("media");
+                tinyxml2::XMLElement *n = doc.NewElement("media");
                 n->SetAttribute("parent", media.parent.c_str());
                 n->SetAttribute("type", media.type.c_str());
                 n->SetAttribute("region", media.country.c_str());
@@ -302,9 +301,9 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
             }
             gameElement->InsertEndChild(medias);
 
-            XMLElement *_dates = doc.NewElement("dates");
+            tinyxml2::XMLElement *_dates = doc.NewElement("dates");
             for (const auto &date : game.dates) {
-                XMLElement *n = doc.NewElement("date");
+                tinyxml2::XMLElement *n = doc.NewElement("date");
                 n->SetAttribute("region", date.country.c_str());
                 n->SetText(date.text.c_str());
                 _dates->InsertEndChild(n);
@@ -321,12 +320,12 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
             elem->SetText(game.editor.text.c_str());
             gameElement->InsertEndChild(elem);
 
-            XMLElement *_genres = doc.NewElement("genres");
+            tinyxml2::XMLElement *_genres = doc.NewElement("genres");
             for (const auto &genre : game.genres) {
                 if (genre.language != Api::toString(language)) {
                     continue;
                 }
-                XMLElement *n = doc.NewElement("genre");
+                tinyxml2::XMLElement *n = doc.NewElement("genre");
                 n->SetAttribute("id", genre.id.c_str());
                 n->SetAttribute("principale", genre.main.c_str());
                 n->SetAttribute("parentid", genre.parentid.c_str());
@@ -349,8 +348,8 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
         }
     }
 
-    XMLError e = doc.SaveFile(dstPath.c_str());
-    if (e != XML_SUCCESS) {
+    tinyxml2::XMLError e = doc.SaveFile(dstPath.c_str());
+    if (e != tinyxml2::XML_SUCCESS) {
         SS_PRINT("GameList::save: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
         doc.Clear();
         return false;
@@ -368,23 +367,23 @@ bool GameList::fixClones(const std::string &fbaGamelist) {
     /// build fbneo game list START
     ///
     std::vector<Game> fbaList;
-    XMLDocument doc;
-    XMLError e = doc.LoadFile(fbaGamelist.c_str());
-    if (e != XML_SUCCESS) {
+    tinyxml2::XMLDocument doc;
+    tinyxml2::XMLError e = doc.LoadFile(fbaGamelist.c_str());
+    if (e != tinyxml2::XML_SUCCESS) {
         SS_PRINT_RED("Api::gameListFixClones: could not load dat: %s (%s)\n",
                      fbaGamelist.c_str(), tinyxml2::XMLDocument::ErrorIDToName(e));
         doc.Clear();
         return false;
     }
 
-    XMLNode *pRoot = doc.FirstChildElement("datafile");
+    tinyxml2::XMLNode *pRoot = doc.FirstChildElement("datafile");
     if (pRoot == nullptr) {
         SS_PRINT_RED("Api::gameListFixClones: wrong xml format: \'datafile\' tag not found\n");
         doc.Clear();
         return false;
     }
 
-    XMLNode *gameNode = pRoot->FirstChildElement("game");
+    tinyxml2::XMLNode *gameNode = pRoot->FirstChildElement("game");
     if (gameNode == nullptr) {
         SS_PRINT_RED("Api::gameListFixClones: no \'game\' node found\n");
         doc.Clear();

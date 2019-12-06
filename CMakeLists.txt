@@ -10,6 +10,7 @@ option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
 option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
 option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
+include(Toolchain.cmake)
 ####################
 # TARGET PLATFORM
 ####################
