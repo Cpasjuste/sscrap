@@ -29,6 +29,12 @@ namespace ss_api {
                         const std::string &rotation = "All", const std::string &resolution = "All",
                         const std::string &date = "All", const std::string &genre = "All");
 
+        Game find(const std::string &romId);
+
+        bool exist(const std::string &romId);
+
+        bool remove(const std::string &romId);
+
         bool fixClones(const std::string &fbaGamelist);
 
         int getAvailableCount();

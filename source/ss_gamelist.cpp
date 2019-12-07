@@ -173,6 +173,46 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
     return gameList;
 }
 
+Game GameList::find(const std::string &romId) {
+
+    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
+        return game.romid == romId;
+    });
+
+    if (it != games.end()) {
+        return *it;
+    }
+
+    return Game();
+}
+
+bool GameList::exist(const std::string &romId) {
+
+    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
+        return game.romid == romId;
+    });
+
+    if (it != games.end()) {
+        return true;
+    }
+
+    return false;
+}
+
+bool GameList::remove(const std::string &romId) {
+
+    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
+        return game.romid == romId;
+    });
+
+    if (it != games.end()) {
+        games.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
 int GameList::getAvailableCount() {
 
     return std::count_if(games.begin(), games.end(), [](const Game &game) {
@@ -188,14 +228,17 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
     doc.InsertFirstChild(dec);
 
     tinyxml2::XMLNode *pRoot = format == Format::EmulationStation ?
-                     doc.NewElement("gameList") : doc.NewElement("Data");
+                               doc.NewElement("gameList") : doc.NewElement("Data");
     doc.InsertEndChild(pRoot);
 
     tinyxml2::XMLElement *pGames = format == Format::EmulationStation ?
-                         pRoot->ToElement() : doc.NewElement("jeux");
+                                   pRoot->ToElement() : doc.NewElement("jeux");
     if (format == Format::ScreenScrapper) {
         pRoot->InsertEndChild(pGames);
     }
+
+    // sort games
+    std::sort(games.begin(), games.end(), Api::sortGameByName);
 
     for (const auto &game : games) {
         if (format == Format::EmulationStation) {
@@ -469,3 +512,5 @@ bool GameList::fixClones(const std::string &fbaGamelist) {
 
     return true;
 }
+
+
