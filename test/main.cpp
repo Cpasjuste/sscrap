@@ -213,7 +213,8 @@ static void *scrap_thread(void *ptr) {
             }
 
             pthread_mutex_lock(&scrap->mutex);
-            printf(KGRE "OK: %s => %s (%s)\n" KRAS,
+            printf(KGRE "[%i/%i] OK: %s => %s (%s)\n" KRAS,
+                   scrap->filesCount - (int) scrap->filesList.size(), scrap->filesCount,
                    file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
             scrap->gameList.games.emplace_back(gameInfo.game);
             pthread_mutex_unlock(&scrap->mutex);
@@ -224,10 +225,11 @@ static void *scrap_thread(void *ptr) {
             game.names.emplace_back(Api::toString(Game::Country::WOR), file);
             game.path = file;
             scrap->gameList.games.emplace_back(game);
-            fprintf(stderr, KRED "NOK: %s (%i)\n" KRAS, file.c_str(), gameInfo.http_error);
+            fprintf(stderr, KRED "[%i/%i] NOK: %s (%i)\n" KRAS,
+                    scrap->filesCount - (int) scrap->filesList.size(), scrap->filesCount,
+                    file.c_str(), gameInfo.http_error);
             scrap->missList.emplace_back(file);
             pthread_mutex_unlock(&scrap->mutex);
-            break;
         }
     }
 
