@@ -29,6 +29,10 @@ namespace ss_api {
                         const std::string &rotation = "All", const std::string &resolution = "All",
                         const std::string &date = "All", const std::string &genre = "All");
 
+        bool save(const std::string &dstPath,
+                  const Game::Language &language = Game::Language::EN,
+                  const Format &format = ScreenScrapper);
+
         Game find(const std::string &romId);
 
         bool exist(const std::string &romId);
@@ -38,10 +42,6 @@ namespace ss_api {
         bool fixClones(const std::string &fbaGamelist);
 
         int getAvailableCount();
-
-        bool save(const std::string &dstPath,
-                  const Game::Language &language = Game::Language::EN,
-                  const Format &format = EmulationStation);
 
         std::string xml;
         std::string romPath;
