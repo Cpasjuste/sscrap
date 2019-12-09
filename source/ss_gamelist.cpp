@@ -133,93 +133,6 @@ GameList::GameList(const std::string &xmlPath, const std::string &rPath) {
     genres.insert(genres.begin(), "All");
 }
 
-GameList GameList::filter(bool available, bool clones, const std::string &system, const std::string &editor,
-                          const std::string &developer, const std::string &player, const std::string &rating,
-                          const std::string &topstaff, const std::string &rotation,
-                          const std::string &resolution, const std::string &date, const std::string &genre) {
-
-    GameList gameList;
-    gameList.xml = xml;
-    gameList.romPath = romPath;
-    gameList.systems = systems;
-    gameList.editors = editors;
-    gameList.developers = developers;
-    gameList.players = players;
-    gameList.ratings = ratings;
-    gameList.topstaffs = topstaffs;
-    gameList.rotations = rotations;
-    gameList.resolutions = resolutions;
-    gameList.dates = dates;
-    gameList.genres = genres;
-
-    std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
-                 [available, clones, system, editor, developer, player, rating,
-                         topstaff, rotation, resolution, date, genre](const Game &game) {
-                     // TODO: use integer for rating, resolution and date
-                     return (!available || (available && game.available))
-                            && (clones || game.cloneof == "0")
-                            && (system == "All" || game.system.text == system)
-                            && (editor == "All" || game.editor.text == editor)
-                            && (developer == "All" || game.developer.text == developer)
-                            && (player == "All" || game.players == player)
-                            && (rating == "All" || game.rating == rating)
-                            && (topstaff == "All" || game.topstaff == topstaff)
-                            && (rotation == "All" || game.rotation == rotation)
-                            && (resolution == "All" || game.resolution == resolution)
-                            && (date == "All" || game.getDate(Game::Country::WOR).text == date)
-                            && (genre == "All" || game.getGenre(Game::Language::EN).text == genre);
-                 });
-
-    return gameList;
-}
-
-Game GameList::find(const std::string &romId) {
-
-    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
-        return game.romid == romId;
-    });
-
-    if (it != games.end()) {
-        return *it;
-    }
-
-    return Game();
-}
-
-bool GameList::exist(const std::string &romId) {
-
-    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
-        return game.romid == romId;
-    });
-
-    if (it != games.end()) {
-        return true;
-    }
-
-    return false;
-}
-
-bool GameList::remove(const std::string &romId) {
-
-    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
-        return game.romid == romId;
-    });
-
-    if (it != games.end()) {
-        games.erase(it);
-        return true;
-    }
-
-    return false;
-}
-
-int GameList::getAvailableCount() {
-
-    return std::count_if(games.begin(), games.end(), [](const Game &game) {
-        return game.available;
-    });
-}
-
 bool GameList::save(const std::string &dstPath, const Game::Language &language, const Format &format) {
 
     tinyxml2::XMLDocument doc;
@@ -401,6 +314,89 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
     doc.Clear();
 
     return true;
+}
+
+GameList GameList::filter(bool available, bool clones, const std::string &system, const std::string &editor,
+                          const std::string &developer, const std::string &player, const std::string &rating,
+                          const std::string &topstaff, const std::string &rotation,
+                          const std::string &resolution, const std::string &date, const std::string &genre) {
+
+    GameList gameList;
+    gameList.xml = xml;
+    gameList.romPath = romPath;
+    gameList.systems = systems;
+    gameList.editors = editors;
+    gameList.developers = developers;
+    gameList.players = players;
+    gameList.ratings = ratings;
+    gameList.topstaffs = topstaffs;
+    gameList.rotations = rotations;
+    gameList.resolutions = resolutions;
+    gameList.dates = dates;
+    gameList.genres = genres;
+
+    std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
+                 [available, clones, system, editor, developer, player, rating,
+                         topstaff, rotation, resolution, date, genre](const Game &game) {
+                     // TODO: use integer for rating, resolution and date
+                     return (!available || (available && game.available))
+                            && (clones || game.cloneof == "0")
+                            && (system == "All" || game.system.text == system)
+                            && (editor == "All" || game.editor.text == editor)
+                            && (developer == "All" || game.developer.text == developer)
+                            && (player == "All" || game.players == player)
+                            && (rating == "All" || game.rating == rating)
+                            && (topstaff == "All" || game.topstaff == topstaff)
+                            && (rotation == "All" || game.rotation == rotation)
+                            && (resolution == "All" || game.resolution == resolution)
+                            && (date == "All" || game.getDate(Game::Country::WOR).text == date)
+                            && (genre == "All" || game.getGenre(Game::Language::EN).text == genre);
+                 });
+
+    return gameList;
+}
+
+Game GameList::find(const std::string &romId) {
+
+    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
+        return game.romid == romId;
+    });
+
+    if (it != games.end()) {
+        return *it;
+    }
+
+    return Game();
+}
+
+bool GameList::exist(const std::string &romId) {
+
+    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
+        return game.romid == romId;
+    });
+
+    return it != games.end();
+}
+
+bool GameList::remove(const std::string &romId) {
+
+    auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
+        return game.romid == romId;
+    });
+
+    if (it != games.end()) {
+        games.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
+int GameList::getAvailableCount() {
+
+    return std::count_if(games.begin(), games.end(), [](const Game &game) {
+        return game.available;
+    });
 }
 
 // pfba: fix screenscraper missing clonesof
