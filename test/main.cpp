@@ -143,7 +143,7 @@ static void *scrap_thread(void *ptr) {
         if (isFbNeoSystem && id != "75") {
             fbaGame = fbaGameList.findByPath(file);
             if (!fbaGame.getName().text.empty()) {
-                file = fbaGame.getName().text;
+                file = fbaGame.getName().text + ".zip";
             }
         }
 
