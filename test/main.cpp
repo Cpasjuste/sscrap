@@ -54,7 +54,8 @@ static void *scrap_thread(void *ptr) {
 
     int tid = *((int *) ptr);
     int retry_delay = 10;
-    GameList gameList;
+    GameList fbaGameList;
+    Game fbaGame;
     bool isFbnConsole = false;
 
     // if a custom sscrap custom id is set (fbneo console games),
@@ -67,43 +68,43 @@ static void *scrap_thread(void *ptr) {
         if (id == "750") {
             // colecovision
             id = "48";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ColecoVision only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ColecoVision only).dat");
         } else if (id == "751") {
             // game gear
             id = "21";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Game Gear only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Game Gear only).dat");
         } else if (id == "752") {
             // master system
             id = "2";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Master System only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Master System only).dat");
         } else if (id == "753") {
             // megadrive
             id = "1";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Megadrive only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Megadrive only).dat");
         } else if (id == "754") {
             // msx
             id = "113";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, MSX 1 Games only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, MSX 1 Games only).dat");
         } else if (id == "755") {
             // pc engine
             id = "31";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, PC-Engine only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, PC-Engine only).dat");
         } else if (id == "756") {
             // sega sg-1000
             id = "109";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Sega SG-1000 only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Sega SG-1000 only).dat");
         } else if (id == "757") {
             // super grafx
             id = "105";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, SuprGrafx only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, SuprGrafx only).dat");
         } else if (id == "758") {
             // turbo grafx
             id = "31";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, TurboGrafx16 only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, TurboGrafx16 only).dat");
         } else if (id == "759") {
             // zx spectrum
             id = "76";
-            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ZX Spectrum Games only).dat");
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ZX Spectrum Games only).dat");
         }
     }
 
@@ -117,11 +118,10 @@ static void *scrap_thread(void *ptr) {
         pthread_mutex_unlock(&scrap->mutex);
 
         if (isFbnConsole) {
-            Game game = gameList.findByPath(file);
-            if (!game.getName().text.empty()) {
-                file = game.getName().text;
+            fbaGame = fbaGameList.findByPath(file);
+            if (!fbaGame.getName().text.empty()) {
+                file = fbaGame.getName().text + ".zip";
             }
-            SS_PRINT("file: %s, game: %s\n", file.c_str(), game.getName().text.c_str());
         }
 
         std::string romType = scrap->args.exist("-romtype") ? scrap->args.get("-romtype") : "rom";
@@ -152,6 +152,10 @@ static void *scrap_thread(void *ptr) {
         }
 
         if (gameInfo.http_error != 404) {
+            if (isFbnConsole) {
+                // restore correct rom path
+                gameInfo.game.path = fbaGame.path;
+            }
             if (scrap->args.exist("-medias") && (!scrap->mediasClone && gameInfo.game.cloneof == "0")) {
                 for (const auto &mediaType : scrap->mediaTypes) {
                     if (scrap->args.exist(mediaType.name)) {

@@ -300,13 +300,16 @@ Game Api::parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName, con
             Game::Media media{};
             media.parent = getXmlAttribute(node->ToElement(), "parent");
             media.type = getXmlAttribute(node->ToElement(), "type");
-            media.country = getXmlAttribute(node->ToElement(), "region");
             media.crc = getXmlAttribute(node->ToElement(), "crc");
             media.md5 = getXmlAttribute(node->ToElement(), "md5");
             media.sha1 = getXmlAttribute(node->ToElement(), "sha1");
             media.format = getXmlAttribute(node->ToElement(), "format");
             media.support = getXmlAttribute(node->ToElement(), "support");
             media.url = getXmlText(node->ToElement());
+            media.country = getXmlAttribute(node->ToElement(), "region");
+            if (media.country.empty()) {
+                media.country = toString(Game::Country::UNKNOWN);
+            }
             game.medias.emplace_back(media);
             node = node->NextSibling();
         }
