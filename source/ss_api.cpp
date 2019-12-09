@@ -230,9 +230,6 @@ Game Api::parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName, con
         game.developer.text = getXmlText(gameNode->FirstChildElement("manufacturer"));
         game.editor.text = game.developer.text;
         game.cloneof = Api::getXmlAttribute(gameNode->ToElement(), "cloneof");
-        if (game.cloneof.empty()) {
-            game.cloneof = "0";
-        }
         return game;
     }
 
@@ -450,11 +447,14 @@ tinyxml2::XMLElement *Api::addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::X
         return nullptr;
     }
 
-    tinyxml2::XMLElement *element = doc->NewElement(name.c_str());
-    element->SetText(value.c_str());
-    parent->InsertEndChild(element);
+    if (!value.empty()) {
+        tinyxml2::XMLElement *element = doc->NewElement(name.c_str());
+        element->SetText(value.c_str());
+        parent->InsertEndChild(element);
+        return element;
+    }
 
-    return element;
+    return nullptr;
 }
 
 std::string Api::toString(const Game::Language &language) {

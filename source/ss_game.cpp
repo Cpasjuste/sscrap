@@ -118,6 +118,10 @@ Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country
     return mediaList.at(0);
 }
 
+bool Game::isClone() const {
+    return !cloneof.empty() && cloneof != "0";
+}
+
 int Game::Media::download(const std::string &dstPath) {
 
     if (dstPath.empty()) {

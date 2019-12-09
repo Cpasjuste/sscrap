@@ -157,7 +157,7 @@ static void *scrap_thread(void *ptr) {
         }
 
         if (gameInfo.http_error != 404) {
-            if (scrap->args.exist("-medias") && (!scrap->mediasClone && gameInfo.game.cloneof == "0")) {
+            if (scrap->args.exist("-medias") && (!scrap->mediasClone && !gameInfo.game.isClone())) {
                 for (const auto &mediaType : scrap->mediaTypes) {
                     if (scrap->args.exist(mediaType.name)) {
                         Game::Media media = gameInfo.game.getMedia(mediaType.name, Game::Country::SS);
@@ -201,9 +201,10 @@ static void *scrap_thread(void *ptr) {
             fprintf(stderr, KRED "NOK: %s (%i)\n" KRAS, file.c_str(), gameInfo.http_error);
             scrap->missList.emplace_back(file);
             pthread_mutex_unlock(&scrap->mutex);
-            break;
         }
     }
+
+    return nullptr;
 }
 
 Scrap::Scrap(const ArgumentParser &parser) {

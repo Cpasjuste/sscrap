@@ -39,8 +39,8 @@ namespace ss_api {
                 text = t;
             }
 
-            std::string country = "wor";
-            std::string text = "Unknown";
+            std::string country;
+            std::string text;
         };
 
         struct System {
@@ -51,8 +51,8 @@ namespace ss_api {
                 text = t;
             }
 
-            std::string id = "0";
-            std::string text = "Unknown";
+            std::string id;
+            std::string text;
         };
 
         struct Editor {
@@ -63,8 +63,8 @@ namespace ss_api {
                 text = t;
             }
 
-            std::string id = "0";
-            std::string text = "Unknown";
+            std::string id;
+            std::string text;
         };
 
         struct Developer {
@@ -75,8 +75,8 @@ namespace ss_api {
                 text = t;
             }
 
-            std::string id = "0";
-            std::string text = "Unknown";
+            std::string id;
+            std::string text;
         };
 
         struct Synopsis {
@@ -87,8 +87,8 @@ namespace ss_api {
                 text = t;
             }
 
-            std::string language = "en";
-            std::string text = "Unknown";
+            std::string language;
+            std::string text;
         };
 
         struct Classification {
@@ -99,8 +99,8 @@ namespace ss_api {
                 text = tx;
             }
 
-            std::string type = "Unknown";
-            std::string text = "Unknown";
+            std::string type;
+            std::string text;
         };
 
         struct Date {
@@ -111,8 +111,8 @@ namespace ss_api {
                 text = t;
             }
 
-            std::string country = "wor";
-            std::string text = "Unknown";
+            std::string country;
+            std::string text;
         };
 
         struct Genre {
@@ -127,11 +127,11 @@ namespace ss_api {
                 text = t;
             }
 
-            std::string id = "0";
-            std::string main = "0";
-            std::string parentid = "0";
-            std::string language = "en";
-            std::string text = "Unknown";
+            std::string id;
+            std::string main;
+            std::string parentid;
+            std::string language;
+            std::string text;
         };
 
         struct Family {
@@ -139,9 +139,9 @@ namespace ss_api {
                 std::string language;
                 std::string text;
             };
-            std::string id = "0";
-            std::string main = "0";
-            std::string parentid = "0";
+            std::string id;
+            std::string main;
+            std::string parentid;
             std::vector<Family::Name> names;
         };
 
@@ -180,6 +180,8 @@ namespace ss_api {
         Game::Classification getClassification() const;
 
         Game::Media getMedia(const std::string &mediaTypeName, const Game::Country &country = Game::Country::WOR) const;
+
+        bool isClone() const;
 
         std::string id;
         std::string romid;
