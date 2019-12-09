@@ -180,6 +180,22 @@ static void *scrap_thread(void *ptr) {
                 gameInfo.game.path = file = fbaGame.path;
             }
             fixFbaClone(&gameInfo.game, fbaGameList, id);
+            if (gameInfo.http_error == 404 && id != "75") {
+
+#error TODO
+                // try with shorter name
+                std::string name = fbaGame.getName().text;
+                size_t pos = name.find_first_of('(');
+                if (pos != std::string::npos) {
+                    name = name.substr(0, pos - 1);
+                    printf("GameSearch: %s (%s)\n", name.c_str(), gameInfo.game.path.c_str());
+                    Api::GameSearch search = Api::gameSearch(name, id, scrap->user, scrap->pwd);
+                    if (!search.games.empty()) {
+                        gameInfo = Api::gameInfo("", "", "", id, romType,
+                                                 "", "", search.games.at(0).id, scrap->user, scrap->pwd);
+                    }
+                }
+            }
         }
 
         if (gameInfo.http_error != 404) {
