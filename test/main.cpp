@@ -269,13 +269,14 @@ void Scrap::run() {
 #endif
 
 #if 0
-    gameList = GameList("gamelist.xml");
+    gameList = GameList("../databases/FinalBurn Neo (ClrMame Pro XML, Arcade only).dat");
+    gameList.append("../databases/FinalBurn Neo (ClrMame Pro XML, Megadrive only).dat");
     //if (!gameList.fixClones("fbneo.dat")) {
     //    exit(-1);
     //}
-    gameList.save("gamelist_fixed.xml",
-                  Game::Language::EN, GameList::Format::ScreenScrapper);
-    exit(0);
+    //gameList.save("gamelist_fixed.xml",
+    //              Game::Language::EN, GameList::Format::ScreenScrapper);
+    //exit(0);
 
     printf("total games: %zu\n", gameList.games.size());
     gameList = gameList.filter();
@@ -305,7 +306,6 @@ void Scrap::run() {
                 //printGame(g);
             }
             printf("\n");
-            //break;
         }
     }
 #endif

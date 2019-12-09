@@ -10,6 +10,7 @@
 #include "ss_curl.h"
 #include "ss_game.h"
 #include "ss_user.h"
+#include "ss_gamelist.h"
 
 #define KRED "\x1B[91m"
 #define KGRE "\x1B[92m"
@@ -85,7 +86,8 @@ namespace ss_api {
         static std::string ss_softname;
 
         // internal
-        static Game parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName = "");
+        static Game parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName = "",
+                              const GameList::Format &format = GameList::Format::ScreenScrapper);
 
         static bool sortByName(const std::string &g1, const std::string &g2);
 

@@ -10,6 +10,10 @@
 using namespace ss_api;
 
 GameList::GameList(const std::string &xmlPath, const std::string &rPath) {
+    append(xmlPath, rPath);
+}
+
+bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
 
     tinyxml2::XMLDocument doc;
     std::vector<std::string> files;
@@ -18,37 +22,49 @@ GameList::GameList(const std::string &xmlPath, const std::string &rPath) {
     tinyxml2::XMLError e = doc.LoadFile(xmlPath.c_str());
     if (e != tinyxml2::XML_SUCCESS) {
         SS_PRINT("Api::gameList: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
-        return;
+        doc.Clear();
+        return false;
     }
 
     tinyxml2::XMLNode *pRoot = doc.FirstChildElement("Data");
     if (pRoot == nullptr) {
-        // emulationstation format
         pRoot = doc.FirstChildElement("gameList");
         if (pRoot == nullptr) {
-            SS_PRINT("Api::parseGameSearch: wrong xml format: \'Data\' or \'gameList\' tag not found\n");
-            return;
+            pRoot = doc.FirstChildElement("datafile");
+            if (pRoot == nullptr) {
+                SS_PRINT(
+                        "Api::parseGameSearch: wrong xml format: \'Data\', \'gameList\' or \'datafile\' tag not found\n");
+                format = Format::Unknown;
+                doc.Clear();
+                return false;
+            }
+            format = Format::FbNeo;
+        } else {
+            format = Format::EmulationStation;
         }
+    } else {
+        format = Format::ScreenScrapper;
     }
 
     tinyxml2::XMLNode *gamesNode = pRoot->FirstChildElement("jeux");
     if (gamesNode == nullptr) {
-        // emulationstation format
+        // es/fbneo format
         gamesNode = pRoot;
     }
 
     tinyxml2::XMLNode *gameNode = gamesNode->FirstChildElement("jeu");
     if (gameNode == nullptr) {
+        // es/fbneo format
         gameNode = gamesNode->FirstChildElement("game");
     }
 
-    romPath = rPath;
-    if (!romPath.empty()) {
-        files = Io::getDirList(romPath);
+    if (!rPath.empty()) {
+        romPaths.emplace_back(rPath);
+        files = Io::getDirList(rPath);
     }
 
     while (gameNode != nullptr) {
-        Game game = Api::parseGame(gameNode);
+        Game game = Api::parseGame(gameNode, "", format);
         // is rom available?
         auto p = std::find(files.begin(), files.end(), game.path);
         if (p != files.end()) {
@@ -121,32 +137,54 @@ GameList::GameList(const std::string &xmlPath, const std::string &rPath) {
     std::sort(dates.begin(), dates.end(), Api::sortByName);
     std::sort(genres.begin(), genres.end(), Api::sortByName);
     // default lists values
-    systems.insert(systems.begin(), "All");
-    editors.insert(editors.begin(), "All");
-    developers.insert(developers.begin(), "All");
-    players.insert(players.begin(), "All");
-    ratings.insert(ratings.begin(), "All");
-    topstaffs.insert(topstaffs.begin(), "All");
-    rotations.insert(rotations.begin(), "All");
-    resolutions.insert(resolutions.begin(), "All");
-    dates.insert(dates.begin(), "All");
-    genres.insert(genres.begin(), "All");
+    if (systems.empty() || systems.at(0) != "All") {
+        systems.insert(systems.begin(), "All");
+    }
+    if (editors.empty() || editors.at(0) != "All") {
+        editors.insert(editors.begin(), "All");
+    }
+    if (developers.empty() || developers.at(0) != "All") {
+        developers.insert(developers.begin(), "All");
+    }
+    if (players.empty() || players.at(0) != "All") {
+        players.insert(players.begin(), "All");
+    }
+    if (ratings.empty() || ratings.at(0) != "All") {
+        ratings.insert(ratings.begin(), "All");
+    }
+    if (topstaffs.empty() || topstaffs.at(0) != "All") {
+        topstaffs.insert(topstaffs.begin(), "All");
+    }
+    if (rotations.empty() || rotations.at(0) != "All") {
+        rotations.insert(rotations.begin(), "All");
+    }
+    if (resolutions.empty() || resolutions.at(0) != "All") {
+        resolutions.insert(resolutions.begin(), "All");
+    }
+    if (dates.empty() || dates.at(0) != "All") {
+        dates.insert(dates.begin(), "All");
+    }
+    if (genres.empty() || genres.at(0) != "All") {
+        genres.insert(genres.begin(), "All");
+    }
+
+    return true;
 }
 
-bool GameList::save(const std::string &dstPath, const Game::Language &language, const Format &format) {
+bool GameList::save(const std::string &dstPath, const Game::Language &language, const Format &fmt) {
 
     tinyxml2::XMLDocument doc;
 
     tinyxml2::XMLDeclaration *dec = doc.NewDeclaration();
     doc.InsertFirstChild(dec);
 
-    tinyxml2::XMLNode *pRoot = format == Format::EmulationStation ?
+    tinyxml2::XMLNode *pRoot = fmt == Format::EmulationStation ?
                                doc.NewElement("gameList") : doc.NewElement("Data");
     doc.InsertEndChild(pRoot);
 
-    tinyxml2::XMLElement *pGames = format == Format::EmulationStation ?
+    tinyxml2::XMLElement *pGames = fmt == Format::EmulationStation ?
                                    pRoot->ToElement() : doc.NewElement("jeux");
-    if (format == Format::ScreenScrapper) {
+    if (fmt == Format::ScreenScrapper) {
         pRoot->InsertEndChild(pGames);
     }
 
@@ -154,7 +192,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
     std::sort(games.begin(), games.end(), Api::sortGameByName);
 
     for (const auto &game : games) {
-        if (format == Format::EmulationStation) {
+        if (fmt == Format::EmulationStation) {
             tinyxml2::XMLElement *gameElement = doc.NewElement("game");
             gameElement->SetAttribute("id", game.id.c_str());
             gameElement->SetAttribute("source", game.source.c_str());
@@ -323,7 +361,7 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
 
     GameList gameList;
     gameList.xml = xml;
-    gameList.romPath = romPath;
+    gameList.romPaths = romPaths;
     gameList.systems = systems;
     gameList.editors = editors;
     gameList.developers = developers;
@@ -400,52 +438,9 @@ int GameList::getAvailableCount() {
 }
 
 // pfba: fix screenscraper missing clonesof
-bool GameList::fixClones(const std::string &fbaGamelist) {
+bool GameList::fixClones(const std::string &fbnDatPath) {
 
-    ///
-    /// build fbneo game list START
-    ///
-    std::vector<Game> fbaList;
-    tinyxml2::XMLDocument doc;
-    tinyxml2::XMLError e = doc.LoadFile(fbaGamelist.c_str());
-    if (e != tinyxml2::XML_SUCCESS) {
-        SS_PRINT_RED("Api::gameListFixClones: could not load dat: %s (%s)\n",
-                     fbaGamelist.c_str(), tinyxml2::XMLDocument::ErrorIDToName(e));
-        doc.Clear();
-        return false;
-    }
-
-    tinyxml2::XMLNode *pRoot = doc.FirstChildElement("datafile");
-    if (pRoot == nullptr) {
-        SS_PRINT_RED("Api::gameListFixClones: wrong xml format: \'datafile\' tag not found\n");
-        doc.Clear();
-        return false;
-    }
-
-    tinyxml2::XMLNode *gameNode = pRoot->FirstChildElement("game");
-    if (gameNode == nullptr) {
-        SS_PRINT_RED("Api::gameListFixClones: no \'game\' node found\n");
-        doc.Clear();
-        return false;
-    }
-
-    while (gameNode != nullptr) {
-        Game game;
-        game.names.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("description")));
-        game.path = Api::getXmlAttribute(gameNode->ToElement(), "name");
-        if (!game.path.empty()) {
-            game.path += ".zip";
-        }
-        game.cloneof = Api::getXmlAttribute(gameNode->ToElement(), "cloneof");
-        fbaList.emplace_back(game);
-        gameNode = gameNode->NextSibling();
-    }
-
-    doc.Clear();
-
-    ///
-    /// build fbneo game list END
-    ///
+    GameList fbnGameList = GameList(fbnDatPath);
 
     for (size_t i = 0; i < games.size(); i++) {
 
@@ -456,11 +451,11 @@ bool GameList::fixClones(const std::string &fbaGamelist) {
 
         // search fba list for zip name (path), as game name may differ
         std::string zipName = games.at(i).path;
-        auto fbaGame = std::find_if(fbaList.begin(), fbaList.end(), [zipName](const Game &g) {
+        auto fbaGame = std::find_if(fbnGameList.games.begin(), fbnGameList.games.end(), [zipName](const Game &g) {
             return zipName == g.path;
         });
         // screenscraper game not found in fbneo dat, continue...
-        if (fbaGame == fbaList.end()) {
+        if (fbaGame == fbnGameList.games.end()) {
             continue;
         }
 
@@ -508,5 +503,4 @@ bool GameList::fixClones(const std::string &fbaGamelist) {
 
     return true;
 }
-
 

@@ -211,11 +211,28 @@ Api::GameInfo Api::parseGameInfo(const std::string &xmlData, const std::string &
     return ji;
 }
 
-Game Api::parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName) {
+Game Api::parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName, const GameList::Format &format) {
 
     Game game{};
+    tinyxml2::XMLElement *element = nullptr;
 
     if (gameNode == nullptr) {
+        return game;
+    }
+
+    if (format == GameList::Format::FbNeo) {
+        game.names.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("description")));
+        game.path = Api::getXmlAttribute(gameNode->ToElement(), "name");
+        if (!game.path.empty()) {
+            game.path += ".zip";
+        }
+        game.dates.emplace_back("wor", getXmlText(gameNode->FirstChildElement("year")));
+        game.developer.text = getXmlText(gameNode->FirstChildElement("manufacturer"));
+        game.editor.text = game.developer.text;
+        game.cloneof = Api::getXmlAttribute(gameNode->ToElement(), "cloneof");
+        if (game.cloneof.empty()) {
+            game.cloneof = "0";
+        }
         return game;
     }
 
@@ -233,7 +250,7 @@ Game Api::parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName) {
         game.path = romName;
     }
     // screenscraper (prioritise screenscraper format)
-    tinyxml2::XMLElement *element = gameNode->FirstChildElement("noms");
+    element = gameNode->FirstChildElement("noms");
     if (element != nullptr) {
         tinyxml2::XMLNode *node = element->FirstChildElement("nom");
         while (node != nullptr) {
@@ -324,8 +341,7 @@ Game Api::parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName) {
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        Game::Date date{"wor", getXmlText(gameNode->FirstChildElement("releasedate"))};
-        game.dates.emplace_back(date);
+        game.dates.emplace_back("wor", getXmlText(gameNode->FirstChildElement("releasedate")));
     }
     // screenscraper
     game.developer.id = getXmlAttribute(gameNode->FirstChildElement("developpeur"), "id");
@@ -409,7 +425,7 @@ User Api::parseUser(tinyxml2::XMLNode *userNode) {
 std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name) {
 
     if (element == nullptr || element->Attribute(name.c_str()) == nullptr) {
-        return "Unknown";
+        return "";
     }
 
     return element->Attribute(name.c_str());
@@ -418,7 +434,7 @@ std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::strin
 std::string Api::getXmlText(tinyxml2::XMLElement *element) {
 
     if (element == nullptr || element->GetText() == nullptr) {
-        return "Unknown";
+        return "";
     }
 
     return element->GetText();

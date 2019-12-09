@@ -14,13 +14,17 @@ namespace ss_api {
     public:
 
         enum Format {
+            ScreenScrapper,
             EmulationStation,
-            ScreenScrapper
+            FbNeo,
+            Unknown
         };
 
         GameList() = default;
 
         explicit GameList(const std::string &xmlPath, const std::string &romPath = "");
+
+        bool append(const std::string &xmlPath, const std::string &romPath = "");
 
         GameList filter(bool available = false, bool clones = false,
                         const std::string &system = "All", const std::string &editor = "All",
@@ -39,12 +43,13 @@ namespace ss_api {
 
         bool remove(const std::string &romId);
 
-        bool fixClones(const std::string &fbaGamelist);
+        bool fixClones(const std::string &fbnDatPath);
 
         int getAvailableCount();
 
         std::string xml;
-        std::string romPath;
+        Format format = EmulationStation;
+        std::vector<std::string> romPaths;
         std::vector<Game> games;
         std::vector<std::string> systems;
         std::vector<std::string> editors;
