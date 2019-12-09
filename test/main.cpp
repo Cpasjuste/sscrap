@@ -50,22 +50,45 @@ void printGame(const Game &game) {
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
 }
 
+void fixFbaClone(Game *game, const GameList &fbnGameList, const std::string &systemId) {
+
+    // screenscraper game "cloneof" is set, continue
+    if (game->isClone()) {
+        return;
+    }
+
+    // mame/fbneo: search fbn list for zip name (path), as game name may differ
+    const std::string zipName = game->path;
+    auto fbaGame = std::find_if(fbnGameList.games.begin(), fbnGameList.games.end(), [zipName](const Game &g) {
+        return zipName == g.path && g.isClone();
+    });
+    // screenscraper game not found in fbneo dat, or is not a clone continue...
+    if (fbaGame == fbnGameList.games.end()) {
+        return;
+    }
+    // fix screenscraper cloneof !
+    game->cloneof = (*fbaGame).cloneof + ".zip";
+}
+
 static void *scrap_thread(void *ptr) {
 
     int tid = *((int *) ptr);
     int retry_delay = 10;
-    GameList fbaGameList;
     Game fbaGame;
-    bool isFbnConsole = false;
+    GameList fbaGameList;
+    bool isFbNeoSystem = false;
 
     // if a custom sscrap custom id is set (fbneo console games),
     // we need to use "FinalBurn Neo" databases "description" as rom name
     // and map to correct screenscraper systemid
     std::string id = scrap->args.get("-systemid");
-    if (id == "750" || id == "751" || id == "752" || id == "753" || id == "754"
-        || id == "755" || id == "756" || id == "757" || id == "758" || id == "759") {
-        isFbnConsole = true;
-        if (id == "750") {
+    if (id == "75" || id == "750" || id == "751" || id == "752" || id == "753"
+        || id == "754" || id == "755" || id == "756" || id == "757" || id == "758" || id == "759") {
+        isFbNeoSystem = true;
+        if (id == "75") {
+            // mame/fbneo
+            fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Arcade only).dat");
+        } else if (id == "750") {
             // colecovision
             id = "48";
             fbaGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ColecoVision only).dat");
@@ -117,7 +140,7 @@ static void *scrap_thread(void *ptr) {
         scrap->filesList.erase(scrap->filesList.begin());
         pthread_mutex_unlock(&scrap->mutex);
 
-        if (isFbnConsole) {
+        if (isFbNeoSystem && id != "75") {
             fbaGame = fbaGameList.findByPath(file);
             if (!fbaGame.getName().text.empty()) {
                 file = fbaGame.getName().text + ".zip";
@@ -151,9 +174,12 @@ static void *scrap_thread(void *ptr) {
                                      file, "", "", scrap->user, scrap->pwd);
         }
 
-        if (isFbnConsole) {
+        if (isFbNeoSystem) {
             // restore correct rom path
-            gameInfo.game.path = file = fbaGame.path;
+            if (id != "75") {
+                gameInfo.game.path = file = fbaGame.path;
+            }
+            fixFbaClone(&gameInfo.game, fbaGameList, id);
         }
 
         if (gameInfo.http_error != 404) {
@@ -201,6 +227,7 @@ static void *scrap_thread(void *ptr) {
             fprintf(stderr, KRED "NOK: %s (%i)\n" KRAS, file.c_str(), gameInfo.http_error);
             scrap->missList.emplace_back(file);
             pthread_mutex_unlock(&scrap->mutex);
+            break;
         }
     }
 

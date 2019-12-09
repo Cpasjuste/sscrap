@@ -45,8 +45,6 @@ namespace ss_api {
 
         bool remove(const std::string &romId);
 
-        bool fixClones(const std::string &fbnDatPath);
-
         int getAvailableCount();
 
         std::string xml;
