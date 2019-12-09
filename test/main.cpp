@@ -151,11 +151,12 @@ static void *scrap_thread(void *ptr) {
                                      file, "", "", scrap->user, scrap->pwd);
         }
 
+        if (isFbnConsole) {
+            // restore correct rom path
+            gameInfo.game.path = file = fbaGame.path;
+        }
+
         if (gameInfo.http_error != 404) {
-            if (isFbnConsole) {
-                // restore correct rom path
-                gameInfo.game.path = fbaGame.path;
-            }
             if (scrap->args.exist("-medias") && (!scrap->mediasClone && gameInfo.game.cloneof == "0")) {
                 for (const auto &mediaType : scrap->mediaTypes) {
                     if (scrap->args.exist(mediaType.name)) {
@@ -200,6 +201,7 @@ static void *scrap_thread(void *ptr) {
             fprintf(stderr, KRED "NOK: %s (%i)\n" KRAS, file.c_str(), gameInfo.http_error);
             scrap->missList.emplace_back(file);
             pthread_mutex_unlock(&scrap->mutex);
+            break;
         }
     }
 }
