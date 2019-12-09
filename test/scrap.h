@@ -27,7 +27,7 @@ public:
     std::vector<ss_api::Api::MediaType> mediaTypes;
     int filesCount = 0;
     bool mediasClone = false;
-    pthread_t threads[15];
+    pthread_t threads[15]{};
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 };
 

@@ -394,10 +394,23 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
     return gameList;
 }
 
-Game GameList::find(const std::string &romId) {
+Game GameList::findByRomId(const std::string &romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
         return game.romid == romId;
+    });
+
+    if (it != games.end()) {
+        return *it;
+    }
+
+    return Game();
+}
+
+Game GameList::findByPath(const std::string &path) {
+
+    auto it = std::find_if(games.begin(), games.end(), [path](const Game &game) {
+        return game.path == path;
     });
 
     if (it != games.end()) {

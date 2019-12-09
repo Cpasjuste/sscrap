@@ -54,6 +54,58 @@ static void *scrap_thread(void *ptr) {
 
     int tid = *((int *) ptr);
     int retry_delay = 10;
+    GameList gameList;
+    bool isFbnConsole = false;
+
+    // if a custom sscrap custom id is set (fbneo console games),
+    // we need to use "FinalBurn Neo" databases "description" as rom name
+    // and map to correct screenscraper systemid
+    std::string id = scrap->args.get("-systemid");
+    if (id == "750" || id == "751" || id == "752" || id == "753" || id == "754"
+        || id == "755" || id == "756" || id == "757" || id == "758" || id == "759") {
+        isFbnConsole = true;
+        if (id == "750") {
+            // colecovision
+            id = "48";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ColecoVision only).dat");
+        } else if (id == "751") {
+            // game gear
+            id = "21";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Game Gear only).dat");
+        } else if (id == "752") {
+            // master system
+            id = "2";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Master System only).dat");
+        } else if (id == "753") {
+            // megadrive
+            id = "1";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Megadrive only).dat");
+        } else if (id == "754") {
+            // msx
+            id = "113";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, MSX 1 Games only).dat");
+        } else if (id == "755") {
+            // pc engine
+            id = "31";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, PC-Engine only).dat");
+        } else if (id == "756") {
+            // sega sg-1000
+            id = "109";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Sega SG-1000 only).dat");
+        } else if (id == "757") {
+            // super grafx
+            id = "105";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, SuprGrafx only).dat");
+        } else if (id == "758") {
+            // turbo grafx
+            id = "31";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, TurboGrafx16 only).dat");
+        } else if (id == "759") {
+            // zx spectrum
+            id = "76";
+            gameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ZX Spectrum Games only).dat");
+        }
+    }
 
     // TODO: handle http error 400 (quota exceeded)
 
@@ -64,9 +116,16 @@ static void *scrap_thread(void *ptr) {
         scrap->filesList.erase(scrap->filesList.begin());
         pthread_mutex_unlock(&scrap->mutex);
 
+        if (isFbnConsole) {
+            Game game = gameList.findByPath(file);
+            if (!game.getName().text.empty()) {
+                file = game.getName().text;
+            }
+            SS_PRINT("file: %s, game: %s\n", file.c_str(), game.getName().text.c_str());
+        }
+
         std::string romType = scrap->args.exist("-romtype") ? scrap->args.get("-romtype") : "rom";
-        Api::GameInfo gameInfo = Api::gameInfo("", "", "",
-                                               scrap->args.get("-systemid"), romType,
+        Api::GameInfo gameInfo = Api::gameInfo("", "", "", id, romType,
                                                file, "", "", scrap->user, scrap->pwd);
         // 429 = maximum requests per minute reached
         while (gameInfo.http_error == 429) {
@@ -76,8 +135,7 @@ static void *scrap_thread(void *ptr) {
                     tid, retry_delay);
             pthread_mutex_unlock(&scrap->mutex);
             sleep(retry_delay);
-            gameInfo = Api::gameInfo("", "", "",
-                                     scrap->args.get("-systemid"), romType,
+            gameInfo = Api::gameInfo("", "", "", id, romType,
                                      file, "", "", scrap->user, scrap->pwd);
         }
 
@@ -89,8 +147,7 @@ static void *scrap_thread(void *ptr) {
                     tid, retry_delay);
             pthread_mutex_unlock(&scrap->mutex);
             sleep(retry_delay);
-            gameInfo = Api::gameInfo("", "", "",
-                                     scrap->args.get("-systemid"), romType,
+            gameInfo = Api::gameInfo("", "", "", id, romType,
                                      file, "", "", scrap->user, scrap->pwd);
         }
 
@@ -141,8 +198,6 @@ static void *scrap_thread(void *ptr) {
             pthread_mutex_unlock(&scrap->mutex);
         }
     }
-
-    return nullptr;
 }
 
 Scrap::Scrap(const ArgumentParser &parser) {
@@ -265,6 +320,17 @@ void Scrap::run() {
         printf("\t\t\tgamesearch options:\n");
         printf("\t\t\t\t-gamename <game name>\n");
         printf("\t\t\t\t-systemid <system id>\n");
+        printf("\tsscrap customs systemid (fbneo)\n");
+        printf("\t\t750: ColecoVision\n");
+        printf("\t\t751: Game Gear\n");
+        printf("\t\t752: Master System\n");
+        printf("\t\t753: Megadrive\n");
+        printf("\t\t754: MSX 1\n");
+        printf("\t\t755: PC-Engine\n");
+        printf("\t\t756: Sega SG-1000\n");
+        printf("\t\t757: Super Grafx\n");
+        printf("\t\t758: Turbo Grafx\n");
+        printf("\t\t759: ZX Spectrum\n");
     }
 #endif
 

@@ -37,7 +37,9 @@ namespace ss_api {
                   const Game::Language &language = Game::Language::EN,
                   const Format &format = ScreenScrapper);
 
-        Game find(const std::string &romId);
+        Game findByRomId(const std::string &romId);
+
+        Game findByPath(const std::string &path);
 
         bool exist(const std::string &romId);
 
