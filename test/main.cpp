@@ -265,7 +265,7 @@ static void *scrap_thread(void *ptr) {
                         continue;
                     }
                     std::string name = file.substr(0, file.find_last_of('.') + 1) + media.format;
-                    std::string path = scrap->romPath + "/media/" + media.type + "/";
+                    path = scrap->romPath + "/media/" + media.type + "/";
                     if (!Io::exist(path)) {
                         Io::makedir(path);
                     }
@@ -296,13 +296,17 @@ static void *scrap_thread(void *ptr) {
         } else {
             pthread_mutex_lock(&scrap->mutex);
             // game not found, but add it to the list with default values
-            Game game;
-            game.names.emplace_back(Api::toString(Game::Country::WOR), file);
-            game.path = file;
-            scrap->gameList.games.emplace_back(game);
+            if (isFbNeoSystem) {
+                scrap->gameList.games.emplace_back(fbnGame);
+            } else {
+                Game game;
+                game.names.emplace_back(Api::toString(Game::Country::WOR), file);
+                game.path = file;
+                scrap->gameList.games.emplace_back(game);
+            }
             fprintf(stderr, KRED "[%i/%i] NOK: %s (%i)\n" KRAS,
                     scrap->filesCount - (int) scrap->filesList.size(), scrap->filesCount,
-                    file.c_str(), gameInfo.http_error);
+                    isFbNeoSystem ? fbnGame.getName().text.c_str() : file.c_str(), gameInfo.http_error);
             scrap->missList.emplace_back(file);
             pthread_mutex_unlock(&scrap->mutex);
         }
