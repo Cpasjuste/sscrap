@@ -183,6 +183,7 @@ static void *scrap_thread(void *ptr) {
         pthread_mutex_unlock(&scrap->mutex);
 
         Api::GameInfo gameInfo;
+        std::string searchType = "None";
 
         // first, search by zip crc if not mame / fbneo arcade
         if (id != "75") {
@@ -191,6 +192,9 @@ static void *scrap_thread(void *ptr) {
             if (!crc.empty()) {
                 gameInfo = gameInfoRetry(tid, crc, "", "", id, "",
                                          file, "", "", scrap->user, scrap->pwd);
+                if (gameInfo.http_error == 0) {
+                    searchType = "zip_crc";
+                }
             }
             SS_PRINT("zip crc: %s (%s), res = %i\n", file.c_str(), crc.c_str(), gameInfo.http_error);
         }
@@ -202,6 +206,9 @@ static void *scrap_thread(void *ptr) {
             if (!crc.empty()) {
                 gameInfo = gameInfoRetry(tid, crc, "", "", id, "",
                                          file, "", "", scrap->user, scrap->pwd);
+                if (gameInfo.http_error == 0) {
+                    searchType = "rom_crc";
+                }
             }
             SS_PRINT("rom crc: %s (%s), res = %i\n", file.c_str(), crc.c_str(), gameInfo.http_error);
         }
@@ -217,6 +224,12 @@ static void *scrap_thread(void *ptr) {
             std::string name = (isFbNeoSystem && id != "75") ? fbaGame.getName().text + ".zip" : file;
             gameInfo = gameInfoRetry(tid, "", "", "", id, romType,
                                      name, "", "", scrap->user, scrap->pwd);
+            if (gameInfo.http_error == 0) {
+                searchType = "zip_name";
+            }
+            if (isFbNeoSystem && id != "75") {
+                gameInfo.game.path = file;
+            }
             SS_PRINT("zip name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
         }
 
@@ -233,6 +246,9 @@ static void *scrap_thread(void *ptr) {
                 if (game != search.games.end()) {
                     gameInfo = gameInfoRetry(tid, "", "", "", "", "",
                                              file, "", (*game).id, scrap->user, scrap->pwd);
+                    if (gameInfo.http_error == 0) {
+                        searchType = "search";
+                    }
                     SS_PRINT("search name (romid): %s, res = %i\n", name.c_str(), gameInfo.http_error);
                 }
             }
@@ -275,9 +291,10 @@ static void *scrap_thread(void *ptr) {
             }
 
             pthread_mutex_lock(&scrap->mutex);
-            printf(KGRE "[%i/%i] OK: %s => %s (%s)\n" KRAS,
+            printf(KGRE "[%i/%i] OK: %s => %s (%s) (%s)\n" KRAS,
                    scrap->filesCount - (int) scrap->filesList.size(), scrap->filesCount,
-                   file.c_str(), gameInfo.game.getName().text.c_str(), gameInfo.game.system.text.c_str());
+                   file.c_str(), gameInfo.game.getName().text.c_str(),
+                   gameInfo.game.system.text.c_str(), searchType.c_str());
             scrap->gameList.games.emplace_back(gameInfo.game);
             pthread_mutex_unlock(&scrap->mutex);
         } else {
