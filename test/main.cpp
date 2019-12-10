@@ -174,7 +174,7 @@ static void *scrap_thread(void *ptr) {
         }
     }
 
-    // TODO: handle http error 400 (quota exceeded)
+    // TODO: handle http error 430 (quota exceeded)
     while (!scrap->filesList.empty()) {
 
         pthread_mutex_lock(&scrap->mutex);
