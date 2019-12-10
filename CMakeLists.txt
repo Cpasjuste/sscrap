@@ -82,8 +82,8 @@ target_compile_options(
 # SCREENSCRAP TEST
 #####################
 if (BUILD_TEST)
-    add_executable(${PROJECT_NAME}.elf test/main.cpp)
-    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME} pthread)
+    add_executable(${PROJECT_NAME}.elf test/main.cpp test/utility.cpp)
+    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME} pthread minizip z)
     add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
             COMMAND cp -rf ${CMAKE_SOURCE_DIR}/databases ${CMAKE_BINARY_DIR}/
             COMMENT "Copying databases to binary directory..."

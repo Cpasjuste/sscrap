@@ -3,54 +3,21 @@
 //
 
 #include <unistd.h>
+#include <minizip/unzip.h>
+
 #include "ss_api.h"
 #include "ss_io.h"
 #include "ss_gamelist.h"
 #include "scrap.h"
 #include "args.h"
+#include "utility.h"
 
 using namespace ss_api;
 
 static Scrap *scrap;
+static int retry_delay = 10;
 
-void printGame(const Game &game) {
-
-    printf("\n===================================\n");
-    Game::Name name = game.getName(Game::Country::SS);
-    printf("nom (%s): %s (alternatives: %li)\n", name.country.c_str(), name.text.c_str(), game.names.size() - 1);
-    printf("available: %i\n", (int) game.available);
-    printf("path: %s\n", game.path.c_str());
-    for (auto &country : game.countries) {
-        printf("country: %s\n", country.c_str());
-    }
-    printf("id: %s\n", game.id.c_str());
-    printf("cloneof: %s\n", game.cloneof.c_str());
-    printf("system: %s (id: %s)\n", game.system.text.c_str(), game.system.id.c_str());
-    printf("editor: %s (id: %s)\n", game.editor.text.c_str(), game.editor.id.c_str());
-    printf("developer: %s (id: %s)\n", game.developer.text.c_str(), game.developer.id.c_str());
-    printf("players: %s\n", game.players.c_str());
-    printf("rating: %s\n", game.rating.c_str());
-    printf("topstaff: %s\n", game.topstaff.c_str());
-    printf("rotation: %s\n", game.rotation.c_str());
-    printf("resolution: %s\n", game.resolution.c_str());
-    printf("inputs: %s\n", game.inputs.c_str());
-    printf("colors: %s\n", game.colors.c_str());
-    Game::Synopsis synopsis = game.getSynopsis(Game::Language::EN);
-    printf("synopsis (%s): %s\n", synopsis.language.c_str(), synopsis.text.c_str());
-    Game::Date date = game.getDate(Game::Country::WOR);
-    printf("date (%s): %s\n", date.country.c_str(), date.text.c_str());
-    Game::Genre genre = game.getGenre(Game::Language::EN);
-    printf("genre (%s): %s\n", genre.language.c_str(), genre.text.c_str());
-    // print some medias
-    Game::Media media = game.getMedia("sstitle", Game::Country::WOR);
-    printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-    media = game.getMedia("ss", Game::Country::WOR);
-    printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-    media = game.getMedia("mixrbv2", Game::Country::WOR);
-    printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-}
-
-void fixFbaClone(Game *game, const GameList &fbnGameList, const std::string &systemId) {
+void fixFbaClone(Game *game, const GameList &fbnGameList) {
 
     // screenscraper game "cloneof" is set, continue
     if (game->isClone()) {
@@ -70,10 +37,86 @@ void fixFbaClone(Game *game, const GameList &fbnGameList, const std::string &sys
     game->cloneof = (*fbaGame).cloneof + ".zip";
 }
 
+static std::vector<Api::MediaType> mediaTypeRetry(int tid, const std::string &ssid, const std::string &sspassword) {
+
+    std::vector<Api::MediaType> mediaTypes = Api::mediaTypes(ssid, sspassword);
+    // 429 = maximum requests per minute reached, 28 timeout
+    if (!mediaTypes.empty()) {
+        while (mediaTypes.at(0).http_error == 429 || mediaTypes.at(0).http_error == 28) {
+            pthread_mutex_lock(&scrap->mutex);
+            if (mediaTypes.at(0).http_error == 429) {
+                fprintf(stderr,
+                        KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                        tid, retry_delay);
+            } else {
+                fprintf(stderr,
+                        KYEL "NOK: thread[%i] => timeout reached... retrying in %i seconds\n" KRAS,
+                        tid, retry_delay);
+            }
+            pthread_mutex_unlock(&scrap->mutex);
+            sleep(retry_delay);
+            mediaTypes = Api::mediaTypes(ssid, sspassword);
+        }
+    }
+
+    return mediaTypes;
+}
+
+static Api::GameSearch gameSearchRetry(int tid, const std::string &recherche, const std::string &systemeid,
+                                       const std::string &ssid, const std::string &sspassword) {
+
+    Api::GameSearch search = Api::gameSearch(recherche, systemeid, ssid, sspassword);
+    // 429 = maximum requests per minute reached, 28 timeout
+    while (search.http_error == 429 || search.http_error == 28) {
+        pthread_mutex_lock(&scrap->mutex);
+        if (search.http_error == 429) {
+            fprintf(stderr,
+                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                    tid, retry_delay);
+        } else {
+            fprintf(stderr,
+                    KYEL "NOK: thread[%i] => timeout reached... retrying in %i seconds\n" KRAS,
+                    tid, retry_delay);
+        }
+        pthread_mutex_unlock(&scrap->mutex);
+        sleep(retry_delay);
+        search = Api::gameSearch(recherche, systemeid, ssid, sspassword);
+    }
+
+    return search;
+}
+
+static Api::GameInfo gameInfoRetry(int tid, const std::string &crc, const std::string &md5, const std::string &sha1,
+                                   const std::string &systemeid, const std::string &romtype, const std::string &romnom,
+                                   const std::string &romtaille, const std::string &gameid,
+                                   const std::string &ssid, const std::string &sspassword) {
+
+    Api::GameInfo gameInfo = Api::gameInfo(crc, md5, sha1, systemeid, romtype,
+                                           romnom, romtaille, gameid, ssid, sspassword);
+    // 429 = maximum requests per minute reached, 28 timeout
+    while (gameInfo.http_error == 429 || gameInfo.http_error == 28) {
+        pthread_mutex_lock(&scrap->mutex);
+        if (gameInfo.http_error == 429) {
+            fprintf(stderr,
+                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                    tid, retry_delay);
+        } else {
+            fprintf(stderr,
+                    KYEL "NOK: thread[%i] => timeout reached... retrying in %i seconds\n" KRAS,
+                    tid, retry_delay);
+        }
+        pthread_mutex_unlock(&scrap->mutex);
+        sleep(retry_delay);
+        gameInfo = Api::gameInfo(crc, md5, sha1, systemeid, romtype,
+                                 romnom, romtaille, gameid, ssid, sspassword);
+    }
+
+    return gameInfo;
+}
+
 static void *scrap_thread(void *ptr) {
 
     int tid = *((int *) ptr);
-    int retry_delay = 10;
     Game fbaGame;
     GameList fbaGameList;
     bool isFbNeoSystem = false;
@@ -132,7 +175,6 @@ static void *scrap_thread(void *ptr) {
     }
 
     // TODO: handle http error 400 (quota exceeded)
-
     while (!scrap->filesList.empty()) {
 
         pthread_mutex_lock(&scrap->mutex);
@@ -140,90 +182,95 @@ static void *scrap_thread(void *ptr) {
         scrap->filesList.erase(scrap->filesList.begin());
         pthread_mutex_unlock(&scrap->mutex);
 
+        Api::GameInfo gameInfo;
+
+        // first, search by zip crc if not mame / fbneo arcade
+        if (id != "75") {
+            std::string path = scrap->romPath + "/" + file;
+            std::string crc = Utility::getZipCrc(path);
+            if (!crc.empty()) {
+                gameInfo = gameInfoRetry(tid, crc, "", "", id, "",
+                                         file, "", "", scrap->user, scrap->pwd);
+            }
+            SS_PRINT("zip crc: %s (%s), res = %i\n", file.c_str(), crc.c_str(), gameInfo.http_error);
+        }
+
+        // next, try by rom crc if not mame / fbneo arcade
+        if (gameInfo.http_error != 0 && id != "75") {
+            std::string path = scrap->romPath + "/" + file;
+            std::string crc = Utility::getRomCrc(path);
+            if (!crc.empty()) {
+                gameInfo = gameInfoRetry(tid, crc, "", "", id, "",
+                                         file, "", "", scrap->user, scrap->pwd);
+            }
+            SS_PRINT("rom crc: %s (%s), res = %i\n", file.c_str(), crc.c_str(), gameInfo.http_error);
+        }
+
+        // fbneo consoles zip names doesn't match standard consoles zip names
         if (isFbNeoSystem && id != "75") {
             fbaGame = fbaGameList.findByPath(file);
-            if (!fbaGame.getName().text.empty()) {
-                file = fbaGame.getName().text + ".zip";
-            }
         }
 
-        std::string romType = scrap->args.exist("-romtype") ? scrap->args.get("-romtype") : "rom";
-        Api::GameInfo gameInfo = Api::gameInfo("", "", "", id, romType,
-                                               file, "", "", scrap->user, scrap->pwd);
-        // 429 = maximum requests per minute reached
-        while (gameInfo.http_error == 429) {
-            pthread_mutex_lock(&scrap->mutex);
-            fprintf(stderr,
-                    KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
-                    tid, retry_delay);
-            pthread_mutex_unlock(&scrap->mutex);
-            sleep(retry_delay);
-            gameInfo = Api::gameInfo("", "", "", id, romType,
-                                     file, "", "", scrap->user, scrap->pwd);
+        // now try with zip name
+        if (gameInfo.http_error != 0) {
+            std::string romType = scrap->args.exist("-romtype") ? scrap->args.get("-romtype") : "rom";
+            std::string name = (isFbNeoSystem && id != "75") ? fbaGame.getName().text + ".zip" : file;
+            gameInfo = gameInfoRetry(tid, "", "", "", id, romType,
+                                     name, "", "", scrap->user, scrap->pwd);
+            SS_PRINT("zip name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
         }
 
-        // 28 = CURLE_OPERATION_TIMEDOUT
-        while (gameInfo.http_error == 28) {
-            pthread_mutex_lock(&scrap->mutex);
-            fprintf(stderr,
-                    KYEL "NOK: thread[%i] => timeout reached... retrying in %i seconds\n" KRAS,
-                    tid, retry_delay);
-            pthread_mutex_unlock(&scrap->mutex);
-            sleep(retry_delay);
-            gameInfo = Api::gameInfo("", "", "", id, romType,
-                                     file, "", "", scrap->user, scrap->pwd);
-        }
-
-        if (isFbNeoSystem) {
-            // restore correct rom path
-            if (id != "75") {
-                gameInfo.game.path = file = fbaGame.path;
-            }
-            fixFbaClone(&gameInfo.game, fbaGameList, id);
-            if (gameInfo.http_error == 404 && id != "75") {
-
-#error TODO
-                // try with shorter name
-                std::string name = fbaGame.getName().text;
-                size_t pos = name.find_first_of('(');
-                if (pos != std::string::npos) {
-                    name = name.substr(0, pos - 1);
-                    printf("GameSearch: %s (%s)\n", name.c_str(), gameInfo.game.path.c_str());
-                    Api::GameSearch search = Api::gameSearch(name, id, scrap->user, scrap->pwd);
-                    if (!search.games.empty()) {
-                        gameInfo = Api::gameInfo("", "", "", id, romType,
-                                                 "", "", search.games.at(0).id, scrap->user, scrap->pwd);
-                    }
+        gameInfo.http_error = -1;
+        // finally, try a game search (jeuRecherche)
+        if (gameInfo.http_error != 0) {
+            // the rom is not know by screenscraper, try to find the game with a game search (jeuRecherche)
+            std::string name = isFbNeoSystem ? fbaGame.getName().text : file;
+            Api::GameSearch search = gameSearchRetry(tid, name, id, scrap->user, scrap->pwd);
+            SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
+            if (!search.games.empty()) {
+                auto game = std::find_if(search.games.begin(), search.games.end(), [id](const Game &game) {
+                    return game.system.id == id;
+                });
+                if (game != search.games.end()) {
+                    gameInfo = gameInfoRetry(tid, "", "", "", "", "",
+                                             file, "", (*game).id, scrap->user, scrap->pwd);
+                    SS_PRINT("search name (romid): %s, res = %i\n", name.c_str(), gameInfo.http_error);
                 }
             }
         }
 
-        if (gameInfo.http_error != 404) {
+        if (isFbNeoSystem) {
+            fixFbaClone(&gameInfo.game, fbaGameList);
+        }
+
+        if (gameInfo.http_error == 0) {
             if (scrap->args.exist("-medias") && (!scrap->mediasClone && !gameInfo.game.isClone())) {
                 for (const auto &mediaType : scrap->mediaTypes) {
-                    if (scrap->args.exist(mediaType.name)) {
-                        Game::Media media = gameInfo.game.getMedia(mediaType.name, Game::Country::SS);
-                        if (!media.url.empty()) {
-                            std::string name = gameInfo.game.path.substr(0, gameInfo.game.path.find_last_of('.') + 1)
-                                               + media.format;
-                            std::string path = scrap->romPath + "/media/" + media.type + "/";
-                            if (!Io::exist(path)) {
-                                Io::makedir(path);
-                            }
-                            path += name;
-                            if (!Io::exist(path)) {
-                                int res = media.download(path);
-                                while (res == 429) {
-                                    pthread_mutex_lock(&scrap->mutex);
-                                    fprintf(stderr,
-                                            KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
-                                            tid, retry_delay);
-                                    pthread_mutex_unlock(&scrap->mutex);
-                                    sleep(retry_delay);
-                                    res = media.download(path);
-                                }
-                            }
-                        }
+                    if (!scrap->args.exist(mediaType.name)) {
+                        continue;
+                    }
+                    Game::Media media = gameInfo.game.getMedia(mediaType.name, Game::Country::SS);
+                    if (media.url.empty()) {
+                        continue;
+                    }
+                    std::string name = file.substr(0, file.find_last_of('.') + 1) + media.format;
+                    std::string path = scrap->romPath + "/media/" + media.type + "/";
+                    if (!Io::exist(path)) {
+                        Io::makedir(path);
+                    }
+                    path += name;
+                    if (Io::exist(path)) {
+                        continue;
+                    }
+                    int res = media.download(path);
+                    while (res == 429) {
+                        pthread_mutex_lock(&scrap->mutex);
+                        fprintf(stderr,
+                                KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                                tid, retry_delay);
+                        pthread_mutex_unlock(&scrap->mutex);
+                        sleep(retry_delay);
+                        res = media.download(path);
                     }
                 }
             }
@@ -280,7 +327,7 @@ void Scrap::run() {
             romPath = args.get("-romspath");
             filesList = Io::getDirList(romPath);
             filesCount = filesList.size();
-            mediaTypes = Api::mediaTypes(user, pwd);
+            mediaTypes = mediaTypeRetry(-1, user, pwd);
             if (filesList.empty()) {
                 fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
                 return;
@@ -308,7 +355,6 @@ void Scrap::run() {
             if (!gameList.games.empty() && args.exist("-savexml")) {
                 gameList.save(romPath + "/gamelist.xml");
             }
-
             printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
             printf(KGRE "found %zu/%i games\n" KRAS, gameList.games.size() - missList.size(), filesCount);
             if (!missList.empty()) {
@@ -319,16 +365,16 @@ void Scrap::run() {
             }
             printf("\n");
         } else {
-            std::string romType = scrap->args.exist("-romtype") ? scrap->args.get("-romtype") : "rom";
             Api::GameInfo gameInfo = Api::gameInfo(args.get("-crc"), args.get("-md5"), args.get("-sha1"),
-                                                   args.get("-systemid"), romType, args.get("-romname"),
-                                                   args.get("-romsize"), args.get("-gameid"), user, pwd);
+                                                   args.get("-systemid"), scrap->args.get("-romtype"),
+                                                   args.get("-romname"), args.get("-romsize"),
+                                                   args.get("-gameid"), user, pwd);
             printf("\n===================================\n");
             printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
                    gameInfo.ssuser.id.c_str(), gameInfo.ssuser.maxrequestsperday.c_str(),
                    gameInfo.ssuser.maxthreads.c_str());
             if (!gameInfo.game.id.empty()) {
-                printGame(gameInfo.game);
+                Utility::printGame(gameInfo.game);
             } else {
                 printf("gameInfo: game not found\n");
             }
@@ -341,7 +387,7 @@ void Scrap::run() {
                search.ssuser.maxthreads.c_str());
         printf("games found: %li\n", search.games.size());
         for (auto &game : search.games) {
-            printGame(game);
+            Utility::printGame(game);
         }
     } else if (args.exist("-mediatypes")) {
         mediaTypes = Api::mediaTypes(user, pwd);

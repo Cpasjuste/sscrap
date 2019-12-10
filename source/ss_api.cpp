@@ -32,6 +32,7 @@ std::vector<Api::MediaType> Api::mediaTypes(const std::string &ssid, const std::
     std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
     if (xml.empty()) {
         SS_PRINT("Api::mediaTypes: error %li\n", code);
+        mediaTypes.emplace_back(code);
         return mediaTypes;
     }
 
@@ -148,8 +149,7 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
     std::string search = ss_curl.escape(romnom);
     std::string soft = ss_curl.escape(ss_softname);
     std::string url = "https://www.screenscraper.fr/api2/jeuInfos.php?devid="
-                      + ss_devid + "&devpassword=" + ss_devpassword + "&softname=" + soft + "&output=xml"
-                      + "&romnom=" + search;
+                      + ss_devid + "&devpassword=" + ss_devpassword + "&softname=" + soft + "&output=xml";
 
     url += ssid.empty() ? "" : "&ssid=" + ssid;
     url += sspassword.empty() ? "" : "&sspassword=" + sspassword;
@@ -160,6 +160,7 @@ Api::gameInfo(const std::string &crc, const std::string &md5, const std::string 
     url += romtype.empty() ? "" : "&romtype=" + romtype;
     url += romtaille.empty() ? "" : "&romtaille=" + romtaille;
     url += gameid.empty() ? "" : "&gameid=" + gameid;
+    url += search.empty() ? "" : "&romnom=" + search;
 
     SS_PRINT("Api::jeuInfos: %s\n", url.c_str());
 

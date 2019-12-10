@@ -54,6 +54,10 @@ namespace ss_api {
         struct MediaType {
             MediaType() = default;
 
+            explicit MediaType(int err) {
+                http_error = err;
+            };
+
             MediaType(const std::string &_id, const std::string &_name) {
                 id = _id;
                 name = _name;
@@ -61,6 +65,7 @@ namespace ss_api {
 
             std::string id;
             std::string name;
+            int http_error = 0;
         };
 
         static GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
@@ -124,7 +129,7 @@ while(0)
 do \
 { \
     if(ss_debug) { \
-        printf(KRED "err: "); \
+        printf(KRED "NOK: "); \
         printf((f_), ##__VA_ARGS__); \
         printf(KRAS); \
     } \

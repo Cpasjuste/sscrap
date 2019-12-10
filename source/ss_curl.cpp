@@ -52,10 +52,8 @@ std::string Curl::getString(const std::string &url, int timeout, long *http_code
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
     }
 
-    if (res != 0) {
-        if (res == CURLE_OPERATION_TIMEDOUT && http_code != nullptr) {
-            *http_code = 28;
-        }
+    if (res != 0 && http_code != nullptr && (*http_code) == 0) {
+        *http_code = res;
         SS_PRINT("Curl::getString: error: curl_easy_perform failed: %s, http_code: %li\n",
                  curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
         return "";
