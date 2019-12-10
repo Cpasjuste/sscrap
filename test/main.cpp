@@ -319,7 +319,6 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
 void Scrap::run() {
 
-#if 1
     int thread_count = 1;
 
     if (args.exist("-gameinfo")) {
@@ -430,49 +429,6 @@ void Scrap::run() {
         printf("\t\t758: Turbo Grafx\n");
         printf("\t\t759: ZX Spectrum\n");
     }
-#endif
-
-#if 0
-    gameList = GameList("../databases/FinalBurn Neo (ClrMame Pro XML, Arcade only).dat");
-    gameList.append("../databases/FinalBurn Neo (ClrMame Pro XML, Megadrive only).dat");
-    //if (!gameList.fixClones("fbneo.dat")) {
-    //    exit(-1);
-    //}
-    //gameList.save("gamelist_fixed.xml",
-    //              Game::Language::EN, GameList::Format::ScreenScrapper);
-    //exit(0);
-
-    printf("total games: %zu\n", gameList.games.size());
-    gameList = gameList.filter();
-    printf("total parents: %zu\n", gameList.games.size());
-
-    std::vector<std::string> names;
-    for (const auto &game : gameList.games) {
-
-        std::vector<Game> clones;
-        std::string name = game.getName().text;
-        auto found = std::find_if(names.begin(), names.end(), [&name](const std::string &n) {
-            return name == n;
-        });
-
-        if (found != names.end())
-            continue;
-
-        names.emplace_back(name);
-        std::copy_if(gameList.games.begin(), gameList.games.end(), std::back_inserter(clones), [name](const Game &g) {
-            return g.getName().text == name;
-        });
-
-        if (clones.size() > 1) {
-            printf("%s: found %zu clones: ", name.c_str(), clones.size());
-            for (const auto &g : clones) {
-                printf("%s (%s) - ", g.romid.c_str(), g.path.c_str());
-                //printGame(g);
-            }
-            printf("\n");
-        }
-    }
-#endif
 }
 
 int main(int argc, char **argv) {
