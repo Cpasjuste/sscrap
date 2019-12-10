@@ -220,7 +220,6 @@ static void *scrap_thread(void *ptr) {
             SS_PRINT("zip name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
         }
 
-        gameInfo.http_error = -1;
         // finally, try a game search (jeuRecherche)
         if (gameInfo.http_error != 0) {
             // the rom is not know by screenscraper, try to find the game with a game search (jeuRecherche)
