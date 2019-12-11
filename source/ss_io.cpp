@@ -4,6 +4,7 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "ss_io.h"
 
 #ifdef __WINDOWS__
@@ -29,15 +30,15 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
                 continue;
             }
 #ifdef __WINDOWS__
-			filePath = path + "\\" + ent->d_name;
-			if(GetFileAttributes(filePath.c_str()) & FILE_ATTRIBUTE_DIRECTORY) {
-				printf("skip: %s\n", ent->d_name);
-				continue;
-			}
+            filePath = path + "\\" + ent->d_name;
+            if(GetFileAttributes(filePath.c_str()) & FILE_ATTRIBUTE_DIRECTORY) {
+                printf("skip: %s\n", ent->d_name);
+                continue;
+            }
 #else
-			if (ent->d_type != DT_REG) {
-				continue;
-			}
+            if (ent->d_type != DT_REG) {
+                continue;
+            }
 #endif
             std::string file = ent->d_name;
             if (!ext.empty()) {
@@ -61,4 +62,8 @@ void Io::makedir(const std::string &path) {
 bool Io::exist(const std::string &file) {
     struct stat st{};
     return (stat(file.c_str(), &st) == 0);
+}
+
+void Io::delay(int seconds) {
+    sleep(seconds);
 }

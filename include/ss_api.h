@@ -8,9 +8,13 @@
 #include <tinyxml2.h>
 
 #include "ss_curl.h"
+#include "ss_io.h"
 #include "ss_game.h"
 #include "ss_user.h"
+#include "ss_gameinfo.h"
+#include "ss_gamesearch.h"
 #include "ss_gamelist.h"
+#include "ss_mediasgamelist.h"
 
 #define KRED "\x1B[91m"
 #define KGRE "\x1B[92m"
@@ -25,59 +29,6 @@ namespace ss_api {
 
     public:
 
-        class GameSearch {
-        public:
-            GameSearch() = default;
-
-            explicit GameSearch(int err) {
-                http_error = err;
-            };
-            User ssuser;
-            std::vector<Game> games;
-            std::string xml;
-            int http_error = 0;
-        };
-
-        class GameInfo {
-        public:
-            GameInfo() = default;
-
-            explicit GameInfo(int err) {
-                http_error = err;
-            };
-            User ssuser;
-            Game game;
-            std::string xml;
-            int http_error = 0;
-        };
-
-        struct MediaType {
-            MediaType() = default;
-
-            explicit MediaType(int err) {
-                http_error = err;
-            };
-
-            MediaType(const std::string &_id, const std::string &_name) {
-                id = _id;
-                name = _name;
-            }
-
-            std::string id;
-            std::string name;
-            int http_error = 0;
-        };
-
-        static GameSearch gameSearch(const std::string &recherche, const std::string &systemeid,
-                                     const std::string &ssid = "", const std::string &sspassword = "");
-
-        static GameInfo gameInfo(const std::string &crc, const std::string &md5, const std::string &sha1,
-                                 const std::string &systemeid, const std::string &romtype,
-                                 const std::string &romnom, const std::string &romtaille, const std::string &gameid,
-                                 const std::string &ssid = "", const std::string &sspassword = "");
-
-        static std::vector<MediaType> mediaTypes(const std::string &ssid = "", const std::string &sspassword = "");
-
         static std::string toString(const Game::Country &country);
 
         static std::string toString(const Game::Language &language);
@@ -86,14 +37,15 @@ namespace ss_api {
 
         static Game::Language toLanguage(const std::string &language);
 
+        static int parseInt(const std::string &str, int defValue = 0);
+
+        static void printError(int code, int delay);
+
         static std::string ss_devid;
         static std::string ss_devpassword;
         static std::string ss_softname;
 
         // internal
-        static Game parseGame(tinyxml2::XMLNode *gameNode, const std::string &romName = "",
-                              const GameList::Format &format = GameList::Format::ScreenScrapper);
-
         static bool sortByName(const std::string &g1, const std::string &g2);
 
         static bool sortGameByName(const Game &g1, const Game &g2);
@@ -104,14 +56,6 @@ namespace ss_api {
 
         static tinyxml2::XMLElement *addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,
                                                    const std::string &name, const std::string &value);
-
-    private:
-
-        static GameInfo parseGameInfo(const std::string &xmlData, const std::string &romName);
-
-        static GameSearch parseGameSearch(const std::string &xmlData);
-
-        static User parseUser(tinyxml2::XMLNode *userNode);
     };
 }
 

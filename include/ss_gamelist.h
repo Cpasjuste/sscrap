@@ -6,7 +6,6 @@
 #define SSCRAP_SS_GAMELIST_H
 
 #include <string>
-#include "ss_game.h"
 
 namespace ss_api {
 
@@ -14,10 +13,10 @@ namespace ss_api {
     public:
 
         enum Format {
-            ScreenScrapper,
-            EmulationStation,
-            FbNeo,
-            Unknown
+            ScreenScrapper = 0,
+            EmulationStation = 1,
+            FbNeo = 2,
+            Unknown = 3
         };
 
         GameList() = default;

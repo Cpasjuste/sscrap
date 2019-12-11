@@ -5,6 +5,7 @@
 #include <cstring>
 #include <algorithm>
 #include <minizip/unzip.h>
+#include <tinyxml2.h>
 #include "utility.h"
 
 using namespace ss_api;

@@ -50,6 +50,9 @@ std::string Curl::getString(const std::string &url, int timeout, long *http_code
     res = curl_easy_perform(curl);
     if (http_code != nullptr) {
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
+        if ((*http_code) == 200) {
+            (*http_code) = 0;
+        }
     }
 
     if (res != 0 && http_code != nullptr && (*http_code) == 0) {
@@ -90,6 +93,9 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
     fclose(data);
     if (http_code != nullptr) {
         curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, http_code);
+        if ((*http_code) == 200) {
+            (*http_code) = 0;
+        }
     }
 
     if (res != 0) {

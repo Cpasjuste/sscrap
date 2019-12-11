@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include "ss_api.h"
-#include "ss_game.h"
 
 using namespace ss_api;
 
@@ -92,10 +91,6 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
     return list.at(0);
 }
 
-Game::Classification Game::getClassification() const {
-    return classifications.empty() ? Game::Classification() : classifications.at(0);
-}
-
 Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country &country) const {
 
     std::vector<Game::Media> mediaList;
@@ -139,4 +134,188 @@ int Game::Media::download(const std::string &dstPath) {
     }
 
     return 0;
+}
+
+bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string &romName, const int &GameListFormat) {
+
+    tinyxml2::XMLElement *element = nullptr;
+
+    if (game == nullptr || gameNode == nullptr) {
+        return false;
+    }
+
+    if (GameListFormat == GameList::Format::FbNeo) {
+        game->names.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("description")));
+        game->path = Api::Api::getXmlAttribute(gameNode->ToElement(), "name");
+        if (!game->path.empty()) {
+            game->path += ".zip";
+        }
+        game->dates.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("year")));
+        game->developer.text = Api::getXmlText(gameNode->FirstChildElement("manufacturer"));
+        game->editor.text = game->developer.text;
+        game->cloneof = Api::Api::getXmlAttribute(gameNode->ToElement(), "cloneof");
+        return game;
+    }
+
+    // screenscraper / emulationstation compat
+    game->id = Api::getXmlAttribute(gameNode->ToElement(), "id");
+    // screenscraper
+    game->romid = Api::getXmlAttribute(gameNode->ToElement(), "romid");
+    // screenscraper
+    game->notgame = Api::getXmlAttribute(gameNode->ToElement(), "notgame");
+    // emulationstation compat
+    game->source = Api::getXmlAttribute(gameNode->ToElement(), "source");
+    // emulationstation compat
+    game->path = Api::getXmlText(gameNode->FirstChildElement("path"));
+    if (game->path.empty() || game->path == "Unknown") {
+        game->path = romName;
+    }
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("noms");
+    if (element != nullptr) {
+        tinyxml2::XMLNode *node = element->FirstChildElement("nom");
+        while (node != nullptr) {
+            game->names.emplace_back(Api::getXmlAttribute(node->ToElement(), "region"),
+                                     Api::getXmlText(node->ToElement()));
+            node = node->NextSibling();
+        }
+    } else {
+        // emulationstation compat (use emulationstation format)
+        game->names.emplace_back(Api::toString(Game::Country::WOR),
+                                 Api::getXmlText(gameNode->FirstChildElement("name")));
+    }
+    // screenscraper
+    element = gameNode->FirstChildElement("regions");
+    if (element != nullptr) {
+        tinyxml2::XMLNode *node = element->FirstChildElement("region");
+        while (node != nullptr) {
+            game->countries.emplace_back(Api::getXmlText(node->ToElement()));
+            node = node->NextSibling();
+        }
+    }
+    // screenscraper
+    game->cloneof = Api::getXmlText(gameNode->FirstChildElement("cloneof"));
+    // screenscraper
+    game->system.id = Api::getXmlAttribute(gameNode->FirstChildElement("systeme"), "id");
+    game->system.text = Api::getXmlText(gameNode->FirstChildElement("systeme"));
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("synopsis");
+    if (element != nullptr) {
+        tinyxml2::XMLNode *node = element->FirstChildElement("synopsis");
+        while (node != nullptr) {
+            Game::Synopsis synopsis{};
+            synopsis.language = Api::getXmlAttribute(node->ToElement(), "langue");
+            synopsis.text = Api::getXmlText(node->ToElement());
+            game->synopses.emplace_back(synopsis);
+            node = node->NextSibling();
+        }
+    } else {
+        // emulationstation compat (use emulationstation format)
+        game->synopses.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("desc")));
+    }
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("medias");
+    if (element != nullptr) {
+        tinyxml2::XMLNode *node = element->FirstChildElement("media");
+        while (node != nullptr) {
+            Game::Media media{};
+            media.parent = Api::getXmlAttribute(node->ToElement(), "parent");
+            media.type = Api::getXmlAttribute(node->ToElement(), "type");
+            media.crc = Api::getXmlAttribute(node->ToElement(), "crc");
+            media.md5 = Api::getXmlAttribute(node->ToElement(), "md5");
+            media.sha1 = Api::getXmlAttribute(node->ToElement(), "sha1");
+            media.format = Api::getXmlAttribute(node->ToElement(), "format");
+            media.support = Api::getXmlAttribute(node->ToElement(), "support");
+            media.url = Api::getXmlText(node->ToElement());
+            media.country = Api::getXmlAttribute(node->ToElement(), "region");
+            if (media.country.empty()) {
+                media.country = Api::toString(Game::Country::UNKNOWN);
+            }
+            game->medias.emplace_back(media);
+            node = node->NextSibling();
+        }
+    } else {
+        // emulationstation compat
+        game->medias.push_back({"sstitle", "",
+                                Api::getXmlText(gameNode->FirstChildElement("image")), "wor", "", "", "", "", ""});
+        game->medias.push_back({"ss", "",
+                                Api::getXmlText(gameNode->FirstChildElement("thumbnail")), "wor", "", "", "", "", ""});
+        game->medias.push_back({"video", "",
+                                Api::getXmlText(gameNode->FirstChildElement("video")), "wor", "", "", "", "", ""});
+    }
+    // screenscraper (prioritise screenscraper format)
+    game->rating = Api::getXmlText(gameNode->FirstChildElement("note"));
+    if (game->rating.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game->rating = Api::getXmlText(gameNode->FirstChildElement("rating"));
+    }
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("dates");
+    if (element != nullptr) {
+        tinyxml2::XMLNode *node = element->FirstChildElement("date");
+        while (node != nullptr) {
+            Game::Date date{};
+            date.country = Api::getXmlAttribute(node->ToElement(), "region");
+            date.text = Api::getXmlText(node->ToElement());
+            if (date.text.size() >= 4) {
+                date.text = date.text.substr(0, 4);
+            }
+            game->dates.emplace_back(date);
+            node = node->NextSibling();
+        }
+    } else {
+        // emulationstation compat (use emulationstation format)
+        game->dates.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("releasedate")));
+    }
+    // screenscraper
+    game->developer.id = Api::getXmlAttribute(gameNode->FirstChildElement("developpeur"), "id");
+    game->developer.text = Api::getXmlText(gameNode->FirstChildElement("developpeur"));
+    if (game->developer.text.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game->developer.text = Api::getXmlText(gameNode->FirstChildElement("developer"));
+    }
+    // screenscraper
+    game->editor.id = Api::getXmlAttribute(gameNode->FirstChildElement("editeur"), "id");
+    game->editor.text = Api::getXmlText(gameNode->FirstChildElement("editeur"));
+    if (game->editor.text.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game->editor.text = Api::getXmlText(gameNode->FirstChildElement("publisher"));
+    }
+    // screenscraper (prioritise screenscraper format)
+    element = gameNode->FirstChildElement("genres");
+    if (element != nullptr) {
+        tinyxml2::XMLNode *node = element->FirstChildElement("genre");
+        while (node != nullptr) {
+            Game::Genre genre{};
+            genre.id = Api::getXmlAttribute(node->ToElement(), "id");
+            genre.main = Api::getXmlAttribute(node->ToElement(), "principale");
+            genre.parentid = Api::getXmlAttribute(node->ToElement(), "parentid");
+            genre.language = Api::getXmlAttribute(node->ToElement(), "langue");
+            genre.text = Api::getXmlText(node->ToElement());
+            game->genres.emplace_back(genre);
+            node = node->NextSibling();
+        }
+    } else {
+        // emulationstation compat (use emulationstation format)
+        game->genres.emplace_back(
+                "", "", "", "en", Api::getXmlText(gameNode->FirstChildElement("genre")));
+    }
+    // screenscraper
+    game->players = Api::getXmlText(gameNode->FirstChildElement("joueurs"));
+    if (game->players.empty()) {
+        // emulationstation compat (use emulationstation format)
+        game->players = Api::getXmlText(gameNode->FirstChildElement("players"));
+    }
+    // screenscraper
+    game->topstaff = Api::getXmlText(gameNode->FirstChildElement("topstaff"));
+    // screenscraper
+    game->rotation = Api::getXmlText(gameNode->FirstChildElement("rotation"));
+    // screenscraper
+    game->resolution = Api::getXmlText(gameNode->FirstChildElement("resolution"));
+    // screenscraper
+    game->inputs = Api::getXmlText(gameNode->FirstChildElement("controles"));
+    // screenscraper
+    game->colors = Api::getXmlText(gameNode->FirstChildElement("couleurs"));
+
+    return true;
 }

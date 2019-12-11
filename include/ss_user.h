@@ -5,11 +5,22 @@
 #ifndef SS_USER_H
 #define SS_USER_H
 
+#include <string>
+
 namespace ss_api {
 
     class User {
 
     public:
+
+        User() = default;
+
+        // if retryDelay == 0, disable retry or error
+        User(const std::string &ssid, const std::string &sspassword, int retryDelay = 10);
+
+        int getMaxThreads();
+
+        static bool parseUser(User *user, tinyxml2::XMLNode *userNode);
 
         std::string id;
         std::string niveau;
@@ -25,6 +36,8 @@ namespace ss_api {
         std::string visites;
         std::string datedernierevisite;
         std::string favregion;
+
+        int http_error = 0;
     };
 }
 

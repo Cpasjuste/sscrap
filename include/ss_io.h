@@ -17,6 +17,8 @@ namespace ss_api {
         static void makedir(const std::string &path);
 
         static bool exist(const std::string &file);
+
+        static void delay(int seconds);
     };
 }
 

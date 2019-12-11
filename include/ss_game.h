@@ -177,11 +177,12 @@ namespace ss_api {
         // TODO: to lazy for now
         //Game::Family::Name getFamily(const Game::Language &language) const;
 
-        Game::Classification getClassification() const;
-
         Game::Media getMedia(const std::string &mediaTypeName, const Game::Country &country = Game::Country::WOR) const;
 
         bool isClone() const;
+
+        static bool parseGame(Game *game, tinyxml2::XMLNode *gameNode,
+                              const std::string &romName = "", const int &GameListFormat = 0);
 
         std::string id;
         std::string romid;

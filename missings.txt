@@ -1,0 +1,37 @@
+fbneo - coleco
+==============
+found 207/219 games
+12 was not found:
+boxxle.zip, bbears.zip, castelo.zip, coldblood.zip, digger.zip, frostbite.zip, kaboom.zip, mecha8.zip, mash.zip, moduleman.zip, numbump.zip, sword.zip
+
+fbneo - gamegear
+================
+found 759/759 games
+
+fbneo - megadriv
+================
+found 2353/2369 games
+16 was not found:
+bigfd.zip, chase.zip, masiaka.zip, mevo.zip, oldtowers.zip, somarita.zip, xenocrises.zip, bk3pro.zip, nba2k5.zip, tgunii.zip, virak.zip, bcdverifier.zip, miniplanets.zip, misplaced.zip, misplacedr.zip, sor3bk3p.zip
+
+fbneo - tg16
+============
+found 93/93 games
+
+fbneo - sms
+===========
+found 587/594 games
+7 was not found:
+alesteiigg2sms.zip, baraburu10.zip, lambo.zip, darc10.zip, fpigarus.zip, sdmilhao.zip, WaimanuSMS.zip
+
+fbneo - sg1000
+==============
+found 173/200 games
+27 was not found:
+bilidada.zip, bombjackk2.zip, bombjackt2.zip, castlet.zip, champicet.zip, champkent.zip, circusc.zip, cloderunt.zip, csot.zip, dayu.zip, elevatort.zip, faguiqiba.zip, faguiqib.zip, feilanga.zip, feilang.zip, herot.zip, huohuli.zip, iq.zip, heibaiqi.zip, hangon2t2.zip, jingwumn.zip, jingwumna.zip, ninjaprit.zip, motianda.zip, pingpong.zip, supertnkt.zip, wboyt.zip
+
+fbneo - zx3
+==============
+found 335/336 games
+1 was not found:
+hobbit.zip

@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include "ss_api.h"
-#include "ss_io.h"
-#include "ss_gamelist.h"
 
 using namespace ss_api;
 
@@ -64,7 +62,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     }
 
     while (gameNode != nullptr) {
-        Game game = Api::parseGame(gameNode, "", format);
+        Game game;
+        Game::parseGame(&game, gameNode, "", format);
         // is rom available?
         auto p = std::find(files.begin(), files.end(), game.path);
         if (p != files.end()) {
