@@ -26,8 +26,8 @@ std::string Utility::getExt(const std::string &file) {
 
 std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList) {
 
-    char *zipFileName, *data, buffer[32];
-    memset(buffer, 0, 32);
+    char *zipFileName, *data, buffer[16];
+    memset(buffer, 0, 16);
 
     unzFile zip = unzOpen(zipPath.c_str());
     if (zip == nullptr) {
@@ -54,7 +54,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
                         free(data);
                         free(zipFileName);
                         unzClose(zip);
-                        snprintf(buffer, 32, "%08lx", crc);
+                        snprintf(buffer, 16, "%08lx", crc);
                         return buffer;
                     }
                     free(zipFileName);
@@ -86,7 +86,7 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
     while ((size = fread(buffer, 1, BUFSIZ, pFile)) != 0) {
         crc = crc32(crc, buffer, size);
     }
-    snprintf(hex, 16, "%lx", crc);
+    snprintf(hex, 16, "%08lx", crc);
 
     fclose(pFile);
 

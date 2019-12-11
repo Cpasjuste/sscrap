@@ -247,6 +247,27 @@ static void *scrap_thread(void *ptr) {
                     }
                     SS_PRINT("search name (romid): %s, res = %i\n", name.c_str(), gameInfo.http_error);
                 }
+            } else {
+                // last try, remove "(xxx)"
+                size_t pos = name.find_first_of('(');
+                if (pos != std::string::npos) {
+                    name = name.substr(0, pos - 1);
+                    search = gameSearchRetry(tid, name, id, scrap->user, scrap->pwd);
+                    SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
+                    if (!search.games.empty()) {
+                        auto game = std::find_if(search.games.begin(), search.games.end(), [id](const Game &game) {
+                            return game.system.id == id;
+                        });
+                        if (game != search.games.end()) {
+                            gameInfo = gameInfoRetry(tid, "", "", "", "", "",
+                                                     file, "", (*game).id, scrap->user, scrap->pwd);
+                            if (gameInfo.http_error == 0) {
+                                searchType = "search";
+                            }
+                            SS_PRINT("search name (romid): %s, res = %i\n", name.c_str(), gameInfo.http_error);
+                        }
+                    }
+                }
             }
         }
 
