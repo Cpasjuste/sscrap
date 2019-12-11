@@ -170,7 +170,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     return true;
 }
 
-bool GameList::save(const std::string &dstPath, const Game::Language &language, const Format &fmt) {
+bool GameList::save(const std::string &dstPath, const Game::Language &language,
+                    const Format &fmt, const std::vector<std::string> &mediaList) {
 
     tinyxml2::XMLDocument doc;
 
@@ -210,16 +211,19 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
             Api::addXmlElement(&doc, gameElement, "players", game.players);
 
             const std::vector<std::string> names = {"image", "thumbnail", "video"};
-            const std::vector<std::string> types = {"mixrbv2", "box-3D", "video"};
             for (size_t i = 0; i < names.size(); i++) {
-                Game::Media media = game.getMedia(types[i], Game::Country::SS);
+                if (mediaList.size() > names.size()) {
+                    break;
+                }
+                Game::Media media = game.getMedia(mediaList.at(i), Game::Country::SS);
                 if (!media.url.empty()) {
                     std::string mediaPath = media.url;
                     if (mediaPath.rfind("http", 0) == 0) {
-                        mediaPath = "media/" + types[i] + "/"
-                                    + game.path.substr(0, game.path.find_last_of('.') + 1) + media.format;
+                        mediaPath = "media/" + mediaList.at(i) + "/"
+                                    + game.path.substr(0, game.path.find_last_of('.') + 1)
+                                    + media.format;
                     }
-                    Api::addXmlElement(&doc, gameElement, names[i], mediaPath);
+                    Api::addXmlElement(&doc, gameElement, names.at(i), mediaPath);
                 }
             }
 
@@ -281,33 +285,30 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language, 
             }
 
             if (!game.medias.empty()) {
-                tinyxml2::XMLElement *medias = doc.NewElement("medias");
-                for (const auto &media : game.medias) {
-#if 1
-                    if (media.type != "mixrbv2" && media.type != "video") {
-                        continue;
-                    }
-#endif
-                    tinyxml2::XMLElement *n = doc.NewElement("media");
-                    n->SetAttribute("parent", media.parent.c_str());
-                    n->SetAttribute("type", media.type.c_str());
-                    n->SetAttribute("region", media.country.c_str());
-                    n->SetAttribute("crc", media.crc.c_str());
-                    n->SetAttribute("md5", media.md5.c_str());
-                    n->SetAttribute("sha1", media.sha1.c_str());
-                    n->SetAttribute("format", media.format.c_str());
-                    n->SetAttribute("support", media.support.c_str());
+                tinyxml2::XMLElement *mediasElement = doc.NewElement("medias");
+                for (const auto &mediaType : mediaList) {
+                    Game::Media media = game.getMedia(mediaType, Game::Country::SS);
                     if (!media.url.empty()) {
+                        tinyxml2::XMLElement *n = doc.NewElement("media");
+                        n->SetAttribute("parent", media.parent.c_str());
+                        n->SetAttribute("type", media.type.c_str());
+                        n->SetAttribute("region", media.country.c_str());
+                        n->SetAttribute("crc", media.crc.c_str());
+                        n->SetAttribute("md5", media.md5.c_str());
+                        n->SetAttribute("sha1", media.sha1.c_str());
+                        n->SetAttribute("format", media.format.c_str());
+                        n->SetAttribute("support", media.support.c_str());
                         if (media.url.rfind("http", 0) == 0) {
                             n->SetText(("media/" + media.type + "/"
-                                        + game.path.substr(0, game.path.find_last_of('.') + 1) + media.format).c_str());
+                                        + game.path.substr(0, game.path.find_last_of('.') + 1) +
+                                        media.format).c_str());
                         } else {
                             n->SetText(media.url.c_str());
                         }
+                        mediasElement->InsertEndChild(n);
                     }
-                    medias->InsertEndChild(n);
                 }
-                gameElement->InsertEndChild(medias);
+                gameElement->InsertEndChild(mediasElement);
             }
 
             if (!game.dates.empty()) {

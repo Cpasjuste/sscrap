@@ -34,7 +34,7 @@ namespace ss_api {
 
         bool save(const std::string &dstPath,
                   const Game::Language &language = Game::Language::EN,
-                  const Format &format = ScreenScrapper);
+                  const Format &format = ScreenScrapper, const std::vector<std::string> &mediaList = {});
 
         Game findByRomId(const std::string &romId);
 

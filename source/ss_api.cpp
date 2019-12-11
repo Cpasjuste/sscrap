@@ -57,7 +57,7 @@ std::string Api::toString(const Game::Language &language) {
         case Game::Language::PT:
             return "pt";
         default:
-            return "unknown";
+            return "unk";
     }
 }
 
@@ -146,12 +146,12 @@ std::string Api::toString(const Game::Country &region) {
         case Game::Country::ALL:
             return "all";
         default:
-            return "Unknown";
+            return "unk";
     }
 }
 
 Game::Country Api::toCountry(const std::string &country) {
-    if (country == "de") { return Game::Country::US; }
+    if (country == "de") { return Game::Country::DE; }
     else if (country == "asi") { return Game::Country::ASI; }
     else if (country == "au") { return Game::Country::AU; }
     else if (country == "br") { return Game::Country::BR; }

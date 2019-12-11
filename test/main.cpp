@@ -42,52 +42,52 @@ static void *scrap_thread(void *ptr) {
     // if a custom sscrap custom id is set (fbneo console games),
     // we need to use "FinalBurn Neo" databases "description" as rom name
     // and map to correct screenscraper systemid
-    std::string id = scrap->args.get("-systemid");
-    if (id == "75" || id == "750" || id == "751" || id == "752" || id == "753"
-        || id == "754" || id == "755" || id == "756" || id == "757" || id == "758" || id == "759") {
+    std::string sid = scrap->args.get("-sid");
+    if (sid == "75" || sid == "750" || sid == "751" || sid == "752" || sid == "753"
+        || sid == "754" || sid == "755" || sid == "756" || sid == "757" || sid == "758" || sid == "759") {
         isFbNeoSystem = true;
-        if (id == "75") {
+        if (sid == "75") {
             // mame/fbneo
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Arcade only).dat");
-        } else if (id == "750") {
+        } else if (sid == "750") {
             // colecovision
-            id = "48";
+            sid = "48";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ColecoVision only).dat");
-        } else if (id == "751") {
+        } else if (sid == "751") {
             // game gear
-            id = "21";
+            sid = "21";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Game Gear only).dat");
-        } else if (id == "752") {
+        } else if (sid == "752") {
             // master system
-            id = "2";
+            sid = "2";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Master System only).dat");
-        } else if (id == "753") {
+        } else if (sid == "753") {
             // megadrive
-            id = "1";
+            sid = "1";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Megadrive only).dat");
-        } else if (id == "754") {
+        } else if (sid == "754") {
             // msx
-            id = "113";
+            sid = "113";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, MSX 1 Games only).dat");
-        } else if (id == "755") {
+        } else if (sid == "755") {
             // pc engine
-            id = "31";
+            sid = "31";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, PC-Engine only).dat");
-        } else if (id == "756") {
+        } else if (sid == "756") {
             // sega sg-1000
-            id = "109";
+            sid = "109";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Sega SG-1000 only).dat");
-        } else if (id == "757") {
+        } else if (sid == "757") {
             // super grafx
-            id = "105";
+            sid = "105";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, SuprGrafx only).dat");
-        } else if (id == "758") {
+        } else if (sid == "758") {
             // turbo grafx
-            id = "31";
+            sid = "31";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, TurboGrafx16 only).dat");
-        } else if (id == "759") {
+        } else if (sid == "759") {
             // zx spectrum
-            id = "76";
+            sid = "76";
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, ZX Spectrum Games only).dat");
         }
     }
@@ -107,7 +107,7 @@ static void *scrap_thread(void *ptr) {
         std::string path = scrap->romPath + "/" + file;
         std::string crc = Utility::getZipCrc(path);
         if (!crc.empty()) {
-            gameInfo = GameInfo(crc, "", "", id, "", file,
+            gameInfo = GameInfo(crc, "", "", sid, "", file,
                                 "", "", scrap->usr, scrap->pwd, retryDelay);
             if (gameInfo.http_error == 0) {
                 searchType = "zip_crc";
@@ -121,11 +121,11 @@ static void *scrap_thread(void *ptr) {
         SS_PRINT("zip crc: %s (%s), res = %i\n", file.c_str(), crc.c_str(), gameInfo.http_error);
 
         // next, try by rom crc if not mame / fbneo arcade (multiple roms in zip...)
-        if (gameInfo.http_error != 0 && id != "75") {
+        if (gameInfo.http_error != 0 && sid != "75") {
             path = scrap->romPath + "/" + file;
             crc = Utility::getRomCrc(path);
             if (!crc.empty()) {
-                gameInfo = GameInfo(crc, "", "", id, "", file,
+                gameInfo = GameInfo(crc, "", "", sid, "", file,
                                     "", "", scrap->usr, scrap->pwd, retryDelay);
                 if (gameInfo.http_error == 0) {
                     searchType = "rom_crc";
@@ -147,13 +147,13 @@ static void *scrap_thread(void *ptr) {
 
         // now try with zip name
         if (gameInfo.http_error != 0) {
-            std::string name = (isFbNeoSystem && id != "75") ? fbnGame.getName().text + ".zip" : file;
-            gameInfo = GameInfo("", "", "", id, "rom", name,
+            std::string name = (isFbNeoSystem && sid != "75") ? fbnGame.getName().text + ".zip" : file;
+            gameInfo = GameInfo("", "", "", sid, "rom", name,
                                 "", "", scrap->usr, scrap->pwd, retryDelay);
             if (gameInfo.http_error == 0) {
                 searchType = "zip_name";
             }
-            if (isFbNeoSystem && id != "75") {
+            if (isFbNeoSystem && sid != "75") {
                 gameInfo.game.path = file;
             }
             SS_PRINT("zip name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
@@ -163,11 +163,11 @@ static void *scrap_thread(void *ptr) {
         if (gameInfo.http_error != 0) {
             // the rom is not know by screenscraper, try to find the game with a game search (jeuRecherche)
             std::string name = isFbNeoSystem ? fbnGame.getName().text : file;
-            GameSearch search = GameSearch(name, id, scrap->usr, scrap->pwd, retryDelay);
+            GameSearch search = GameSearch(name, sid, scrap->usr, scrap->pwd, retryDelay);
             SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
             if (!search.games.empty()) {
-                auto game = std::find_if(search.games.begin(), search.games.end(), [id](const Game &game) {
-                    return game.system.id == id;
+                auto game = std::find_if(search.games.begin(), search.games.end(), [sid](const Game &game) {
+                    return game.system.id == sid;
                 });
                 if (game != search.games.end()) {
                     gameInfo = GameInfo("", "", "", "", "", file,
@@ -182,11 +182,11 @@ static void *scrap_thread(void *ptr) {
                 size_t pos = name.find_first_of('(');
                 if (pos != std::string::npos) {
                     name = name.substr(0, pos - 1);
-                    search = GameSearch(name, id, scrap->usr, scrap->pwd, retryDelay);
+                    search = GameSearch(name, sid, scrap->usr, scrap->pwd, retryDelay);
                     SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
                     if (!search.games.empty()) {
-                        auto game = std::find_if(search.games.begin(), search.games.end(), [id](const Game &game) {
-                            return game.system.id == id;
+                        auto game = std::find_if(search.games.begin(), search.games.end(), [sid](const Game &game) {
+                            return game.system.id == sid;
                         });
                         if (game != search.games.end()) {
                             gameInfo = GameInfo("", "", "", "", "", file,
@@ -206,7 +206,7 @@ static void *scrap_thread(void *ptr) {
         }
 
         if (gameInfo.http_error == 0) {
-            if (scrap->args.exist("-medias") && (!scrap->mediasClone && !gameInfo.game.isClone())) {
+            if (scrap->args.exist("-dlm") && (!scrap->mediasClone && !gameInfo.game.isClone())) {
                 for (const auto &mediaType : scrap->mediasGameList.medias) {
                     if (!scrap->args.exist(mediaType.nameShort)) {
                         continue;
@@ -269,9 +269,9 @@ static void *scrap_thread(void *ptr) {
 Scrap::Scrap(const ArgumentParser &parser) {
 
     args = parser;
-    usr = args.get("-user");
-    pwd = args.get("-password");
-    mediasClone = args.exist("-mediasclones");
+    usr = args.get("-u");
+    pwd = args.get("-p");
+    mediasClone = args.exist("-dlmc");
 
     if (args.exist("-language")) {
         language = Api::toLanguage(args.get("-language"));
@@ -286,8 +286,8 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
 void Scrap::run() {
 
-    if (args.exist("-romspath")) {
-        romPath = args.get("-romspath");
+    if (args.exist("-r")) {
+        romPath = args.get("-r");
         filesList = Io::getDirList(romPath);
         filesCount = filesList.size();
         if (filesList.empty()) {
@@ -298,7 +298,7 @@ void Scrap::run() {
         user = User(usr, pwd);
         mediasGameList = MediasGameList(usr, pwd, retryDelay);
 
-        if (args.exist("-medias")) {
+        if (args.exist("-dlm")) {
             Io::makedir(romPath + "/media");
         }
 
@@ -314,18 +314,30 @@ void Scrap::run() {
             pthread_join(threads[i], nullptr);
         }
 
-        if (!gameList.games.empty() && args.exist("-savexml")) {
+        if (!gameList.games.empty() && args.exist("-sx")) {
             Game::Language lang = Game::Language::EN;
             if (args.exist("fr")) {
                 lang = Game::Language::FR;
-            } else if (args.exist("sp")) {
+            } else if (args.exist("es")) {
                 lang = Game::Language::ES;
             } else if (args.exist("pt")) {
                 lang = Game::Language::PT;
             }
-            GameList::Format fmt = args.exist("sc") ?
+            GameList::Format fmt = args.exist("screenscraper") ?
                                    GameList::Format::ScreenScrapper : GameList::Format::EmulationStation;
-            gameList.save(romPath + "/gamelist.xml", lang, fmt);
+            std::vector<std::string> mediaList;
+            if (fmt == GameList::ScreenScrapper) {
+                for (const auto &mediaType : mediasGameList.medias) {
+                    if (args.exist(mediaType.nameShort)) {
+                        mediaList.emplace_back(mediaType.nameShort);
+                    }
+                }
+            } else {
+                mediaList.emplace_back(args.get("-i"));
+                mediaList.emplace_back(args.get("-t"));
+                mediaList.emplace_back(args.get("-v"));
+            }
+            gameList.save(romPath + "/gamelist.xml", lang, fmt, mediaList);
         }
         printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
         printf(KGRE "found %zu/%i games\n" KRAS, gameList.games.size() - missList.size(), filesCount);
@@ -336,7 +348,7 @@ void Scrap::run() {
             }
         }
         printf("\n");
-    } else if (args.exist("-mediastypes")) {
+    } else if (args.exist("-ml")) {
         mediasGameList = MediasGameList(usr, pwd, retryDelay);
         printf(KGRE "\nAvailable screenscraper medias types:\n\n" KRAS);
         for (const auto &media : mediasGameList.medias) {
@@ -345,23 +357,28 @@ void Scrap::run() {
         }
         printf("\n");
     } else {
-        printf("usage: sscrap -user <screenscraper_user> -password <screenscraper_password> [options]\n");
-        printf("\toptions:\n");
-        printf("\t\t-debug (enable debug output)\n");
-        printf("\t\t-mediastypes (list available medias types and exit)\n");
-        printf("\t\t-romspath <roms_path> (path to roms files to scrap)\n");
-        printf("\t\t-systemid <system_id> (screenscraper system id to scrap)\n");
-        printf("\t\t-medias <media1 media2> (download given medias types)\n");
-        printf("\t\t-mediasclones (download clones medias)\n");
-        printf("\t\t-savexml <language> <format> (save xml with given output language and format to romspath)\n");
+        printf("\n");
+        printf("usage: sscrap -u <screenscraper_user> -p <screenscraper_password> [options] [options_es]\n");
+        printf("\n\toptions:\n");
+        printf("\t\t-d                             enable debug output\n");
+        printf("\t\t-ml                            list available screenscraper medias types and exit\n");
+        printf("\t\t-r <roms_path>                 path to roms files to scrap\n");
+        printf("\t\t-sid <system_id>               screenscraper system id to scrap\n");
+        printf("\t\t-dlm <mediaType1 mediaType2>   download given medias types\n");
+        printf("\t\t-dlmc                          download medias for clones\n");
+        printf("\t\t-sx <language> <format>        save xml with given output language and format to romspath\n");
+        printf("\n\toptions_es:\n");
+        printf("\t\t-i <mediaType>                 use given media type for image\n");
+        printf("\t\t-t <mediaType>                 use given media type for thumbnail\n");
+        printf("\t\t-v <mediaType>                 use given media type for video\n");
         printf("\n\tsscrap supported output languages\n");
-        printf("\t\ten (english, default)\n");
-        printf("\t\tfr (french)\n");
-        printf("\t\tsp (spanish)\n");
-        printf("\t\tpt (portuguese)\n");
+        printf("\t\ten: english, default\n");
+        printf("\t\tfr: french\n");
+        printf("\t\tes: spanish\n");
+        printf("\t\tpt: portuguese\n");
         printf("\n\tsscrap supported output formats\n");
-        printf("\t\tes (EmulationStation gamelist.xml, default)\n");
-        printf("\t\tsc (ScreenScraper gamelist.xml)\n");
+        printf("\t\temulationstation: emulationstation gamelist.xml, default\n");
+        printf("\t\tscreenscraper: screenscraper gamelist.xml)\n");
         printf("\n\tsscrap customs systemid (fbneo)\n");
         printf("\t\t750: ColecoVision\n");
         printf("\t\t751: Game Gear\n");
@@ -373,6 +390,14 @@ void Scrap::run() {
         printf("\t\t757: NEC Super Grafx\n");
         printf("\t\t758: NEC Turbo Grafx\n");
         printf("\t\t759: ZX Spectrum\n");
+        printf("\n");
+        printf("examples:\n\n");
+        printf("\tscrap mame/fbneo system, download \'mixrbv2\' for \'image\', \'box-3D\' for \'thumbnail\' and \'video\' "
+               "for \'video\' and output xml as emulationstation format in english:\n");
+        printf("\t\tsscrap -u user -p password -r /roms -sid 75 -dlm mixrbv2 box-3D video -i mixrbv2 -t box-3D -v video -sx\n\n");
+        printf("\tscrap mame/fbneo system, download \'mixrbv2\' and \'video\' medias types and output xml as screenscraper format in french (for pFBN):\n");
+        printf("\t\tsscrap -u user -p password -r /roms -sid 75 -dlm mixrbv2 video -sx fr screenscraper\n");
+        printf("\n");
     }
 }
 
@@ -384,7 +409,7 @@ int main(int argc, char **argv) {
     Api::ss_devid = SS_DEV_ID;
     Api::ss_devpassword = SS_DEV_PWD;
     Api::ss_softname = "sscrap";
-    ss_debug = args.exist("-debug");
+    ss_debug = args.exist("-d");
 #ifndef NDEBUG
     ss_debug = true;
 #endif

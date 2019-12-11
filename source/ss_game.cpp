@@ -102,10 +102,10 @@ Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country
                    });
 
     if (mediaList.empty()) {
-        if (country != Game::Country::WOR && country != Game::Country::UNKNOWN) {
+        if (country != Game::Country::WOR && country != Game::Country::ALL) {
             return getMedia(mediaTypeName, Game::Country::WOR);
-        } else if (country != Game::Country::UNKNOWN) {
-            return getMedia(mediaTypeName, Game::Country::UNKNOWN);
+        } else if (country != Game::Country::ALL) {
+            return getMedia(mediaTypeName, Game::Country::ALL);
         }
         return Game::Media();
     }
@@ -154,7 +154,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         game->developer.text = Api::getXmlText(gameNode->FirstChildElement("manufacturer"));
         game->editor.text = game->developer.text;
         game->cloneof = Api::Api::getXmlAttribute(gameNode->ToElement(), "cloneof");
-        return game;
+        return true;
     }
 
     // screenscraper / emulationstation compat
@@ -167,7 +167,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     game->source = Api::getXmlAttribute(gameNode->ToElement(), "source");
     // emulationstation compat
     game->path = Api::getXmlText(gameNode->FirstChildElement("path"));
-    if (game->path.empty() || game->path == "Unknown") {
+    if (game->path.empty()) {
         game->path = romName;
     }
     // screenscraper (prioritise screenscraper format)
