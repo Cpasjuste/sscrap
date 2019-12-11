@@ -3,8 +3,6 @@
 //
 #include <unistd.h>
 #include "ss_api.h"
-#include "ss_io.h"
-#include "ss_gamelist.h"
 #include "scrap.h"
 #include "args.h"
 #include "utility.h"
