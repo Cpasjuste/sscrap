@@ -147,9 +147,8 @@ static void *scrap_thread(void *ptr) {
 
         // now try with zip name
         if (gameInfo.http_error != 0) {
-            std::string romType = scrap->args.exist("-romtype") ? scrap->args.get("-romtype") : "rom";
             std::string name = (isFbNeoSystem && id != "75") ? fbnGame.getName().text + ".zip" : file;
-            gameInfo = GameInfo("", "", "", id, romType, name,
+            gameInfo = GameInfo("", "", "", id, "rom", name,
                                 "", "", scrap->usr, scrap->pwd, retryDelay);
             if (gameInfo.http_error == 0) {
                 searchType = "zip_name";
@@ -272,7 +271,7 @@ Scrap::Scrap(const ArgumentParser &parser) {
     args = parser;
     usr = args.get("-user");
     pwd = args.get("-password");
-    mediasClone = args.exist("-mediasclone");
+    mediasClone = args.exist("-mediasclones");
 
     if (args.exist("-language")) {
         language = Api::toLanguage(args.get("-language"));
@@ -287,111 +286,92 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
 void Scrap::run() {
 
-    if (args.exist("-gameinfo")) {
-        if (args.exist("-romspath")) {
-            romPath = args.get("-romspath");
-            filesList = Io::getDirList(romPath);
-            filesCount = filesList.size();
-            if (filesList.empty()) {
-                fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
-                return;
-            }
-
-            user = User(usr, pwd);
-            mediasGameList = MediasGameList(usr, pwd, retryDelay);
-
-            if (args.exist("-medias")) {
-                Io::makedir(romPath + "/media");
-            }
-
-            int maxThreads = user.getMaxThreads();
-            for (int i = 0; i < maxThreads; i++) {
-                // yes, there's a minor memory leak there...
-                int *tid = (int *) malloc(sizeof(*tid));
-                *tid = i;
-                pthread_create(&threads[i], nullptr, scrap_thread, (void *) tid);
-            }
-
-            for (int i = 0; i < maxThreads; i++) {
-                pthread_join(threads[i], nullptr);
-            }
-
-            if (!gameList.games.empty() && args.exist("-savexml")) {
-                gameList.save(romPath + "/gamelist.xml");
-            }
-            printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
-            printf(KGRE "found %zu/%i games\n" KRAS, gameList.games.size() - missList.size(), filesCount);
-            if (!missList.empty()) {
-                printf(KGRE "%zu was not found:\n" KRAS, missList.size());
-                for (const auto &file : missList) {
-                    printf(KRED "%s, " KRAS, file.c_str());
-                }
-            }
-            printf("\n");
-        } else {
-            GameInfo gameInfo = GameInfo(args.get("-crc"), args.get("-md5"), args.get("-sha1"),
-                                         args.get("-systemid"), scrap->args.get("-romtype"),
-                                         args.get("-romname"), args.get("-romsize"),
-                                         args.get("-gameid"), usr, pwd, retryDelay);
-            printf("\n===================================\n");
-            printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
-                   gameInfo.user.id.c_str(), gameInfo.user.maxrequestsperday.c_str(),
-                   gameInfo.user.maxthreads.c_str());
-            if (!gameInfo.game.id.empty()) {
-                Utility::printGame(gameInfo.game);
-            } else {
-                printf("gameInfo: game not found\n");
-            }
+    if (args.exist("-romspath")) {
+        romPath = args.get("-romspath");
+        filesList = Io::getDirList(romPath);
+        filesCount = filesList.size();
+        if (filesList.empty()) {
+            fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
+            return;
         }
-    } else if (args.exist("-gamesearch")) {
-        GameSearch search = GameSearch(args.get("-gamename"), args.get("-systemid"),
-                                       usr, pwd, retryDelay);
-        printf("\n===================================\n");
-        printf("ss_username: %s (maxrequestsperday: %s, maxthreads: %s)\n",
-               search.user.id.c_str(), search.user.maxrequestsperday.c_str(),
-               search.user.maxthreads.c_str());
-        printf("games found: %li\n", search.games.size());
-        for (auto &game : search.games) {
-            Utility::printGame(game);
-        }
-    } else if (args.exist("-mediatypes")) {
+
+        user = User(usr, pwd);
         mediasGameList = MediasGameList(usr, pwd, retryDelay);
-        printf("\nAvailable screenscraper medias:\n");
-        for (const auto &media : mediasGameList.medias) {
-            printf("\t%s\n", media.nameShort.c_str());
+
+        if (args.exist("-medias")) {
+            Io::makedir(romPath + "/media");
         }
+
+        int maxThreads = user.getMaxThreads();
+        for (int i = 0; i < maxThreads; i++) {
+            // yes, there's a minor memory leak there...
+            int *tid = (int *) malloc(sizeof(*tid));
+            *tid = i;
+            pthread_create(&threads[i], nullptr, scrap_thread, (void *) tid);
+        }
+
+        for (int i = 0; i < maxThreads; i++) {
+            pthread_join(threads[i], nullptr);
+        }
+
+        if (!gameList.games.empty() && args.exist("-savexml")) {
+            Game::Language lang = Game::Language::EN;
+            if (args.exist("fr")) {
+                lang = Game::Language::FR;
+            } else if (args.exist("sp")) {
+                lang = Game::Language::ES;
+            } else if (args.exist("pt")) {
+                lang = Game::Language::PT;
+            }
+            GameList::Format fmt = args.exist("sc") ?
+                                   GameList::Format::ScreenScrapper : GameList::Format::EmulationStation;
+            gameList.save(romPath + "/gamelist.xml", lang, fmt);
+        }
+        printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
+        printf(KGRE "found %zu/%i games\n" KRAS, gameList.games.size() - missList.size(), filesCount);
+        if (!missList.empty()) {
+            printf(KGRE "%zu was not found:\n" KRAS, missList.size());
+            for (const auto &file : missList) {
+                printf(KRED "%s, " KRAS, file.c_str());
+            }
+        }
+        printf("\n");
+    } else if (args.exist("-mediastypes")) {
+        mediasGameList = MediasGameList(usr, pwd, retryDelay);
+        printf(KGRE "\nAvailable screenscraper medias types:\n\n" KRAS);
+        for (const auto &media : mediasGameList.medias) {
+            printf(KGRE "\t%s " KRAS "(type: %s, category: %s)\n",
+                   media.nameShort.c_str(), media.type.c_str(), media.category.c_str());
+        }
+        printf("\n");
     } else {
         printf("usage: sscrap -user <screenscraper_user> -password <screenscraper_password> [options]\n");
         printf("\toptions:\n");
-        printf("\t\t-debug\n");
-        printf("\t\t-gameinfo [gameinfo options]\n");
-        printf("\t\t\tgameinfo options:\n");
-        printf("\t\t\t\t-crc <rom crc>\n");
-        printf("\t\t\t\t-md5 <rom md5>\n");
-        printf("\t\t\t\t-sha1 <rom sha1>\n");
-        printf("\t\t\t\t-systemid <system id>\n");
-        printf("\t\t\t\t-romtype <rom type>\n");
-        printf("\t\t\t\t-romname <rom name>\n");
-        printf("\t\t\t\t-romsize <rom size>\n");
-        printf("\t\t\t\t-gameid <game id>\n");
-        printf("\t\t\t\t-medias\n");
-        printf("\t\t\t\t-mediasclone\n");
-        printf("\t\t\t\t-romspath <roms path>\n");
-        printf("\t\t\t\t-savexml\n");
-        printf("\t\t-gamesearch [gamesearch options]\n");
-        printf("\t\t\tgamesearch options:\n");
-        printf("\t\t\t\t-gamename <game name>\n");
-        printf("\t\t\t\t-systemid <system id>\n");
-        printf("\tsscrap customs systemid (fbneo)\n");
+        printf("\t\t-debug (enable debug output)\n");
+        printf("\t\t-mediastypes (list available medias types and exit)\n");
+        printf("\t\t-romspath <roms_path> (path to roms files to scrap)\n");
+        printf("\t\t-systemid <system_id> (screenscraper system id to scrap)\n");
+        printf("\t\t-medias <media1 media2> (download given medias types)\n");
+        printf("\t\t-mediasclones (download clones medias)\n");
+        printf("\t\t-savexml <language> <format> (save xml with given output language and format to romspath)\n");
+        printf("\n\tsscrap supported output languages\n");
+        printf("\t\ten (english, default)\n");
+        printf("\t\tfr (french)\n");
+        printf("\t\tsp (spanish)\n");
+        printf("\t\tpt (portuguese)\n");
+        printf("\n\tsscrap supported output formats\n");
+        printf("\t\tes (EmulationStation gamelist.xml, default)\n");
+        printf("\t\tsc (ScreenScraper gamelist.xml)\n");
+        printf("\n\tsscrap customs systemid (fbneo)\n");
         printf("\t\t750: ColecoVision\n");
         printf("\t\t751: Game Gear\n");
         printf("\t\t752: Master System\n");
         printf("\t\t753: Megadrive\n");
         printf("\t\t754: MSX 1\n");
-        printf("\t\t755: PC-Engine\n");
+        printf("\t\t755: NEC PC-Engine\n");
         printf("\t\t756: Sega SG-1000\n");
-        printf("\t\t757: Super Grafx\n");
-        printf("\t\t758: Turbo Grafx\n");
+        printf("\t\t757: NEC Super Grafx\n");
+        printf("\t\t758: NEC Turbo Grafx\n");
         printf("\t\t759: ZX Spectrum\n");
     }
 }
@@ -406,7 +386,7 @@ int main(int argc, char **argv) {
     Api::ss_softname = "sscrap";
     ss_debug = args.exist("-debug");
 #ifndef NDEBUG
-    //ss_debug = true;
+    ss_debug = true;
 #endif
 
     scrap = new Scrap(args);
