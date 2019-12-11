@@ -56,6 +56,13 @@ static std::vector<Api::MediaType> mediaTypeRetry(int tid, const std::string &ss
         }
     }
 
+    if (!mediaTypes.empty() && mediaTypes.at(0).http_error == 430) {
+        fprintf(stderr, KYEL "NOK: thread[%i] => Quota reached for today... "
+                        "See \' https://www.screenscraper.fr/\' if you want to support "
+                        "screenscraper and maximise your quota!\n" KRAS, tid);
+        pthread_exit(nullptr);
+    }
+
     return mediaTypes;
 }
 
@@ -78,6 +85,13 @@ static Api::GameSearch gameSearchRetry(int tid, const std::string &recherche, co
         pthread_mutex_unlock(&scrap->mutex);
         sleep(retry_delay);
         search = Api::gameSearch(recherche, systemeid, ssid, sspassword);
+    }
+
+    if (search.http_error == 430) {
+        fprintf(stderr, KYEL "NOK: thread[%i] => Quota reached for today... "
+                        "See \' https://www.screenscraper.fr/\' if you want to support "
+                        "screenscraper and maximise your quota!\n" KRAS, tid);
+        pthread_exit(nullptr);
     }
 
     return search;
@@ -106,6 +120,13 @@ static Api::GameInfo gameInfoRetry(int tid, const std::string &crc, const std::s
         sleep(retry_delay);
         gameInfo = Api::gameInfo(crc, md5, sha1, systemeid, romtype,
                                  romnom, romtaille, gameid, ssid, sspassword);
+    }
+
+    if (gameInfo.http_error == 430) {
+        fprintf(stderr, KYEL "NOK: thread[%i] => Quota reached for today... "
+                        "See \' https://www.screenscraper.fr/\' if you want to support "
+                        "screenscraper and maximise your quota!\n" KRAS, tid);
+        pthread_exit(nullptr);
     }
 
     return gameInfo;
