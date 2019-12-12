@@ -4,3 +4,16 @@ ss_dev_id.key
 ss_dev_pwd.key
 ss_user_id.key
 ss_user_pwd.key
+
+# vs crap
+vs/sscrap/.vs/
+vs/sscrap/bin/
+vs/sscrap/temp/
+vs/sscrap/x64/
+vs/sscrap/sscrap.vcxproj.filters
+vs/sscrap/sscrap.vcxproj.user
+vs/sscrap/deps/curl/build/
+vs/sscrap/deps/curl/projects/Windows/VC15/lib/libcurl.vcxproj.filters
+vs/sscrap/deps/curl/projects/Windows/VC15/lib/libcurl.vcxproj.user
+vs/sscrap/deps/zlib/contrib/vstudio/vc14/x64/
+vs/sscrap/deps/zlib/contrib/vstudio/vc14/zlibvc.vcxproj.user

@@ -45,6 +45,7 @@ std::string Curl::getString(const std::string &url, int timeout, long *http_code
     curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 
     res = curl_easy_perform(curl);
@@ -75,7 +76,11 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
         return -1;
     }
 
+#ifdef _MSC_VER
+    fopen_s(&data, dstPath.c_str(), "wb");
+#else
     data = fopen(dstPath.c_str(), "wb");
+#endif
     if (data == nullptr) {
         SS_PRINT("Curl::getData: error: fopen failed: %s\n", dstPath.c_str());
         return -1;
@@ -87,6 +92,7 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
     curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, data);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 
     res = curl_easy_perform(curl);

@@ -19,7 +19,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     xml = xmlPath;
     tinyxml2::XMLError e = doc.LoadFile(xmlPath.c_str());
     if (e != tinyxml2::XML_SUCCESS) {
-        SS_PRINT("Api::gameList: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("Api::gameList: %s\n", doc.ErrorName());
         doc.Clear();
         return false;
     }
@@ -368,7 +368,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
     tinyxml2::XMLError e = doc.SaveFile(dstPath.c_str());
     if (e != tinyxml2::XML_SUCCESS) {
-        SS_PRINT("GameList::save: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("GameList::save: %s\n", doc.ErrorName());
         doc.Clear();
         return false;
     }

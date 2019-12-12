@@ -5,7 +5,6 @@
 #include <cstring>
 #include <algorithm>
 #include <minizip/unzip.h>
-#include <tinyxml2.h>
 #include "utility.h"
 
 using namespace ss_api;
@@ -33,7 +32,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     unzFile zip = unzOpen(zipPath.c_str());
     if (zip == nullptr) {
         printf("could not open zip file for crc check (%s)\n", zipPath.c_str());
-        return buffer;
+        return std::string(buffer);
     }
 
     if (unzGoToFirstFile(zip) == UNZ_OK) {
@@ -43,11 +42,11 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
                 memset(&fileInfo, 0, sizeof(unz_file_info));
                 if (unzGetCurrentFileInfo(zip, &fileInfo, nullptr, 0,
                                           nullptr, 0, nullptr, 0) == UNZ_OK) {
-                    zipFileName = (char *) malloc(fileInfo.size_filename + 1);
+                    zipFileName = (char *) malloc((uLong) fileInfo.size_filename + 1);
                     unzGetCurrentFileInfo(zip, &fileInfo, zipFileName, fileInfo.size_filename + 1,
                                           nullptr, 0, nullptr, 0);
-                    zipFileName[fileInfo.size_filename] = '\0';
-                    std::string ext = getExt(zipFileName);
+                    zipFileName[(uLong) fileInfo.size_filename] = '\0';
+                    std::string ext = getExt(std::string(zipFileName));
                     if (whiteList.empty() || std::find(whiteList.begin(), whiteList.end(), ext) != whiteList.end()) {
                         data = (char *) malloc(fileInfo.uncompressed_size);
                         unzReadCurrentFile(zip, data, (unsigned int) fileInfo.uncompressed_size);
@@ -56,7 +55,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
                         free(zipFileName);
                         unzClose(zip);
                         snprintf(buffer, 16, "%08lx", crc);
-                        return buffer;
+                        return std::string(buffer);
                     }
                     free(zipFileName);
                 }
@@ -66,7 +65,8 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     }
 
     unzClose(zip);
-    return buffer;
+
+    return std::string(buffer);
 }
 
 std::string Utility::getZipCrc(const std::string &zipPath) {
@@ -78,9 +78,13 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
 
     memset(hex, 0, 16);
 
+#ifdef _MSC_VER
+    fopen_s(&pFile, zipPath.c_str(), "rb");
+#else
     pFile = fopen(zipPath.c_str(), "rb");
+#endif
     if (pFile == nullptr) {
-        return hex;
+        return std::string(hex);
     }
 
     uLong crc = crc32(0L, Z_NULL, 0);
@@ -91,14 +95,14 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
 
     fclose(pFile);
 
-    return hex;
+    return std::string(hex);
 }
 
 void Utility::printGame(const Game &game) {
 
     printf("\n===================================\n");
     Game::Name name = game.getName(Game::Country::SS);
-    printf("nom (%s): %s (alternatives: %li)\n", name.country.c_str(), name.text.c_str(), game.names.size() - 1);
+    printf("nom (%s): %s (alternatives: %i)\n", name.country.c_str(), name.text.c_str(), (int) game.names.size() - 1);
     printf("available: %i\n", (int) game.available);
     printf("path: %s\n", game.path.c_str());
     for (auto &country : game.countries) {

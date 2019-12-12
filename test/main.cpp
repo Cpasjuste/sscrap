@@ -1,7 +1,12 @@
 //
 // Created by cpasjuste on 29/03/19.
 //
-#include <unistd.h>
+#ifdef _MSC_VER
+#include <windows.h>
+#include <process.h>
+#else
+#include <pthread.h>
+#endif
 #include "ss_api.h"
 #include "scrap.h"
 #include "args.h"
@@ -32,8 +37,11 @@ void fixFbnClone(Game *game, const GameList &fbnGameList) {
     game->cloneof = (*fbaGame).cloneof + ".zip";
 }
 
+#ifdef _MSC_VER
+unsigned __stdcall scrap_thread(void* ptr) {
+#else
 static void *scrap_thread(void *ptr) {
-
+#endif
     int tid = *((int *) ptr);
     Game fbnGame;
     GameList fbnGameList;
@@ -97,7 +105,7 @@ static void *scrap_thread(void *ptr) {
         pthread_mutex_lock(&scrap->mutex);
         std::string file = scrap->filesList.at(0);
         scrap->filesList.erase(scrap->filesList.begin());
-        int filesSize = scrap->filesList.size();
+        int filesSize = (int) scrap->filesList.size();
         pthread_mutex_unlock(&scrap->mutex);
 
         GameInfo gameInfo;
@@ -231,7 +239,7 @@ static void *scrap_thread(void *ptr) {
                                 KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
                                 tid, retryDelay);
                         pthread_mutex_unlock(&scrap->mutex);
-                        sleep(retryDelay);
+                        Io::delay(retryDelay);
                         res = media.download(path);
                     }
                 }
@@ -263,7 +271,11 @@ static void *scrap_thread(void *ptr) {
         }
     }
 
+#ifdef _MSC_VER
+    return 0;
+#else
     return nullptr;
+#endif
 }
 
 Scrap::Scrap(const ArgumentParser &parser) {
@@ -289,7 +301,7 @@ void Scrap::run() {
     if (args.exist("-r")) {
         romPath = args.get("-r");
         filesList = Io::getDirList(romPath);
-        filesCount = filesList.size();
+        filesCount = (int) filesList.size();
         if (filesList.empty()) {
             fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
             return;
@@ -302,16 +314,28 @@ void Scrap::run() {
             Io::makedir(romPath + "/media");
         }
 
+#ifdef _MSC_VER
+        mutex = CreateMutex(NULL, FALSE, NULL);
+#endif
+
         int maxThreads = user.getMaxThreads();
         for (int i = 0; i < maxThreads; i++) {
             // yes, there's a minor memory leak there...
             int *tid = (int *) malloc(sizeof(*tid));
             *tid = i;
+#ifdef _MSC_VER
+            threads[i] = (HANDLE)_beginthreadex(NULL, 0, &scrap_thread, (void *) tid, 0, NULL);
+#else
             pthread_create(&threads[i], nullptr, scrap_thread, (void *) tid);
+#endif
         }
 
         for (int i = 0; i < maxThreads; i++) {
+#ifdef _MSC_VER
+            WaitForSingleObject(threads[i], INFINITE);
+#else
             pthread_join(threads[i], nullptr);
+#endif
         }
 
         if (!gameList.games.empty() && args.exist("-sx")) {
@@ -406,13 +430,18 @@ int main(int argc, char **argv) {
     ArgumentParser args(argc, argv);
 
     // setup screenscraper api
+#ifdef _MSC_VER
+    Api::ss_devid = "";
+    Api::ss_devpassword = "";
+#else
     Api::ss_devid = SS_DEV_ID;
     Api::ss_devpassword = SS_DEV_PWD;
+#endif
     Api::ss_softname = "sscrap";
     ss_debug = args.exist("-d");
-#ifndef NDEBUG
+//#ifndef NDEBUG
     ss_debug = true;
-#endif
+//#endif
 
     scrap = new Scrap(args);
     scrap->run();

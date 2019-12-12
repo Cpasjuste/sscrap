@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <tinyxml2.h>
 
 namespace ss_api {
 

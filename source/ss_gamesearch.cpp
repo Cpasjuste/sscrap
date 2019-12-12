@@ -41,7 +41,7 @@ GameSearch::GameSearch(const std::string &recherche, const std::string &systemei
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLError e = doc.Parse(xml.c_str(), xml.size());
     if (e != tinyxml2::XML_SUCCESS) {
-        SS_PRINT("GameSearch: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("GameSearch: %s\n", doc.ErrorName());
         doc.Clear();
         return;
     }

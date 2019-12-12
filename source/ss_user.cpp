@@ -38,7 +38,7 @@ User::User(const std::string &ssid, const std::string &sspassword, int retryDela
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLError e = doc.Parse(xml.c_str(), xml.size());
     if (e != tinyxml2::XML_SUCCESS) {
-        SS_PRINT("User: %s\n", tinyxml2::XMLDocument::ErrorIDToName(e));
+        SS_PRINT("User: %s\n", doc.ErrorName());
         doc.Clear();
         return;
     }

@@ -16,10 +16,17 @@
 #include "ss_gamelist.h"
 #include "ss_mediasgamelist.h"
 
+#ifdef _MSC_VER
+#define KRED
+#define KGRE
+#define KYEL
+#define KRAS
+#else
 #define KRED "\x1B[91m"
 #define KGRE "\x1B[92m"
 #define KYEL "\x1B[93m"
 #define KRAS "\033[0m"
+#endif
 
 #define SS_TIMEOUT 10
 
