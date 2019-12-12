@@ -6,6 +6,7 @@ ss_user_id.key
 ss_user_pwd.key
 
 # vs crap
+.vs/
 vs/sscrap/.vs/
 vs/sscrap/bin/
 vs/sscrap/temp/
