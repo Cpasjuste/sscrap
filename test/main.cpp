@@ -439,9 +439,9 @@ int main(int argc, char **argv) {
 #endif
     Api::ss_softname = "sscrap";
     ss_debug = args.exist("-d");
-//#ifndef NDEBUG
+#ifndef NDEBUG
     ss_debug = true;
-//#endif
+#endif
 
     scrap = new Scrap(args);
     scrap->run();

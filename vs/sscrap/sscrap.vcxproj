@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>deps\openssl\lib64;deps\zlib\contrib\vstudio\vc14\x64\ZlibDllRelease;bin\tinyxml2\x64-Release-Lib;deps\curl\build\Win64\VC15\LIB Release - LIB OpenSSL;deps\minizip\vs\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>deps\lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -130,19 +130,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;deps\zlib;deps\zlib\contrib;deps\curl\include;deps\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\test\windows;deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;wldap32.lib;crypt32.lib;libcurl.lib;tinyxml2.lib;zlibwapi.lib;libcryptoMD.lib;libsslMD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;crypt32.lib;tinyxml2.lib;libcurl.lib;libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy deps\zlib\contrib\vstudio\vc14\x64\ZlibDllRelease\zlibwapi.dll $(OutDir)
-copy deps\openssl\bin64\libsslMD.dll $(OutDir)
-copy deps\openssl\bin64\libcryptoMD.dll $(OutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,8 +156,8 @@ copy deps\openssl\bin64\libcryptoMD.dll $(OutDir)</Command>
     <ClCompile Include="..\..\source\ss_user.cpp" />
     <ClCompile Include="..\..\test\main.cpp" />
     <ClCompile Include="..\..\test\utility.cpp" />
-    <ClCompile Include="deps\zlib\contrib\minizip\ioapi.c" />
-    <ClCompile Include="deps\zlib\contrib\minizip\unzip.c" />
+    <ClCompile Include="..\..\test\windows\minizip\ioapi.c" />
+    <ClCompile Include="..\..\test\windows\minizip\unzip.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\ss_api.h" />
