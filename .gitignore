@@ -7,6 +7,6 @@ ss_user_pwd.key
 
 # vs crap
 .vs/
-vstudio/sscrap/.vs/
-vstudio/sscrap/x64/
-vstudio/sscrap/sscrap.vcxproj.user
+vstudio/.vs/
+vstudio/x64/
+vstudio/sscrap.vcxproj.user

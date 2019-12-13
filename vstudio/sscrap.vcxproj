@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\include;..\..\test\windows;deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\test\windows;deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,33 +145,33 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\ss_api.cpp" />
-    <ClCompile Include="..\..\source\ss_curl.cpp" />
-    <ClCompile Include="..\..\source\ss_game.cpp" />
-    <ClCompile Include="..\..\source\ss_gameinfo.cpp" />
-    <ClCompile Include="..\..\source\ss_gamelist.cpp" />
-    <ClCompile Include="..\..\source\ss_gamesearch.cpp" />
-    <ClCompile Include="..\..\source\ss_io.cpp" />
-    <ClCompile Include="..\..\source\ss_mediasgamelist.cpp" />
-    <ClCompile Include="..\..\source\ss_user.cpp" />
-    <ClCompile Include="..\..\test\main.cpp" />
-    <ClCompile Include="..\..\test\utility.cpp" />
-    <ClCompile Include="..\..\test\windows\minizip\ioapi.c" />
-    <ClCompile Include="..\..\test\windows\minizip\unzip.c" />
+    <ClCompile Include="..\source\ss_api.cpp" />
+    <ClCompile Include="..\source\ss_curl.cpp" />
+    <ClCompile Include="..\source\ss_game.cpp" />
+    <ClCompile Include="..\source\ss_gameinfo.cpp" />
+    <ClCompile Include="..\source\ss_gamelist.cpp" />
+    <ClCompile Include="..\source\ss_gamesearch.cpp" />
+    <ClCompile Include="..\source\ss_io.cpp" />
+    <ClCompile Include="..\source\ss_mediasgamelist.cpp" />
+    <ClCompile Include="..\source\ss_user.cpp" />
+    <ClCompile Include="..\test\main.cpp" />
+    <ClCompile Include="..\test\utility.cpp" />
+    <ClCompile Include="..\test\windows\minizip\ioapi.c" />
+    <ClCompile Include="..\test\windows\minizip\unzip.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\ss_api.h" />
-    <ClInclude Include="..\..\include\ss_curl.h" />
-    <ClInclude Include="..\..\include\ss_game.h" />
-    <ClInclude Include="..\..\include\ss_gameinfo.h" />
-    <ClInclude Include="..\..\include\ss_gamelist.h" />
-    <ClInclude Include="..\..\include\ss_gamesearch.h" />
-    <ClInclude Include="..\..\include\ss_io.h" />
-    <ClInclude Include="..\..\include\ss_mediasgamelist.h" />
-    <ClInclude Include="..\..\include\ss_user.h" />
-    <ClInclude Include="..\..\test\args.h" />
-    <ClInclude Include="..\..\test\scrap.h" />
-    <ClInclude Include="..\..\test\utility.h" />
+    <ClInclude Include="..\include\ss_api.h" />
+    <ClInclude Include="..\include\ss_curl.h" />
+    <ClInclude Include="..\include\ss_game.h" />
+    <ClInclude Include="..\include\ss_gameinfo.h" />
+    <ClInclude Include="..\include\ss_gamelist.h" />
+    <ClInclude Include="..\include\ss_gamesearch.h" />
+    <ClInclude Include="..\include\ss_io.h" />
+    <ClInclude Include="..\include\ss_mediasgamelist.h" />
+    <ClInclude Include="..\include\ss_user.h" />
+    <ClInclude Include="..\test\args.h" />
+    <ClInclude Include="..\test\scrap.h" />
+    <ClInclude Include="..\test\utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
