@@ -2,6 +2,7 @@
 // Created by cpasjuste on 13/12/2019.
 //
 
+#include <algorithm>
 #include "ss_api.h"
 
 using namespace ss_api;
@@ -87,4 +88,17 @@ bool SystemList::parseSystem(struct ss_api::SystemList::System *system, tinyxml2
     }
 
     return true;
+}
+
+SystemList::System SystemList::findById(const std::string &id) {
+
+    auto it = std::find_if(systems.begin(), systems.end(), [id](const System &system) {
+        return system.id == id;
+    });
+
+    if (it != systems.end()) {
+        return *it;
+    }
+
+    return System();
 }

@@ -22,7 +22,6 @@ public:
     ArgumentParser args;
     std::string usr;
     std::string pwd;
-    ss_api::Game::Language language = ss_api::Game::Language::EN;
     std::string romPath;
     ss_api::MediasGameList mediasGameList;
     ss_api::SystemList systemList;

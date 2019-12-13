@@ -274,42 +274,69 @@ static void *scrap_thread(void *ptr) {
 Scrap::Scrap(const ArgumentParser &parser) {
 
     args = parser;
+
+    // setup screenscraper api
+#ifdef _MSC_VER
+    Api::ss_devid = "";
+    Api::ss_devpassword = "";
+#else
+    Api::ss_devid = SS_DEV_ID;
+    Api::ss_devpassword = SS_DEV_PWD;
+#endif
+    Api::ss_softname = "sscrap";
+    ss_debug = args.exist("-d");
+
     usr = args.get("-u");
     pwd = args.get("-p");
     mediasClone = args.exist("-dlmc");
 
-    if (args.exist("-language")) {
-        language = Api::toLanguage(args.get("-language"));
-        if (language == Game::Language::UNKNOWN) {
-            Api::printc(COLOR_R, "ERROR: language not found: %s, available languages: en, fr, es, pt\n",
-                        args.get("-language").c_str());
-            return;
-        }
-        printf("language: %s\n", Api::toString(language).c_str());
-    }
+    // banner
+    Api::printc(COLOR_G, "  _________ ____________________________    _____ __________ \n");
+    Api::printc(COLOR_G, " /   _____//   _____/\\_   ___ \\______   \\  /  _  \\\\______   \\\n");
+    Api::printc(COLOR_G, " \\_____  \\ \\_____  \\ /    \\  \\/|       _/ /  /_\\  \\|     ___/\n");
+    Api::printc(COLOR_G, " /        \\/        \\\\     \\___|    |   \\/    |    \\    |    \n");
+    Api::printc(COLOR_G, "/_______  /_______  / \\______  /____|_  /\\____|__ _/____|    \n");
+    Api::printc(COLOR_G, "        \\/        \\/         \\/       \\/ 2020 @ cpasjuste\n\n");
+
+    Api::printc(COLOR_G, "Getting user information... ");
+    user = User(usr, pwd);
+    Api::printc(COLOR_G, "found user %s, threads: %s, requests: %s/%s, download speed: %s Ko/s\n",
+                user.id.c_str(), user.maxthreads.c_str(),
+                user.requeststoday.c_str(), user.maxrequestsperday.c_str(),
+                user.maxdownloadspeed.c_str());
+
+    Api::printc(COLOR_G, "Updating systems... ");
+    systemList = SystemList(usr, pwd, retryDelay);
+    Api::printc(COLOR_G, "found %zu systems\n", systemList.systems.size());
+
+    Api::printc(COLOR_G, "Updating medias types... ");
+    mediasGameList = MediasGameList(usr, pwd, retryDelay);
+    Api::printc(COLOR_G, "found %zu medias type\n", mediasGameList.medias.size());
 }
 
 void Scrap::run() {
 
     if (args.exist("-r")) {
         romPath = args.get("-r");
+        Api::printc(COLOR_G, "Building roms list... ");
         filesList = Io::getDirList(romPath);
         filesCount = (int) filesList.size();
+        Api::printc(COLOR_G, "found %zu roms\n", filesCount);
         if (filesList.empty()) {
             Api::printc(COLOR_R, "ERROR: no files found in rom path\n");
             return;
         }
 
-        user = User(usr, pwd);
-        mediasGameList = MediasGameList(usr, pwd, retryDelay);
+        SystemList::System system = systemList.findById(args.get("-sid"));
+        Api::printc(COLOR_G, "Scrapping system '%s', let's go!\n\n", system.names.eu.c_str());
 
         if (args.exist("-dlm")) {
             Io::makedir(romPath + "/media");
         }
 
         pthread_mutex_init(&mutex, nullptr);
-
         int maxThreads = user.getMaxThreads();
+
         for (int i = 0; i < maxThreads; i++) {
             // yes, there's a minor memory leak there...
             int *tid = (int *) malloc(sizeof(*tid));
@@ -348,17 +375,16 @@ void Scrap::run() {
             }
             gameList.save(romPath + "/gamelist.xml", lang, fmt, mediaList);
         }
-        Api::printc(COLOR_G, "\n==========\nALL DONE\n==========\n");
+        Api::printc(COLOR_G, "\nAll Done... ");
         Api::printc(COLOR_G, "found %zu/%i games\n", gameList.games.size() - missList.size(), filesCount);
         if (!missList.empty()) {
-            Api::printc(COLOR_G, "%zu was not found:\n", missList.size());
+            Api::printc(COLOR_G, "%zu game(s) was not found:\n", missList.size());
             for (const auto &file : missList) {
                 Api::printc(COLOR_G, "%s, ", file.c_str());
             }
         }
         printf("\n");
     } else if (args.exist("-ml")) {
-        mediasGameList = MediasGameList(usr, pwd, retryDelay);
         Api::printc(COLOR_G, "\nAvailable screenscraper medias types:\n\n");
         for (const auto &media : mediasGameList.medias) {
             Api::printc(COLOR_G, "\t%s (type: %s, category: %s)\n",
@@ -366,7 +392,6 @@ void Scrap::run() {
         }
         printf("\n");
     } else if (args.exist("-sl")) {
-        systemList = SystemList(usr, pwd, retryDelay);
         Api::printc(COLOR_G, "\nAvailable screenscraper systems:\n\n");
         for (const auto &system : systemList.systems) {
             Api::printc(COLOR_G, "\t%s (id: %s, company: %s, type: %s)\n",
@@ -389,15 +414,15 @@ void Scrap::run() {
         printf("\t\t-i <mediaType>                 use given media type for image\n");
         printf("\t\t-t <mediaType>                 use given media type for thumbnail\n");
         printf("\t\t-v <mediaType>                 use given media type for video\n");
-        printf("\n\tsscrap supported output languages\n");
+        printf("\n\tsscrap supported output languages:\n");
         printf("\t\ten: english, default\n");
         printf("\t\tfr: french\n");
         printf("\t\tes: spanish\n");
         printf("\t\tpt: portuguese\n");
-        printf("\n\tsscrap supported output formats\n");
+        printf("\n\tsscrap supported output formats:\n");
         printf("\t\temulationstation: emulationstation gamelist.xml, default\n");
         printf("\t\tscreenscraper: screenscraper gamelist.xml\n");
-        printf("\n\tsscrap customs systemid (fbneo)\n");
+        printf("\n\tsscrap customs systemid (fbneo):\n");
         printf("\t\t750: ColecoVision\n");
         printf("\t\t751: Game Gear\n");
         printf("\t\t752: Master System\n");
@@ -422,20 +447,6 @@ void Scrap::run() {
 int main(int argc, char *argv[]) {
 
     ArgumentParser args(argc, argv);
-
-    // setup screenscraper api
-#ifdef _MSC_VER
-    Api::ss_devid = "";
-    Api::ss_devpassword = "";
-#else
-    Api::ss_devid = SS_DEV_ID;
-    Api::ss_devpassword = SS_DEV_PWD;
-#endif
-    Api::ss_softname = "sscrap";
-    ss_debug = args.exist("-d");
-#ifndef NDEBUG
-    ss_debug = true;
-#endif
 
     scrap = new Scrap(args);
     scrap->run();

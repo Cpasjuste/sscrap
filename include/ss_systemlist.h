@@ -45,6 +45,8 @@ namespace ss_api {
 
         SystemList(const std::string &ssid, const std::string &sspassword, int retryDelay = 10);
 
+        System findById(const std::string &id);
+
         static bool parseSystem(System *system, tinyxml2::XMLNode *systemNode);
 
         std::vector<System> systems;
