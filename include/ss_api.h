@@ -47,7 +47,9 @@ namespace ss_api {
 #ifdef _MSC_VER
         static void printc(int color, const char* format, ...);
 #else
-        static void printc(char *color, const char* format, ...);
+
+        static void printc(const char *color, const char *format, ...);
+
 #endif
 
         static void printe(int code, int delay);

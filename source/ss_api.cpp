@@ -2,6 +2,7 @@
 // Created by cpasjuste on 05/04/19.
 //
 
+#include <cstdarg>
 #include "ss_api.h"
 
 using namespace ss_api;
@@ -228,7 +229,7 @@ int Api::parseInt(const std::string &str, int defValue) {
 #ifdef _MSC_VER
 void Api::printc(int color, const char* format, ...) {
 #else
-void Api::printc(char *color, const char* format, ...) {
+void Api::printc(const char *color, const char* format, ...) {
 #endif
 
     char buffer[1024];
@@ -249,7 +250,7 @@ void Api::printc(char *color, const char* format, ...) {
     printf("%s", buffer);
     SetConsoleTextAttribute(h, consoleAttr);
 #else
-    printf(color "%s" "\033[0m", buffer);
+    printf("%s%s" "\033[0m", color, buffer);
 #endif
 }
 
