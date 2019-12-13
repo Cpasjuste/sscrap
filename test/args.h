@@ -6,14 +6,16 @@
 #define ARGS_PARSER_H
 
 #include <algorithm>
+#include "utility.h"
 
 class ArgumentParser {
 public:
     ArgumentParser() = default;
 
-    ArgumentParser(int &argc, char **argv) {
-        for (int i = 1; i < argc; ++i)
+    ArgumentParser(int argc, char* argv[]) {
+        for (int i = 1; i < argc; ++i) {
             tokens.emplace_back(std::string(argv[i]));
+        }
     }
 
     const std::string &get(const std::string &option) const {

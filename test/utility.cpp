@@ -98,6 +98,14 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
     return std::string(hex);
 }
 
+void Utility::replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t start_pos = str.find(from);
+    while (start_pos != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos = str.find(from);
+    }
+}
+
 void Utility::printGame(const Game &game) {
 
     printf("\n===================================\n");

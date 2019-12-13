@@ -18,6 +18,8 @@ public:
 
     static std::string getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList = {});
 
+    static void replace(std::string& str, const std::string& from, const std::string& to);
+
     static void printGame(const ss_api::Game &game);
 };
 

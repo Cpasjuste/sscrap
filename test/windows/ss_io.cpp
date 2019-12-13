@@ -13,8 +13,12 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
 
     std::vector<std::string> files;
 
+    if (!fs::exists(path) || !fs::is_directory(path)) {
+        return files;
+    }
+
     for (const auto& entry : fs::directory_iterator(path)) {
-        
+
         if (!entry.is_regular_file()) {
             continue;
         }

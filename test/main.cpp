@@ -404,14 +404,14 @@ void Scrap::run() {
     }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char* argv[]) {
 
     ArgumentParser args(argc, argv);
 
     // setup screenscraper api
 #ifdef _MSC_VER
-    Api::ss_devid = "cpasjuste";
-    Api::ss_devpassword = "aa6mFnVgwYqmbgga";
+    Api::ss_devid = "";
+    Api::ss_devpassword = "";
 #else
     Api::ss_devid = SS_DEV_ID;
     Api::ss_devpassword = SS_DEV_PWD;
