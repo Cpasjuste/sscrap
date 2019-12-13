@@ -20,7 +20,7 @@ project(sscrap)
 ##############
 # SCREENSCRAP
 ##############
-option(BUILD_TEST "Build sscrap test binary" OFF)
+option(BUILD_SSCRAP "Build sscrap binary" OFF)
 
 set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.c*)
@@ -63,25 +63,21 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${LDFLAGS})
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ss_dev_id.key")
     file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_dev_id.key" DEVID)
     file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_dev_pwd.key" DEVPWD)
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_user_id.key" SSID)
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/ss_user_pwd.key" SSPWD)
     message("-- Screensraper dev id: ${DEVID}")
 else ()
-    message(WARNING "ss_dev_id.key, ss_dev_pwd.key, ss_user_id.key and ss_user_pwd.key files not found, using dummy ss keys. Please fix by creating this files and add your keys...")
+    message(WARNING "ss_dev_id.key and ss_dev_pwd.key files not found,
+        using dummy ss keys. Please fix if you want to use live scrapping...")
     set(DEVID "none")
     set(DEVPWD "none")
-    set(SSID "none")
-    set(SSPWD "none")
 endif ()
 target_compile_options(
         ${PROJECT_NAME} PUBLIC
-        -DSS_DEV_ID=\"${DEVID}\" -DSS_DEV_PWD=\"${DEVPWD}\"
-        -DSS_ID=\"${SSID}\" -DSS_PWD=\"${SSPWD}\")
+        -DSS_DEV_ID=\"${DEVID}\" -DSS_DEV_PWD=\"${DEVPWD}\")
 
 #####################
 # SCREENSCRAP TEST
 #####################
-if (BUILD_TEST)
+if (BUILD_SSCRAP)
     add_executable(${PROJECT_NAME}.elf test/main.cpp test/utility.cpp)
     target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME} pthread minizip z)
     add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
