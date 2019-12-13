@@ -22,10 +22,27 @@ project(sscrap)
 ##############
 option(BUILD_SSCRAP "Build sscrap binary" OFF)
 
-set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# handle deps
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(ZLIB REQUIRED)
+find_package(CURL REQUIRED)
+find_package(TinyXML2 REQUIRED)
+
+# sources
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.c*)
-set(CFLAGS)
-set(LDFLAGS curl tinyxml2 z)
+
+# includes
+set(INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CURL_INCLUDE_DIRS}
+        ${TinyXML2_INCLUDE_DIRS}
+        ${ZLIB_INCLUDE_DIRS})
+
+# ldflags
+set(LDFLAGS
+        ${CURL_LIBRARIES}
+        ${TinyXML2_LIBRARIES}
+        ${ZLIB_LIBRARIES})
 
 #####################
 # PLATORM SPECIFIC
@@ -40,8 +57,6 @@ elseif (PLATFORM_LINUX)
     #####################
     # LINUX PLATORM
     #####################
-    find_package(CURL REQUIRED)
-    find_package(ZLIB REQUIRED)
     if (PLATFORM_WINDOWS)
         # TODO: try to fix nghttp2 static linking...
         list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
@@ -55,7 +70,7 @@ endif ()
 #####################
 # SCREENSCRAP LIBRARY
 #####################
-add_library(${PROJECT_NAME} ${SOURCES} source/ss_game.cpp)
+add_library(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_compile_options(${PROJECT_NAME} PUBLIC ${CFLAGS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LDFLAGS})
@@ -78,8 +93,14 @@ target_compile_options(
 # SCREENSCRAP TEST
 #####################
 if (BUILD_SSCRAP)
+    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+    find_package(Threads REQUIRED)
+    find_package(MiniZip REQUIRED)
     add_executable(${PROJECT_NAME}.elf test/main.cpp test/utility.cpp)
-    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME} pthread minizip z)
+    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME}
+            ${CMAKE_THREAD_LIBS_INIT}
+            ${MINIZIP_LIBRARIES}
+            ${ZLIB_LIBRARIES})
     add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
             COMMAND cp -rf ${CMAKE_SOURCE_DIR}/databases ${CMAKE_BINARY_DIR}/
             COMMENT "Copying databases to binary directory..."
