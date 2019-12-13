@@ -1,12 +1,7 @@
 //
 // Created by cpasjuste on 29/03/19.
 //
-#ifdef _MSC_VER
-#include <windows.h>
-#include <process.h>
-#else
-#include <pthread.h>
-#endif
+
 #include "ss_api.h"
 #include "scrap.h"
 #include "args.h"
@@ -37,11 +32,8 @@ void fixFbnClone(Game *game, const GameList &fbnGameList) {
     game->cloneof = (*fbaGame).cloneof + ".zip";
 }
 
-#ifdef _MSC_VER
-unsigned __stdcall scrap_thread(void* ptr) {
-#else
 static void *scrap_thread(void *ptr) {
-#endif
+
     int tid = *((int *) ptr);
     Game fbnGame;
     GameList fbnGameList;
@@ -271,11 +263,7 @@ static void *scrap_thread(void *ptr) {
         }
     }
 
-#ifdef _MSC_VER
-    return 0;
-#else
     return nullptr;
-#endif
 }
 
 Scrap::Scrap(const ArgumentParser &parser) {
@@ -314,29 +302,21 @@ void Scrap::run() {
             Io::makedir(romPath + "/media");
         }
 
-#ifdef _MSC_VER
-        mutex = CreateMutex(NULL, FALSE, NULL);
-#endif
+        pthread_mutex_init(&mutex, nullptr);
 
         int maxThreads = user.getMaxThreads();
         for (int i = 0; i < maxThreads; i++) {
             // yes, there's a minor memory leak there...
             int *tid = (int *) malloc(sizeof(*tid));
             *tid = i;
-#ifdef _MSC_VER
-            threads[i] = (HANDLE)_beginthreadex(NULL, 0, &scrap_thread, (void *) tid, 0, NULL);
-#else
             pthread_create(&threads[i], nullptr, scrap_thread, (void *) tid);
-#endif
         }
 
         for (int i = 0; i < maxThreads; i++) {
-#ifdef _MSC_VER
-            WaitForSingleObject(threads[i], INFINITE);
-#else
             pthread_join(threads[i], nullptr);
-#endif
         }
+
+        pthread_mutex_destroy(&mutex);
 
         if (!gameList.games.empty() && args.exist("-sx")) {
             Game::Language lang = Game::Language::EN;

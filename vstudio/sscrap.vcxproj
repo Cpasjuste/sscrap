@@ -131,6 +131,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\test\windows;deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,13 +152,14 @@
     <ClCompile Include="..\source\ss_gameinfo.cpp" />
     <ClCompile Include="..\source\ss_gamelist.cpp" />
     <ClCompile Include="..\source\ss_gamesearch.cpp" />
-    <ClCompile Include="..\source\ss_io.cpp" />
     <ClCompile Include="..\source\ss_mediasgamelist.cpp" />
     <ClCompile Include="..\source\ss_user.cpp" />
     <ClCompile Include="..\test\main.cpp" />
     <ClCompile Include="..\test\utility.cpp" />
     <ClCompile Include="..\test\windows\minizip\ioapi.c" />
     <ClCompile Include="..\test\windows\minizip\unzip.c" />
+    <ClCompile Include="..\test\windows\pthread.cpp" />
+    <ClCompile Include="..\test\windows\ss_io.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ss_api.h" />
@@ -172,6 +174,10 @@
     <ClInclude Include="..\test\args.h" />
     <ClInclude Include="..\test\scrap.h" />
     <ClInclude Include="..\test\utility.h" />
+    <ClInclude Include="..\test\windows\minizip\crypt.h" />
+    <ClInclude Include="..\test\windows\minizip\ioapi.h" />
+    <ClInclude Include="..\test\windows\minizip\unzip.h" />
+    <ClInclude Include="..\test\windows\pthread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

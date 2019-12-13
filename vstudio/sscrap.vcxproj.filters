@@ -19,26 +19,29 @@
     <ClCompile Include="..\source\ss_gamesearch.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\ss_io.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\ss_mediasgamelist.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\ss_user.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\windows\minizip\ioapi.c">
-      <Filter>sscrap</Filter>
-    </ClCompile>
     <ClCompile Include="..\test\main.cpp">
-      <Filter>sscrap</Filter>
-    </ClCompile>
-    <ClCompile Include="..\test\windows\minizip\unzip.c">
       <Filter>sscrap</Filter>
     </ClCompile>
     <ClCompile Include="..\test\utility.cpp">
       <Filter>sscrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\windows\minizip\unzip.c">
+      <Filter>sscrap\windows\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\windows\minizip\ioapi.c">
+      <Filter>sscrap\windows\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\windows\pthread.cpp">
+      <Filter>sscrap\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\windows\ss_io.cpp">
+      <Filter>sscrap\windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +81,18 @@
     <ClInclude Include="..\test\utility.h">
       <Filter>sscrap</Filter>
     </ClInclude>
+    <ClInclude Include="..\test\windows\minizip\crypt.h">
+      <Filter>sscrap\windows\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test\windows\minizip\ioapi.h">
+      <Filter>sscrap\windows\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test\windows\minizip\unzip.h">
+      <Filter>sscrap\windows\minizip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test\windows\pthread.h">
+      <Filter>sscrap\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="sscrap">
@@ -88,6 +103,12 @@
     </Filter>
     <Filter Include="source">
       <UniqueIdentifier>{a8a9e19e-9cea-47da-bf70-dca20e417be1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sscrap\windows">
+      <UniqueIdentifier>{9bd2cd96-95c5-4bd1-8b15-9aa6674d232c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sscrap\windows\minizip">
+      <UniqueIdentifier>{c9922ee0-e8ca-4bd8-850d-77b73e437a6d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
