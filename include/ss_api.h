@@ -16,19 +16,17 @@
 #include "ss_gamelist.h"
 #include "ss_mediasgamelist.h"
 
-#ifdef _MSC_VER
-#define KRED
-#define KGRE
-#define KYEL
-#define KRAS
-#else
-#define KRED "\x1B[91m"
-#define KGRE "\x1B[92m"
-#define KYEL "\x1B[93m"
-#define KRAS "\033[0m"
-#endif
-
 #define SS_TIMEOUT 10
+
+#ifdef _MSC_VER
+#define COLOR_R (FOREGROUND_INTENSITY | FOREGROUND_RED)
+#define COLOR_G (FOREGROUND_INTENSITY | FOREGROUND_GREEN)
+#define COLOR_Y (FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN)
+#else
+#define COLOR_R "\x1B[91m"
+#define COLOR_G "\x1B[92m"
+#define COLOR_Y "\x1B[93m"
+#endif
 
 namespace ss_api {
 
@@ -46,7 +44,13 @@ namespace ss_api {
 
         static int parseInt(const std::string &str, int defValue = 0);
 
-        static void printError(int code, int delay);
+#ifdef _MSC_VER
+        static void printc(int color, const char* format, ...);
+#else
+        static void printc(char *color, const char* format, ...);
+#endif
+
+        static void printe(int code, int delay);
 
         static std::string ss_devid;
         static std::string ss_devpassword;
@@ -73,17 +77,6 @@ do \
 { \
     if(ss_debug) \
         printf((f_), ##__VA_ARGS__); \
-} \
-while(0)
-
-#define SS_PRINT_RED(f_, ...) \
-do \
-{ \
-    if(ss_debug) { \
-        printf(KRED "NOK: "); \
-        printf((f_), ##__VA_ARGS__); \
-        printf(KRAS); \
-    } \
 } \
 while(0)
 

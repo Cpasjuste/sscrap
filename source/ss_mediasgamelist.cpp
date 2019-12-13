@@ -23,7 +23,7 @@ MediasGameList::MediasGameList(const std::string &ssid, const std::string &sspas
     std::string xml = ss_curl.getString(url, SS_TIMEOUT, &code);
     if (retryDelay > 0) {
         while (code == 429 || code == 28) {
-            Api::printError((int) code, retryDelay);
+            Api::printe((int) code, retryDelay);
             Io::delay(retryDelay);
             xml = ss_curl.getString(url, SS_TIMEOUT, &code);
         }

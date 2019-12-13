@@ -19,7 +19,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     xml = xmlPath;
     tinyxml2::XMLError e = doc.LoadFile(xmlPath.c_str());
     if (e != tinyxml2::XML_SUCCESS) {
-        SS_PRINT("Api::gameList: %s\n", doc.ErrorName());
+        SS_PRINT("GameList: %s\n", doc.ErrorName());
         doc.Clear();
         return false;
     }
@@ -30,8 +30,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
         if (pRoot == nullptr) {
             pRoot = doc.FirstChildElement("datafile");
             if (pRoot == nullptr) {
-                SS_PRINT(
-                        "Api::parseGameSearch: wrong xml format: \'Data\', \'gameList\' or \'datafile\' tag not found\n");
+                SS_PRINT("GameList: wrong xml format: \'Data\', \'gameList\' or \'datafile\' tag not found\n");
                 format = Format::Unknown;
                 doc.Clear();
                 return false;

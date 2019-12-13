@@ -112,9 +112,9 @@ static void *scrap_thread(void *ptr) {
             if (gameInfo.http_error == 0) {
                 searchType = "zip_crc";
             } else if (gameInfo.http_error == 430) {
-                fprintf(stderr, KYEL "NOK: thread[%i] => Quota reached for today... "
+                Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
                                 "See \' https://www.screenscraper.fr/\' if you want to support "
-                                "screenscraper and maximise your quota!\n" KRAS, tid);
+                                "screenscraper and maximise your quota!\n", tid);
                 break;
             }
         }
@@ -130,9 +130,9 @@ static void *scrap_thread(void *ptr) {
                 if (gameInfo.http_error == 0) {
                     searchType = "rom_crc";
                 } else if (gameInfo.http_error == 430) {
-                    fprintf(stderr, KYEL "NOK: thread[%i] => Quota reached for today... "
+                    Api::printc(COLOR_Y, "NOK: thread[%i] => Quota reached for today... "
                                     "See \' https://www.screenscraper.fr/\' if you want to support "
-                                    "screenscraper and maximise your quota!\n" KRAS, tid);
+                                    "screenscraper and maximise your quota!\n", tid);
                     break;
                 }
             }
@@ -227,8 +227,7 @@ static void *scrap_thread(void *ptr) {
                     int res = media.download(path);
                     while (res == 429) {
                         pthread_mutex_lock(&scrap->mutex);
-                        fprintf(stderr,
-                                KYEL "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n" KRAS,
+                        Api::printc(COLOR_Y, "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n",
                                 tid, retryDelay);
                         pthread_mutex_unlock(&scrap->mutex);
                         Io::delay(retryDelay);
@@ -238,7 +237,7 @@ static void *scrap_thread(void *ptr) {
             }
 
             pthread_mutex_lock(&scrap->mutex);
-            printf(KGRE "[%i/%i] OK: %s => %s (%s) (%s)\n" KRAS,
+            Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (%s)\n",
                    scrap->filesCount - filesSize, scrap->filesCount,
                    file.c_str(), gameInfo.game.getName().text.c_str(),
                    gameInfo.game.system.text.c_str(), searchType.c_str());
@@ -255,7 +254,7 @@ static void *scrap_thread(void *ptr) {
                 game.path = file;
                 scrap->gameList.games.emplace_back(game);
             }
-            fprintf(stderr, KRED "[%i/%i] NOK: %s (%i)\n" KRAS,
+            Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i)\n",
                     scrap->filesCount - filesSize, scrap->filesCount,
                     isFbNeoSystem ? fbnGame.getName().text.c_str() : file.c_str(), gameInfo.http_error);
             scrap->missList.emplace_back(file);
@@ -276,7 +275,7 @@ Scrap::Scrap(const ArgumentParser &parser) {
     if (args.exist("-language")) {
         language = Api::toLanguage(args.get("-language"));
         if (language == Game::Language::UNKNOWN) {
-            fprintf(stderr, KRED "ERROR: language not found: %s, available languages: en, fr, es, pt\n" KRAS,
+            Api::printc(COLOR_R, "ERROR: language not found: %s, available languages: en, fr, es, pt\n",
                     args.get("-language").c_str());
             return;
         }
@@ -291,7 +290,7 @@ void Scrap::run() {
         filesList = Io::getDirList(romPath);
         filesCount = (int) filesList.size();
         if (filesList.empty()) {
-            fprintf(stderr, KRED "ERROR: no files found in rom path\n" KRAS);
+            Api::printc(COLOR_R, "ERROR: no files found in rom path\n");
             return;
         }
 
@@ -343,20 +342,20 @@ void Scrap::run() {
             }
             gameList.save(romPath + "/gamelist.xml", lang, fmt, mediaList);
         }
-        printf(KGRE "\n==========\nALL DONE\n==========\n" KRAS);
-        printf(KGRE "found %zu/%i games\n" KRAS, gameList.games.size() - missList.size(), filesCount);
+        Api::printc(COLOR_G, "\n==========\nALL DONE\n==========\n");
+        Api::printc(COLOR_G, "found %zu/%i games\n", gameList.games.size() - missList.size(), filesCount);
         if (!missList.empty()) {
-            printf(KGRE "%zu was not found:\n" KRAS, missList.size());
+            Api::printc(COLOR_G, "%zu was not found:\n", missList.size());
             for (const auto &file : missList) {
-                printf(KRED "%s, " KRAS, file.c_str());
+                Api::printc(COLOR_G, "%s, ", file.c_str());
             }
         }
         printf("\n");
     } else if (args.exist("-ml")) {
         mediasGameList = MediasGameList(usr, pwd, retryDelay);
-        printf(KGRE "\nAvailable screenscraper medias types:\n\n" KRAS);
+        Api::printc(COLOR_G, "\nAvailable screenscraper medias types:\n\n");
         for (const auto &media : mediasGameList.medias) {
-            printf(KGRE "\t%s " KRAS "(type: %s, category: %s)\n",
+            Api::printc(COLOR_G, "\t%s (type: %s, category: %s)\n",
                    media.nameShort.c_str(), media.type.c_str(), media.category.c_str());
         }
         printf("\n");
@@ -411,8 +410,8 @@ int main(int argc, char **argv) {
 
     // setup screenscraper api
 #ifdef _MSC_VER
-    Api::ss_devid = "";
-    Api::ss_devpassword = "";
+    Api::ss_devid = "cpasjuste";
+    Api::ss_devpassword = "aa6mFnVgwYqmbgga";
 #else
     Api::ss_devid = SS_DEV_ID;
     Api::ss_devpassword = SS_DEV_PWD;

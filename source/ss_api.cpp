@@ -225,10 +225,38 @@ int Api::parseInt(const std::string &str, int defValue) {
     return defValue;
 }
 
-void Api::printError(int code, int delay) {
+#ifdef _MSC_VER
+void Api::printc(int color, const char* format, ...) {
+#else
+void Api::printc(char *color, const char* format, ...) {
+#endif
+
+    char buffer[1024];
+    va_list arg;
+    va_start(arg, format);
+    vsnprintf(buffer, 1024, format, arg);
+    va_end(arg);
+
+#ifdef _MSC_VER
+    WORD consoleAttr = FOREGROUND_INTENSITY | FOREGROUND_RED 
+        | FOREGROUND_GREEN | FOREGROUND_BLUE;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (GetConsoleScreenBufferInfo(h, &csbi)) {
+        consoleAttr = csbi.wAttributes;
+    }
+    SetConsoleTextAttribute(h, color);
+    printf("%s", buffer);
+    SetConsoleTextAttribute(h, consoleAttr);
+#else
+    printf(color "%s" "\033[0m", buffer);
+#endif
+}
+
+void Api::printe(int code, int delay) {
     if (code == 429) {
-        fprintf(stderr, KYEL "NOK: maximum requests per minute reached... retrying in %i seconds\n" KRAS, delay);
+        printc(COLOR_Y, "NOK: maximum requests per minute reached... retrying in %i seconds\n", delay);
     } else if (code == 28) {
-        fprintf(stderr, KYEL "NOK: timeout reached... retrying in %i seconds\n" KRAS, delay);
+        printc(COLOR_Y, "NOK: timeout reached... retrying in %i seconds\n", delay);
     }
 }
