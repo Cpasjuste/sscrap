@@ -47,12 +47,14 @@ namespace ss_api {
         struct System {
             System() = default;
 
-            System(const std::string &i, const std::string &t) {
-                id = i;
+            System(const std::string &sid, const std::string &pid, const std::string &t) {
+                id = sid;
+                parentId = pid;
                 text = t;
             }
 
             std::string id;
+            std::string parentId;
             std::string text;
         };
 

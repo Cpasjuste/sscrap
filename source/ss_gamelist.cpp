@@ -265,6 +265,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             elem = doc.NewElement("systeme");
             if (!game.system.id.empty()) {
                 elem->SetAttribute("id", game.system.id.c_str());
+                elem->SetAttribute("parentid", game.system.parentId.c_str());
                 elem->SetText(game.system.text.c_str());
             }
             gameElement->InsertEndChild(elem);

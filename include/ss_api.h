@@ -15,6 +15,7 @@
 #include "ss_gamesearch.h"
 #include "ss_gamelist.h"
 #include "ss_mediasgamelist.h"
+#include "ss_systemlist.h"
 
 #define SS_TIMEOUT 10
 

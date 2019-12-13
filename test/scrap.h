@@ -25,6 +25,7 @@ public:
     ss_api::Game::Language language = ss_api::Game::Language::EN;
     std::string romPath;
     ss_api::MediasGameList mediasGameList;
+    ss_api::SystemList systemList;
     ss_api::GameList gameList;
     std::vector<std::string> filesList;
     std::vector<std::string> missList;

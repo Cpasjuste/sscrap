@@ -113,8 +113,8 @@ static void *scrap_thread(void *ptr) {
                 searchType = "zip_crc";
             } else if (gameInfo.http_error == 430) {
                 Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
-                                "See \' https://www.screenscraper.fr/\' if you want to support "
-                                "screenscraper and maximise your quota!\n", tid);
+                                     "See \' https://www.screenscraper.fr/\' if you want to support "
+                                     "screenscraper and maximise your quota!\n", tid);
                 break;
             }
         }
@@ -131,8 +131,8 @@ static void *scrap_thread(void *ptr) {
                     searchType = "rom_crc";
                 } else if (gameInfo.http_error == 430) {
                     Api::printc(COLOR_Y, "NOK: thread[%i] => Quota reached for today... "
-                                    "See \' https://www.screenscraper.fr/\' if you want to support "
-                                    "screenscraper and maximise your quota!\n", tid);
+                                         "See \' https://www.screenscraper.fr/\' if you want to support "
+                                         "screenscraper and maximise your quota!\n", tid);
                     break;
                 }
             }
@@ -167,7 +167,7 @@ static void *scrap_thread(void *ptr) {
             SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
             if (!search.games.empty()) {
                 auto game = std::find_if(search.games.begin(), search.games.end(), [sid](const Game &game) {
-                    return game.system.id == sid;
+                    return game.system.id == sid || game.system.parentId == sid;
                 });
                 if (game != search.games.end()) {
                     gameInfo = GameInfo("", "", "", "", "", file,
@@ -186,7 +186,7 @@ static void *scrap_thread(void *ptr) {
                     SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
                     if (!search.games.empty()) {
                         auto game = std::find_if(search.games.begin(), search.games.end(), [sid](const Game &game) {
-                            return game.system.id == sid;
+                            return game.system.id == sid || game.system.parentId == sid;
                         });
                         if (game != search.games.end()) {
                             gameInfo = GameInfo("", "", "", "", "", file,
@@ -227,8 +227,9 @@ static void *scrap_thread(void *ptr) {
                     int res = media.download(path);
                     while (res == 429) {
                         pthread_mutex_lock(&scrap->mutex);
-                        Api::printc(COLOR_Y, "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n",
-                                tid, retryDelay);
+                        Api::printc(COLOR_Y,
+                                    "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n",
+                                    tid, retryDelay);
                         pthread_mutex_unlock(&scrap->mutex);
                         Io::delay(retryDelay);
                         res = media.download(path);
@@ -238,9 +239,9 @@ static void *scrap_thread(void *ptr) {
 
             pthread_mutex_lock(&scrap->mutex);
             Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (%s)\n",
-                   scrap->filesCount - filesSize, scrap->filesCount,
-                   file.c_str(), gameInfo.game.getName().text.c_str(),
-                   gameInfo.game.system.text.c_str(), searchType.c_str());
+                        scrap->filesCount - filesSize, scrap->filesCount,
+                        file.c_str(), gameInfo.game.getName().text.c_str(),
+                        gameInfo.game.system.text.c_str(), searchType.c_str());
             scrap->gameList.games.emplace_back(gameInfo.game);
             pthread_mutex_unlock(&scrap->mutex);
         } else {
@@ -254,9 +255,14 @@ static void *scrap_thread(void *ptr) {
                 game.path = file;
                 scrap->gameList.games.emplace_back(game);
             }
-            Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i)\n",
-                    scrap->filesCount - filesSize, scrap->filesCount,
-                    isFbNeoSystem ? fbnGame.getName().text.c_str() : file.c_str(), gameInfo.http_error);
+            if (isFbNeoSystem) {
+                Api::printc(COLOR_R, "[%i/%i] NOK: %s (%s) (%i)\n",
+                            scrap->filesCount - filesSize, scrap->filesCount,
+                            file.c_str(), fbnGame.getName().text.c_str(), gameInfo.http_error);
+            } else {
+                Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i)\n",
+                            scrap->filesCount - filesSize, scrap->filesCount, file.c_str(), gameInfo.http_error);
+            }
             scrap->missList.emplace_back(file);
             pthread_mutex_unlock(&scrap->mutex);
         }
@@ -276,7 +282,7 @@ Scrap::Scrap(const ArgumentParser &parser) {
         language = Api::toLanguage(args.get("-language"));
         if (language == Game::Language::UNKNOWN) {
             Api::printc(COLOR_R, "ERROR: language not found: %s, available languages: en, fr, es, pt\n",
-                    args.get("-language").c_str());
+                        args.get("-language").c_str());
             return;
         }
         printf("language: %s\n", Api::toString(language).c_str());
@@ -356,7 +362,15 @@ void Scrap::run() {
         Api::printc(COLOR_G, "\nAvailable screenscraper medias types:\n\n");
         for (const auto &media : mediasGameList.medias) {
             Api::printc(COLOR_G, "\t%s (type: %s, category: %s)\n",
-                   media.nameShort.c_str(), media.type.c_str(), media.category.c_str());
+                        media.nameShort.c_str(), media.type.c_str(), media.category.c_str());
+        }
+        printf("\n");
+    } else if (args.exist("-sl")) {
+        systemList = SystemList(usr, pwd, retryDelay);
+        Api::printc(COLOR_G, "\nAvailable screenscraper systems:\n\n");
+        for (const auto &system : systemList.systems) {
+            Api::printc(COLOR_G, "\t%s (id: %s, company: %s, type: %s)\n",
+                        system.names.eu.c_str(), system.id.c_str(), system.company.c_str(), system.type.c_str());
         }
         printf("\n");
     } else {
@@ -364,6 +378,7 @@ void Scrap::run() {
         printf("usage: sscrap -u <screenscraper_user> -p <screenscraper_password> [options] [options_es]\n");
         printf("\n\toptions:\n");
         printf("\t\t-d                             enable debug output\n");
+        printf("\t\t-sl                            list available screenscraper systems and exit\n");
         printf("\t\t-ml                            list available screenscraper medias types and exit\n");
         printf("\t\t-r <roms_path>                 path to roms files to scrap\n");
         printf("\t\t-sid <system_id>               screenscraper system id to scrap\n");
@@ -404,7 +419,7 @@ void Scrap::run() {
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
     ArgumentParser args(argc, argv);
 

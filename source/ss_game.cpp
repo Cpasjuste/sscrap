@@ -197,6 +197,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     game->cloneof = Api::getXmlText(gameNode->FirstChildElement("cloneof"));
     // screenscraper
     game->system.id = Api::getXmlAttribute(gameNode->FirstChildElement("systeme"), "id");
+    game->system.parentId = Api::getXmlAttribute(gameNode->FirstChildElement("systeme"), "parentid");
     game->system.text = Api::getXmlText(gameNode->FirstChildElement("systeme"));
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("synopsis");
