@@ -102,12 +102,13 @@ static void *scrap_thread(void *ptr) {
 
         GameInfo gameInfo;
         std::string searchType = "None";
+        std::string zipCrc, romCrc;
 
         // first, search by zip crc
         std::string path = scrap->romPath + "/" + file;
-        std::string crc = Utility::getZipCrc(path);
-        if (!crc.empty()) {
-            gameInfo = GameInfo(crc, "", "", sid, "", file,
+        zipCrc = Utility::getZipCrc(path);
+        if (!zipCrc.empty()) {
+            gameInfo = GameInfo(zipCrc, "", "", sid, "", file,
                                 "", "", scrap->usr, scrap->pwd, retryDelay);
             if (gameInfo.http_error == 0) {
                 searchType = "zip_crc";
@@ -118,14 +119,14 @@ static void *scrap_thread(void *ptr) {
                 break;
             }
         }
-        SS_PRINT("zip crc: %s (%s), res = %i\n", file.c_str(), crc.c_str(), gameInfo.http_error);
+        SS_PRINT("zip crc: %s (%s), res = %i\n", file.c_str(), zipCrc.c_str(), gameInfo.http_error);
 
         // next, try by rom crc if not mame / fbneo arcade (multiple roms in zip...)
         if (gameInfo.http_error != 0 && sid != "75") {
             path = scrap->romPath + "/" + file;
-            crc = Utility::getRomCrc(path);
-            if (!crc.empty()) {
-                gameInfo = GameInfo(crc, "", "", sid, "", file,
+            romCrc = Utility::getRomCrc(path);
+            if (!romCrc.empty()) {
+                gameInfo = GameInfo(romCrc, "", "", sid, "", file,
                                     "", "", scrap->usr, scrap->pwd, retryDelay);
                 if (gameInfo.http_error == 0) {
                     searchType = "rom_crc";
@@ -136,7 +137,7 @@ static void *scrap_thread(void *ptr) {
                     break;
                 }
             }
-            SS_PRINT("rom crc: %s (%s), res = %i\n", file.c_str(), crc.c_str(), gameInfo.http_error);
+            SS_PRINT("rom crc: %s (%s), res = %i\n", file.c_str(), romCrc.c_str(), gameInfo.http_error);
         }
 
         // fbneo consoles zip names doesn't match standard consoles zip names
@@ -247,10 +248,11 @@ static void *scrap_thread(void *ptr) {
         } else {
             pthread_mutex_lock(&scrap->mutex);
             // game not found, but add it to the list with default values
+            Game game;
             if (isFbNeoSystem) {
-                scrap->gameList.games.emplace_back(fbnGame);
+                game = fbnGame;
+                scrap->gameList.games.emplace_back(game);
             } else {
-                Game game;
                 game.names.emplace_back(Api::toString(Game::Country::WOR), file);
                 game.path = file;
                 scrap->gameList.games.emplace_back(game);
@@ -263,7 +265,7 @@ static void *scrap_thread(void *ptr) {
                 Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i)\n",
                             scrap->filesCount - filesSize, scrap->filesCount, file.c_str(), gameInfo.http_error);
             }
-            scrap->missList.emplace_back(file);
+            scrap->missList.emplace_back(game.path, game.getName().text, zipCrc, romCrc);
             pthread_mutex_unlock(&scrap->mutex);
         }
     }
@@ -378,9 +380,10 @@ void Scrap::run() {
         Api::printc(COLOR_G, "\nAll Done... ");
         Api::printc(COLOR_G, "found %zu/%i games\n", gameList.games.size() - missList.size(), filesCount);
         if (!missList.empty()) {
-            Api::printc(COLOR_G, "%zu game(s) was not found:\n", missList.size());
-            for (const auto &file : missList) {
-                Api::printc(COLOR_G, "%s, ", file.c_str());
+            Api::printc(COLOR_Y, "\n%zu game(s) not found:\n", missList.size());
+            for (const auto &miss : missList) {
+                Api::printc(COLOR_R, "%s (%s), zip_crc: %s, rom_crc: %s\n", miss.path.c_str(), miss.name.c_str(),
+                            miss.zipCrc.c_str(), miss.romCrc.c_str());
             }
         }
         printf("\n");

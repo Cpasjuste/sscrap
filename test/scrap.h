@@ -6,14 +6,33 @@
 #define SSCRAP_SCRAP_H
 
 #include <pthread.h>
+
 #ifndef _MSC_VER
+
 #include <semaphore.h>
+
 #endif
+
 #include "args.h"
 
 class Scrap {
 
 public:
+
+    struct MissFile {
+        MissFile(const std::string &n, const std::string &p,
+                 const std::string &z, const std::string &r) {
+            name = n;
+            path = p;
+            zipCrc = z;
+            romCrc = r;
+        }
+
+        std::string name;
+        std::string path;
+        std::string zipCrc;
+        std::string romCrc;
+    };
 
     explicit Scrap(const ArgumentParser &parser);
 
@@ -27,7 +46,7 @@ public:
     ss_api::SystemList systemList;
     ss_api::GameList gameList;
     std::vector<std::string> filesList;
-    std::vector<std::string> missList;
+    std::vector<MissFile> missList;
     ss_api::User user;
     int filesCount = 0;
     bool mediasClone = false;
