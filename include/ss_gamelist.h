@@ -36,13 +36,13 @@ namespace ss_api {
                   const Game::Language &language = Game::Language::EN,
                   const Format &format = ScreenScrapper, const std::vector<std::string> &mediaList = {});
 
-        Game findByRomId(const std::string &romId);
+        Game findByRomId(int romId);
 
         Game findByPath(const std::string &path);
 
-        bool exist(const std::string &romId);
+        bool exist(int romId);
 
-        bool remove(const std::string &romId);
+        bool remove(int romId);
 
         int getAvailableCount();
 
@@ -55,7 +55,7 @@ namespace ss_api {
         std::vector<std::string> developers;
         std::vector<std::string> players;
         std::vector<std::string> ratings;
-        std::vector<std::string> topstaffs;
+        std::vector<std::string> topStaffs;
         std::vector<std::string> rotations;
         std::vector<std::string> resolutions;
         std::vector<std::string> dates;

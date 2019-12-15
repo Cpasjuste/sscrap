@@ -17,89 +17,88 @@ namespace ss_api {
 
         Game() = default;
 
-        enum class Country {
+        enum class Country : char {
             ALL, DE, ASI, AU, BR, BG, CA, CL,
             CN, AME, KR, CUS, DK, SP, EU,
             FI, FR, GR, HU, IL, IT, JP,
             KW, WOR, MOR, NO, NZ, OCE,
             NL, PE, PL, PT, CZ, UK, RU,
             SS, SK, SE, TW, TR, US,
-            UNKNOWN
+            UNK
         };
 
-        enum class Language {
-            EN, FR, ES, PT,
-            ALL, UNKNOWN
+        enum class Language : char {
+            EN, FR, ES, PT, ALL, UNK
         };
 
         struct Name {
             Name() = default;
 
-            Name(const std::string &c, const std::string &t) {
-                country = c;
-                text = t;
+            Name(const Country &country, const std::string &text) {
+                this->country = country;
+                this->text = text;
             }
 
-            std::string country;
             std::string text;
+            Country country = Country::UNK;
         };
 
         struct System {
             System() = default;
 
-            System(const std::string &sid, const std::string &pid, const std::string &t) {
-                id = sid;
-                parentId = pid;
-                text = t;
+            System(int id, int parentId, const std::string &text) {
+                this->id = id;
+                this->parentId = parentId;
+                this->text = text;
             }
 
-            std::string id;
-            std::string parentId;
+            int id = 0;
+            int parentId = 0;
             std::string text;
         };
 
         struct Editor {
             Editor() = default;
 
-            Editor(const std::string &c, const std::string &t) {
-                id = c;
-                text = t;
+            Editor(int id, const std::string &text) {
+                this->id = id;
+                this->text = text;
             }
 
-            std::string id;
+            int id = 0;
             std::string text;
         };
 
         struct Developer {
             Developer() = default;
 
-            Developer(const std::string &c, const std::string &t) {
-                id = c;
-                text = t;
+            Developer(int id, const std::string &text) {
+                this->id = id;
+                this->text = text;
             }
 
-            std::string id;
+            int id = 0;
             std::string text;
         };
 
         struct Synopsis {
             Synopsis() = default;
 
-            Synopsis(const std::string &l, const std::string &t) {
-                language = l;
-                text = t;
+            Synopsis(const Language &language, const std::string &text) {
+                this->language = language;
+                this->text = text;
             }
 
-            std::string language;
             std::string text;
+            Language language = Language::UNK;
         };
 
         struct Classification {
             Classification() = default;
 
-            Classification(const std::string &ty, const std::string &tx) {
-                type = ty;
-                text = tx;
+            Classification(const std::string &type, const std::string &text) {
+                this->type = type;
+                this->text = text;
             }
 
             std::string type;
@@ -109,59 +108,59 @@ namespace ss_api {
         struct Date {
             Date() = default;
 
-            Date(const std::string &c, const std::string &t) {
-                country = c;
-                text = t;
+            Date(const Country &country, const std::string &text) {
+                this->country = country;
+                this->text = text;
             }
 
-            std::string country;
             std::string text;
+            Country country = Country::UNK;
         };
 
         struct Genre {
             Genre() = default;
 
-            Genre(const std::string &i, const std::string &m, const std::string &p,
-                  const std::string &l, const std::string &t) {
-                id = i;
-                main = m;
-                parentid = p;
-                language = l;
-                text = t;
+            Genre(int id, int mainId, int parentId,
+                  const std::string &text, const Language &language) {
+                this->id = id;
+                this->mainId = mainId;
+                this->parentId = parentId;
+                this->text = text;
+                this->language = language;
             }
 
-            std::string id;
-            std::string main;
-            std::string parentid;
-            std::string language;
+            int id = 0;
+            int mainId = 0;
+            int parentId = 0;
             std::string text;
+            Language language = Language::UNK;
         };
 
         struct Family {
             struct Name {
-                std::string language;
                 std::string text;
+                Language language = Language::UNK;
             };
-            std::string id;
-            std::string main;
-            std::string parentid;
+            int id;
+            int mainId;
+            int parentId;
             std::vector<Family::Name> names;
         };
 
         struct Media {
-            enum class Parent {
+            enum class Parent : char {
                 All, Game, Country, Editor, Developer,
                 Players, Rating, Genre
             };
-            std::string type;
             std::string parent;
+            std::string type;
             std::string url;
-            std::string country;
             std::string crc;
             std::string md5;
             std::string sha1;
             std::string format;
             std::string support;
+            Country country;
 
             int download(const std::string &dstPath);
         };
@@ -187,29 +186,29 @@ namespace ss_api {
         static bool parseGame(Game *game, tinyxml2::XMLNode *gameNode,
                               const std::string &romName = "", const int &GameListFormat = 0);
 
-        std::string id;
-        std::string romid;
-        std::string notgame;
-        std::vector<Name> names;
-        std::vector<std::string> countries;
-        std::string cloneof;
-        System system;
-        Editor editor;
-        Developer developer;
+        int id = 0;
+        int romId = 0;
+        int rating = 0;
+        int rotation = 0;
+        bool notGame = false;
+        bool topStaff = false;
+        bool available = false;
+        std::string cloneOf;
         std::string players;
-        std::string rating;
-        std::string topstaff;
-        std::string rotation;
         std::string resolution;
         std::string inputs;
         std::string colors;
+        System system;
+        Editor editor;
+        Developer developer;
+        std::vector<Name> names;
+        std::vector<Country> countries;
         std::vector<Synopsis> synopses;
         std::vector<Classification> classifications;
         std::vector<Date> dates;
         std::vector<Genre> genres;
         std::vector<Family> families;
         std::vector<Media> medias;
-        bool available = false;
         // emulationstation compatibility
         std::string source;
         std::string path;

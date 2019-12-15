@@ -13,7 +13,7 @@ Game::Name Game::getName(const Game::Country &country) const {
 
     remove_copy_if(names.begin(), names.end(), back_inserter(list),
                    [country](const Game::Name &name) {
-                       return country != Country::ALL && name.country != Api::toString(country);
+                       return country != Country::ALL && name.country != country;
                    });
 
     if (list.empty()) {
@@ -34,7 +34,7 @@ Game::Synopsis Game::getSynopsis(const Game::Language &language) const {
 
     copy_if(synopses.begin(), synopses.end(), back_inserter(list),
             [language](const Game::Synopsis &p) {
-                return p.language == Api::toString(language);
+                return p.language == language;
             });
 
     if (list.empty()) {
@@ -55,7 +55,7 @@ Game::Date Game::getDate(const Game::Country &country) const {
 
     copy_if(dates.begin(), dates.end(), back_inserter(list),
             [country](const Game::Date &p) {
-                return p.country == Api::toString(country);
+                return p.country == country;
             });
 
     if (list.empty()) {
@@ -76,7 +76,7 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
 
     copy_if(genres.begin(), genres.end(), back_inserter(list),
             [language](const Game::Genre &p) {
-                return p.language == Api::toString(language);
+                return p.language == language;
             });
 
     if (list.empty()) {
@@ -98,7 +98,7 @@ Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country
     remove_copy_if(medias.begin(), medias.end(), back_inserter(mediaList),
                    [mediaTypeName, country](const Game::Media &media) {
                        return media.type != mediaTypeName
-                              || (country != Country::ALL && media.country != Api::toString(country));
+                              || (country != Country::ALL && media.country != country);
                    });
 
     if (mediaList.empty()) {
@@ -114,7 +114,7 @@ Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country
 }
 
 bool Game::isClone() const {
-    return !cloneof.empty() && cloneof != "0";
+    return !cloneOf.empty() && cloneOf != "0";
 }
 
 int Game::Media::download(const std::string &dstPath) {
@@ -145,28 +145,28 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     }
 
     if (GameListFormat == GameList::Format::FbNeo) {
-        game->names.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("description")));
-        game->path = Api::Api::getXmlAttribute(gameNode->ToElement(), "name");
+        game->names.emplace_back(Country::WOR, Api::getXmlTextStr(gameNode->FirstChildElement("description")));
+        game->path = Api::getXmlAttrStr(gameNode->ToElement(), "name");
         if (!game->path.empty()) {
             game->path += ".zip";
         }
-        game->dates.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("year")));
-        game->developer.text = Api::getXmlText(gameNode->FirstChildElement("manufacturer"));
+        game->dates.emplace_back(Country::WOR, Api::getXmlTextStr(gameNode->FirstChildElement("year")));
+        game->developer.text = Api::getXmlTextStr(gameNode->FirstChildElement("manufacturer"));
         game->editor.text = game->developer.text;
-        game->cloneof = Api::Api::getXmlAttribute(gameNode->ToElement(), "cloneof");
+        game->cloneOf = Api::getXmlAttrStr(gameNode->ToElement(), "cloneof");
         return true;
     }
 
     // screenscraper / emulationstation compat
-    game->id = Api::getXmlAttribute(gameNode->ToElement(), "id");
+    game->id = Api::getXmlAttrInt(gameNode->ToElement(), "id");
     // screenscraper
-    game->romid = Api::getXmlAttribute(gameNode->ToElement(), "romid");
+    game->romId = Api::getXmlAttrInt(gameNode->ToElement(), "romid");
     // screenscraper
-    game->notgame = Api::getXmlAttribute(gameNode->ToElement(), "notgame");
+    game->notGame = Api::getXmlAttrBool(gameNode->ToElement(), "notgame");
     // emulationstation compat
-    game->source = Api::getXmlAttribute(gameNode->ToElement(), "source");
+    game->source = Api::getXmlAttrStr(gameNode->ToElement(), "source");
     // emulationstation compat
-    game->path = Api::getXmlText(gameNode->FirstChildElement("path"));
+    game->path = Api::getXmlTextStr(gameNode->FirstChildElement("path"));
     if (game->path.empty()) {
         game->path = romName;
     }
@@ -175,44 +175,44 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     if (element != nullptr) {
         tinyxml2::XMLNode *node = element->FirstChildElement("nom");
         while (node != nullptr) {
-            game->names.emplace_back(Api::getXmlAttribute(node->ToElement(), "region"),
-                                     Api::getXmlText(node->ToElement()));
+            game->names.emplace_back(Api::getXmlAttrCountry(node->ToElement(), "region"),
+                                     Api::getXmlTextStr(node->ToElement()));
             node = node->NextSibling();
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        game->names.emplace_back(Api::toString(Game::Country::WOR),
-                                 Api::getXmlText(gameNode->FirstChildElement("name")));
+        game->names.emplace_back(Country::WOR,
+                                 Api::getXmlTextStr(gameNode->FirstChildElement("name")));
     }
     // screenscraper
     element = gameNode->FirstChildElement("regions");
     if (element != nullptr) {
         tinyxml2::XMLNode *node = element->FirstChildElement("region");
         while (node != nullptr) {
-            game->countries.emplace_back(Api::getXmlText(node->ToElement()));
+            game->countries.emplace_back(Api::getXmlTextCountry(node->ToElement()));
             node = node->NextSibling();
         }
     }
     // screenscraper
-    game->cloneof = Api::getXmlText(gameNode->FirstChildElement("cloneof"));
+    game->cloneOf = Api::getXmlTextStr(gameNode->FirstChildElement("cloneof"));
     // screenscraper
-    game->system.id = Api::getXmlAttribute(gameNode->FirstChildElement("systeme"), "id");
-    game->system.parentId = Api::getXmlAttribute(gameNode->FirstChildElement("systeme"), "parentid");
-    game->system.text = Api::getXmlText(gameNode->FirstChildElement("systeme"));
+    game->system.id = Api::getXmlAttrInt(gameNode->FirstChildElement("systeme"), "id");
+    game->system.parentId = Api::getXmlAttrInt(gameNode->FirstChildElement("systeme"), "parentid");
+    game->system.text = Api::getXmlTextStr(gameNode->FirstChildElement("systeme"));
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("synopsis");
     if (element != nullptr) {
         tinyxml2::XMLNode *node = element->FirstChildElement("synopsis");
         while (node != nullptr) {
             Game::Synopsis synopsis{};
-            synopsis.language = Api::getXmlAttribute(node->ToElement(), "langue");
-            synopsis.text = Api::getXmlText(node->ToElement());
+            synopsis.language = Api::getXmlAttrLang(node->ToElement(), "langue");
+            synopsis.text = Api::getXmlTextStr(node->ToElement());
             game->synopses.emplace_back(synopsis);
             node = node->NextSibling();
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        game->synopses.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("desc")));
+        game->synopses.emplace_back(Language::EN, Api::getXmlTextStr(gameNode->FirstChildElement("desc")));
     }
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("medias");
@@ -220,44 +220,40 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         tinyxml2::XMLNode *node = element->FirstChildElement("media");
         while (node != nullptr) {
             Game::Media media{};
-            media.parent = Api::getXmlAttribute(node->ToElement(), "parent");
-            media.type = Api::getXmlAttribute(node->ToElement(), "type");
-            media.crc = Api::getXmlAttribute(node->ToElement(), "crc");
-            media.md5 = Api::getXmlAttribute(node->ToElement(), "md5");
-            media.sha1 = Api::getXmlAttribute(node->ToElement(), "sha1");
-            media.format = Api::getXmlAttribute(node->ToElement(), "format");
-            media.support = Api::getXmlAttribute(node->ToElement(), "support");
-            media.url = Api::getXmlText(node->ToElement());
-            media.country = Api::getXmlAttribute(node->ToElement(), "region");
-            if (media.country.empty()) {
-                media.country = Api::toString(Game::Country::UNKNOWN);
-            }
+            media.parent = Api::getXmlAttrStr(node->ToElement(), "parent");
+            media.type = Api::getXmlAttrStr(node->ToElement(), "type");
+            media.crc = Api::getXmlAttrStr(node->ToElement(), "crc");
+            media.md5 = Api::getXmlAttrStr(node->ToElement(), "md5");
+            media.sha1 = Api::getXmlAttrStr(node->ToElement(), "sha1");
+            media.format = Api::getXmlAttrStr(node->ToElement(), "format");
+            media.support = Api::getXmlAttrStr(node->ToElement(), "support");
+            media.url = Api::getXmlTextStr(node->ToElement());
+            media.country = Api::getXmlAttrCountry(node->ToElement(), "region");
             game->medias.emplace_back(media);
             node = node->NextSibling();
         }
     } else {
         // emulationstation compat
         game->medias.push_back({"sstitle", "",
-                                Api::getXmlText(gameNode->FirstChildElement("image")), "wor", "", "", "", "", ""});
+                                Api::getXmlTextStr(gameNode->FirstChildElement("image")),
+                                "", "", "", "", "", Country::WOR});
         game->medias.push_back({"ss", "",
-                                Api::getXmlText(gameNode->FirstChildElement("thumbnail")), "wor", "", "", "", "", ""});
+                                Api::getXmlTextStr(gameNode->FirstChildElement("thumbnail")),
+                                "", "", "", "", "", Country::WOR});
         game->medias.push_back({"video", "",
-                                Api::getXmlText(gameNode->FirstChildElement("video")), "wor", "", "", "", "", ""});
+                                Api::getXmlTextStr(gameNode->FirstChildElement("video")),
+                                "", "", "", "", "", Country::WOR});
     }
     // screenscraper (prioritise screenscraper format)
-    game->rating = Api::getXmlText(gameNode->FirstChildElement("note"));
-    if (game->rating.empty()) {
-        // emulationstation compat (use emulationstation format)
-        game->rating = Api::getXmlText(gameNode->FirstChildElement("rating"));
-    }
+    game->rating = Api::getXmlTextInt(gameNode->FirstChildElement("note"));
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("dates");
     if (element != nullptr) {
         tinyxml2::XMLNode *node = element->FirstChildElement("date");
         while (node != nullptr) {
             Game::Date date{};
-            date.country = Api::getXmlAttribute(node->ToElement(), "region");
-            date.text = Api::getXmlText(node->ToElement());
+            date.country = Api::getXmlAttrCountry(node->ToElement(), "region");
+            date.text = Api::getXmlTextStr(node->ToElement());
             if (date.text.size() >= 4) {
                 date.text = date.text.substr(0, 4);
             }
@@ -266,21 +262,21 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        game->dates.emplace_back("wor", Api::getXmlText(gameNode->FirstChildElement("releasedate")));
+        game->dates.emplace_back(Country::WOR, Api::getXmlTextStr(gameNode->FirstChildElement("releasedate")));
     }
     // screenscraper
-    game->developer.id = Api::getXmlAttribute(gameNode->FirstChildElement("developpeur"), "id");
-    game->developer.text = Api::getXmlText(gameNode->FirstChildElement("developpeur"));
+    game->developer.id = Api::getXmlAttrInt(gameNode->FirstChildElement("developpeur"), "id");
+    game->developer.text = Api::getXmlTextStr(gameNode->FirstChildElement("developpeur"));
     if (game->developer.text.empty()) {
         // emulationstation compat (use emulationstation format)
-        game->developer.text = Api::getXmlText(gameNode->FirstChildElement("developer"));
+        game->developer.text = Api::getXmlTextStr(gameNode->FirstChildElement("developer"));
     }
     // screenscraper
-    game->editor.id = Api::getXmlAttribute(gameNode->FirstChildElement("editeur"), "id");
-    game->editor.text = Api::getXmlText(gameNode->FirstChildElement("editeur"));
+    game->editor.id = Api::getXmlAttrInt(gameNode->FirstChildElement("editeur"), "id");
+    game->editor.text = Api::getXmlTextStr(gameNode->FirstChildElement("editeur"));
     if (game->editor.text.empty()) {
         // emulationstation compat (use emulationstation format)
-        game->editor.text = Api::getXmlText(gameNode->FirstChildElement("publisher"));
+        game->editor.text = Api::getXmlTextStr(gameNode->FirstChildElement("publisher"));
     }
     // screenscraper (prioritise screenscraper format)
     element = gameNode->FirstChildElement("genres");
@@ -288,35 +284,36 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         tinyxml2::XMLNode *node = element->FirstChildElement("genre");
         while (node != nullptr) {
             Game::Genre genre{};
-            genre.id = Api::getXmlAttribute(node->ToElement(), "id");
-            genre.main = Api::getXmlAttribute(node->ToElement(), "principale");
-            genre.parentid = Api::getXmlAttribute(node->ToElement(), "parentid");
-            genre.language = Api::getXmlAttribute(node->ToElement(), "langue");
-            genre.text = Api::getXmlText(node->ToElement());
+            genre.id = Api::getXmlAttrInt(node->ToElement(), "id");
+            genre.mainId = Api::getXmlAttrInt(node->ToElement(), "principale");
+            genre.parentId = Api::getXmlAttrInt(node->ToElement(), "parentid");
+            genre.language = Api::getXmlAttrLang(node->ToElement(), "langue");
+            genre.text = Api::getXmlTextStr(node->ToElement());
             game->genres.emplace_back(genre);
             node = node->NextSibling();
         }
     } else {
         // emulationstation compat (use emulationstation format)
-        game->genres.emplace_back(
-                "", "", "", "en", Api::getXmlText(gameNode->FirstChildElement("genre")));
+        game->genres.emplace_back(0, 0, 0,
+                                  Api::getXmlTextStr(gameNode->FirstChildElement("genre")),
+                                  Language::EN);
     }
     // screenscraper
-    game->players = Api::getXmlText(gameNode->FirstChildElement("joueurs"));
+    game->players = Api::getXmlTextStr(gameNode->FirstChildElement("joueurs"));
     if (game->players.empty()) {
         // emulationstation compat (use emulationstation format)
-        game->players = Api::getXmlText(gameNode->FirstChildElement("players"));
+        game->players = Api::getXmlTextStr(gameNode->FirstChildElement("players"));
     }
     // screenscraper
-    game->topstaff = Api::getXmlText(gameNode->FirstChildElement("topstaff"));
+    game->topStaff = Api::getXmlTextBool(gameNode->FirstChildElement("topstaff"));
     // screenscraper
-    game->rotation = Api::getXmlText(gameNode->FirstChildElement("rotation"));
+    game->rotation = Api::getXmlTextInt(gameNode->FirstChildElement("rotation"));
     // screenscraper
-    game->resolution = Api::getXmlText(gameNode->FirstChildElement("resolution"));
+    game->resolution = Api::getXmlTextStr(gameNode->FirstChildElement("resolution"));
     // screenscraper
-    game->inputs = Api::getXmlText(gameNode->FirstChildElement("controles"));
+    game->inputs = Api::getXmlTextStr(gameNode->FirstChildElement("controles"));
     // screenscraper
-    game->colors = Api::getXmlText(gameNode->FirstChildElement("couleurs"));
+    game->colors = Api::getXmlTextStr(gameNode->FirstChildElement("couleurs"));
 
     return true;
 }

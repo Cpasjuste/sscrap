@@ -68,23 +68,23 @@ bool SystemList::parseSystem(struct ss_api::SystemList::System *system, tinyxml2
         return false;
     }
 
-    system->id = Api::getXmlText(systemNode->FirstChildElement("id"));
-    system->parentid = Api::getXmlText(systemNode->FirstChildElement("parentid"));
-    system->extensions = Api::getXmlText(systemNode->FirstChildElement("extensions"));
-    system->company = Api::getXmlText(systemNode->FirstChildElement("compagnie"));
-    system->type = Api::getXmlText(systemNode->FirstChildElement("type"));
-    system->startdate = Api::getXmlText(systemNode->FirstChildElement("datedebut"));
-    system->enddate = Api::getXmlText(systemNode->FirstChildElement("datefin"));
-    system->romtype = Api::getXmlText(systemNode->FirstChildElement("romtype"));
-    system->supporttype = Api::getXmlText(systemNode->FirstChildElement("supporttype"));
+    system->id = Api::getXmlTextStr(systemNode->FirstChildElement("id"));
+    system->parentid = Api::getXmlTextStr(systemNode->FirstChildElement("parentid"));
+    system->extensions = Api::getXmlTextStr(systemNode->FirstChildElement("extensions"));
+    system->company = Api::getXmlTextStr(systemNode->FirstChildElement("compagnie"));
+    system->type = Api::getXmlTextStr(systemNode->FirstChildElement("type"));
+    system->startdate = Api::getXmlTextStr(systemNode->FirstChildElement("datedebut"));
+    system->enddate = Api::getXmlTextStr(systemNode->FirstChildElement("datefin"));
+    system->romtype = Api::getXmlTextStr(systemNode->FirstChildElement("romtype"));
+    system->supporttype = Api::getXmlTextStr(systemNode->FirstChildElement("supporttype"));
     tinyxml2::XMLNode *element = systemNode->FirstChildElement("noms");
     if (element != nullptr) {
-        system->names.eu = Api::getXmlText(element->FirstChildElement("nom_eu"));
-        system->names.recalbox = Api::getXmlText(element->FirstChildElement("nom_recalbox"));
-        system->names.retropie = Api::getXmlText(element->FirstChildElement("nom_retropie"));
-        system->names.launchbox = Api::getXmlText(element->FirstChildElement("nom_launchbox"));
-        system->names.hyperspin = Api::getXmlText(element->FirstChildElement("nom_hyperspin"));
-        system->names.common = Api::getXmlText(element->FirstChildElement("noms_commun"));
+        system->names.eu = Api::getXmlTextStr(element->FirstChildElement("nom_eu"));
+        system->names.recalbox = Api::getXmlTextStr(element->FirstChildElement("nom_recalbox"));
+        system->names.retropie = Api::getXmlTextStr(element->FirstChildElement("nom_retropie"));
+        system->names.launchbox = Api::getXmlTextStr(element->FirstChildElement("nom_launchbox"));
+        system->names.hyperspin = Api::getXmlTextStr(element->FirstChildElement("nom_hyperspin"));
+        system->names.common = Api::getXmlTextStr(element->FirstChildElement("noms_commun"));
     }
 
     return true;

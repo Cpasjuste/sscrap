@@ -91,17 +91,17 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
         if (p == players.end()) {
             players.emplace_back(_players);
         }
-        std::string rating = game.rating.empty() ? "Unknown" : game.rating;
+        std::string rating = std::to_string(game.rating);
         p = std::find(ratings.begin(), ratings.end(), rating);
         if (p == ratings.end()) {
             ratings.emplace_back(rating);
         }
-        std::string topstaff = game.topstaff.empty() ? "Unknown" : game.topstaff;
-        p = std::find(topstaffs.begin(), topstaffs.end(), topstaff);
-        if (p == topstaffs.end()) {
-            topstaffs.emplace_back(topstaff);
+        std::string topStaff = std::to_string((int) game.topStaff);
+        p = std::find(topStaffs.begin(), topStaffs.end(), topStaff);
+        if (p == topStaffs.end()) {
+            topStaffs.emplace_back(topStaff);
         }
-        std::string rotation = game.rotation.empty() ? "Unknown" : game.rotation;
+        std::string rotation = std::to_string(game.rotation);
         p = std::find(rotations.begin(), rotations.end(), rotation);
         if (p == rotations.end()) {
             rotations.emplace_back(rotation);
@@ -145,7 +145,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     std::sort(developers.begin(), developers.end(), Api::sortByName);
     std::sort(players.begin(), players.end(), Api::sortByName);
     std::sort(ratings.begin(), ratings.end(), Api::sortByName);
-    std::sort(topstaffs.begin(), topstaffs.end(), Api::sortByName);
+    std::sort(topStaffs.begin(), topStaffs.end(), Api::sortByName);
     std::sort(rotations.begin(), rotations.end(), Api::sortByName);
     std::sort(resolutions.begin(), resolutions.end(), Api::sortByName);
     std::sort(dates.begin(), dates.end(), Api::sortByName);
@@ -167,8 +167,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     if (ratings.empty() || ratings.at(0) != "All") {
         ratings.insert(ratings.begin(), "All");
     }
-    if (topstaffs.empty() || topstaffs.at(0) != "All") {
-        topstaffs.insert(topstaffs.begin(), "All");
+    if (topStaffs.empty() || topStaffs.at(0) != "All") {
+        topStaffs.insert(topStaffs.begin(), "All");
     }
     if (rotations.empty() || rotations.at(0) != "All") {
         rotations.insert(rotations.begin(), "All");
@@ -210,8 +210,8 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
     for (const auto &game : games) {
         if (fmt == Format::EmulationStation) {
             tinyxml2::XMLElement *gameElement = doc.NewElement("game");
-            if (!game.id.empty()) {
-                gameElement->SetAttribute("id", game.id.c_str());
+            if (game.id > 0) {
+                gameElement->SetAttribute("id", game.id);
             }
             if (!game.source.empty()) {
                 gameElement->SetAttribute("source", game.source.c_str());
@@ -219,7 +219,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             Api::addXmlElement(&doc, gameElement, "path", game.path);
             Api::addXmlElement(&doc, gameElement, "name", game.getName().text);
             Api::addXmlElement(&doc, gameElement, "desc", game.getSynopsis(language).text);
-            Api::addXmlElement(&doc, gameElement, "rating", game.rating);
+            Api::addXmlElement(&doc, gameElement, "rating", std::to_string(game.rating));
             Api::addXmlElement(&doc, gameElement, "releasedate", game.getDate().text);
             Api::addXmlElement(&doc, gameElement, "developer", game.developer.text);
             Api::addXmlElement(&doc, gameElement, "publisher", game.editor.text);
@@ -247,21 +247,21 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
         } else {
             tinyxml2::XMLElement *elem;
             tinyxml2::XMLElement *gameElement = doc.NewElement("jeu");
-            if (!game.id.empty()) {
-                gameElement->SetAttribute("id", game.id.c_str());
+            if (game.id > 0) {
+                gameElement->SetAttribute("id", game.id);
             }
-            if (!game.romid.empty()) {
-                gameElement->SetAttribute("romid", game.romid.c_str());
+            if (game.romId > 0) {
+                gameElement->SetAttribute("romid", game.romId);
             }
-            if (!game.notgame.empty()) {
-                gameElement->SetAttribute("notgame", game.notgame.c_str());
+            if (game.notGame) {
+                gameElement->SetAttribute("notgame", game.notGame);
             }
             Api::addXmlElement(&doc, gameElement, "path", game.path);
 
             tinyxml2::XMLElement *names = doc.NewElement("noms");
             for (const auto &name : game.names) {
                 tinyxml2::XMLElement *n = doc.NewElement("nom");
-                n->SetAttribute("region", name.country.c_str());
+                n->SetAttribute("region", Api::toString(name.country).c_str());
                 n->SetText(name.text.c_str());
                 names->InsertEndChild(n);
             }
@@ -271,18 +271,18 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
                 tinyxml2::XMLElement *countries = doc.NewElement("regions");
                 for (const auto &country : game.countries) {
                     tinyxml2::XMLElement *n = doc.NewElement("region");
-                    n->SetText(country.c_str());
+                    n->SetText(Api::toString(country).c_str());
                     countries->InsertEndChild(n);
                 }
                 gameElement->InsertEndChild(countries);
             }
 
-            Api::addXmlElement(&doc, gameElement, "cloneof", game.cloneof);
+            Api::addXmlElement(&doc, gameElement, "cloneof", game.cloneOf);
 
             elem = doc.NewElement("systeme");
-            if (!game.system.id.empty()) {
-                elem->SetAttribute("id", game.system.id.c_str());
-                elem->SetAttribute("parentid", game.system.parentId.c_str());
+            if (game.system.id > 0) {
+                elem->SetAttribute("id", game.system.id);
+                elem->SetAttribute("parentid", game.system.parentId);
                 elem->SetText(game.system.text.c_str());
             }
             gameElement->InsertEndChild(elem);
@@ -290,11 +290,11 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             if (!game.synopses.empty()) {
                 tinyxml2::XMLElement *synopses = doc.NewElement("synopsis");
                 for (const auto &synopsis : game.synopses) {
-                    if (synopsis.language != Api::toString(language)) {
+                    if (synopsis.language != language) {
                         continue;
                     }
                     tinyxml2::XMLElement *n = doc.NewElement("synopsis");
-                    n->SetAttribute("langue", synopsis.language.c_str());
+                    n->SetAttribute("langue", Api::toString(synopsis.language).c_str());
                     n->SetText(synopsis.text.c_str());
                     synopses->InsertEndChild(n);
                 }
@@ -309,7 +309,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
                         tinyxml2::XMLElement *n = doc.NewElement("media");
                         n->SetAttribute("parent", media.parent.c_str());
                         n->SetAttribute("type", media.type.c_str());
-                        n->SetAttribute("region", media.country.c_str());
+                        n->SetAttribute("region", Api::toString(media.country).c_str());
                         n->SetAttribute("crc", media.crc.c_str());
                         n->SetAttribute("md5", media.md5.c_str());
                         n->SetAttribute("sha1", media.sha1.c_str());
@@ -332,7 +332,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
                 tinyxml2::XMLElement *_dates = doc.NewElement("dates");
                 for (const auto &date : game.dates) {
                     tinyxml2::XMLElement *n = doc.NewElement("date");
-                    n->SetAttribute("region", date.country.c_str());
+                    n->SetAttribute("region", Api::toString(date.country).c_str());
                     n->SetText(date.text.c_str());
                     _dates->InsertEndChild(n);
                 }
@@ -341,14 +341,14 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
             if (!game.developer.text.empty()) {
                 elem = doc.NewElement("developpeur");
-                elem->SetAttribute("id", game.developer.id.c_str());
+                elem->SetAttribute("id", game.developer.id);
                 elem->SetText(game.developer.text.c_str());
                 gameElement->InsertEndChild(elem);
             }
 
             if (!game.editor.text.empty()) {
                 elem = doc.NewElement("editeur");
-                elem->SetAttribute("id", game.editor.id.c_str());
+                elem->SetAttribute("id", game.editor.id);
                 elem->SetText(game.editor.text.c_str());
                 gameElement->InsertEndChild(elem);
             }
@@ -356,14 +356,14 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             if (!game.genres.empty()) {
                 tinyxml2::XMLElement *_genres = doc.NewElement("genres");
                 for (const auto &genre : game.genres) {
-                    if (genre.language != Api::toString(language)) {
+                    if (genre.language != language) {
                         continue;
                     }
                     tinyxml2::XMLElement *n = doc.NewElement("genre");
-                    n->SetAttribute("id", genre.id.c_str());
-                    n->SetAttribute("principale", genre.main.c_str());
-                    n->SetAttribute("parentid", genre.parentid.c_str());
-                    n->SetAttribute("langue", genre.language.c_str());
+                    n->SetAttribute("id", genre.id);
+                    n->SetAttribute("principale", genre.mainId);
+                    n->SetAttribute("parentid", genre.parentId);
+                    n->SetAttribute("langue", Api::toString(genre.language).c_str());
                     n->SetText(genre.text.c_str());
                     _genres->InsertEndChild(n);
                 }
@@ -371,9 +371,9 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             }
 
             Api::addXmlElement(&doc, gameElement, "joueurs", game.players);
-            Api::addXmlElement(&doc, gameElement, "topstaff", game.topstaff);
-            Api::addXmlElement(&doc, gameElement, "note", game.rating);
-            Api::addXmlElement(&doc, gameElement, "rotation", game.rotation);
+            Api::addXmlElement(&doc, gameElement, "topstaff", game.topStaff ? "1" : "0");
+            Api::addXmlElement(&doc, gameElement, "note", std::to_string(game.rating));
+            Api::addXmlElement(&doc, gameElement, "rotation", std::to_string(game.rotation));
             Api::addXmlElement(&doc, gameElement, "resolution", game.resolution);
             Api::addXmlElement(&doc, gameElement, "controles", game.inputs);
             Api::addXmlElement(&doc, gameElement, "couleurs", game.colors);
@@ -408,7 +408,7 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
     gameList.developers = developers;
     gameList.players = players;
     gameList.ratings = ratings;
-    gameList.topstaffs = topstaffs;
+    gameList.topStaffs = topStaffs;
     gameList.rotations = rotations;
     gameList.resolutions = resolutions;
     gameList.dates = dates;
@@ -424,9 +424,9 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
                             && (editor == "All" || game.editor.text == editor)
                             && (developer == "All" || game.developer.text == developer)
                             && (player == "All" || game.players == player)
-                            && (rating == "All" || game.rating == rating)
-                            && (topstaff == "All" || game.topstaff == topstaff)
-                            && (rotation == "All" || game.rotation == rotation)
+                            && (rating == "All" || game.rating == Api::parseInt(rating))
+                            && (topstaff == "All" || game.topStaff == Api::parseBool(topstaff))
+                            && (rotation == "All" || game.rotation == Api::parseInt(rotation))
                             && (resolution == "All" || game.resolution == resolution)
                             && (date == "All" || game.getDate(Game::Country::WOR).text == date)
                             && (genre == "All" || game.getGenre(Game::Language::EN).text == genre);
@@ -435,10 +435,10 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
     return gameList;
 }
 
-Game GameList::findByRomId(const std::string &romId) {
+Game GameList::findByRomId(int romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
-        return game.romid == romId;
+        return game.romId == romId;
     });
 
     if (it != games.end()) {
@@ -461,19 +461,19 @@ Game GameList::findByPath(const std::string &path) {
     return Game();
 }
 
-bool GameList::exist(const std::string &romId) {
+bool GameList::exist(int romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
-        return game.romid == romId;
+        return game.romId == romId;
     });
 
     return it != games.end();
 }
 
-bool GameList::remove(const std::string &romId) {
+bool GameList::remove(int romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
-        return game.romid == romId;
+        return game.romId == romId;
     });
 
     if (it != games.end()) {

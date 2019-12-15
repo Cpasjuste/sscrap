@@ -66,20 +66,20 @@ bool User::parseUser(User *user, tinyxml2::XMLNode *userNode) {
         return false;
     }
 
-    user->id = Api::getXmlText(userNode->FirstChildElement("id"));
-    user->niveau = Api::getXmlText(userNode->FirstChildElement("niveau"));
-    user->contribution = Api::getXmlText(userNode->FirstChildElement("contribution"));
-    user->uploadsysteme = Api::getXmlText(userNode->FirstChildElement("uploadsysteme"));
-    user->uploadinfos = Api::getXmlText(userNode->FirstChildElement("uploadinfos"));
-    user->romasso = Api::getXmlText(userNode->FirstChildElement("romasso"));
-    user->uploadmedia = Api::getXmlText(userNode->FirstChildElement("uploadmedia"));
-    user->maxthreads = Api::getXmlText(userNode->FirstChildElement("maxthreads"));
-    user->maxdownloadspeed = Api::getXmlText(userNode->FirstChildElement("maxdownloadspeed"));
-    user->requeststoday = Api::getXmlText(userNode->FirstChildElement("requeststoday"));
-    user->maxrequestsperday = Api::getXmlText(userNode->FirstChildElement("maxrequestsperday"));
-    user->visites = Api::getXmlText(userNode->FirstChildElement("visites"));
-    user->datedernierevisite = Api::getXmlText(userNode->FirstChildElement("datedernierevisite"));
-    user->favregion = Api::getXmlText(userNode->FirstChildElement("favregion"));
+    user->id = Api::getXmlTextStr(userNode->FirstChildElement("id"));
+    user->niveau = Api::getXmlTextStr(userNode->FirstChildElement("niveau"));
+    user->contribution = Api::getXmlTextStr(userNode->FirstChildElement("contribution"));
+    user->uploadsysteme = Api::getXmlTextStr(userNode->FirstChildElement("uploadsysteme"));
+    user->uploadinfos = Api::getXmlTextStr(userNode->FirstChildElement("uploadinfos"));
+    user->romasso = Api::getXmlTextStr(userNode->FirstChildElement("romasso"));
+    user->uploadmedia = Api::getXmlTextStr(userNode->FirstChildElement("uploadmedia"));
+    user->maxthreads = Api::getXmlTextStr(userNode->FirstChildElement("maxthreads"));
+    user->maxdownloadspeed = Api::getXmlTextStr(userNode->FirstChildElement("maxdownloadspeed"));
+    user->requeststoday = Api::getXmlTextStr(userNode->FirstChildElement("requeststoday"));
+    user->maxrequestsperday = Api::getXmlTextStr(userNode->FirstChildElement("maxrequestsperday"));
+    user->visites = Api::getXmlTextStr(userNode->FirstChildElement("visites"));
+    user->datedernierevisite = Api::getXmlTextStr(userNode->FirstChildElement("datedernierevisite"));
+    user->favregion = Api::getXmlTextStr(userNode->FirstChildElement("favregion"));
 
     return true;
 }

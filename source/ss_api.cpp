@@ -12,7 +12,7 @@ std::string Api::ss_devpassword;
 std::string Api::ss_softname;
 bool ss_debug = false;
 
-std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name) {
+std::string Api::getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name) {
 
     if (element == nullptr || element->Attribute(name.c_str()) == nullptr) {
         return "";
@@ -21,13 +21,61 @@ std::string Api::getXmlAttribute(tinyxml2::XMLElement *element, const std::strin
     return element->Attribute(name.c_str());
 }
 
-std::string Api::getXmlText(tinyxml2::XMLElement *element) {
+int Api::getXmlAttrInt(tinyxml2::XMLElement *element, const std::string &name) {
+
+    std::string attr = getXmlAttrStr(element, name);
+    return parseInt(attr);
+}
+
+bool Api::getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name) {
+
+    std::string attr = getXmlAttrStr(element, name);
+    return parseBool(attr);
+}
+
+Game::Country Api::getXmlAttrCountry(tinyxml2::XMLElement *element, const std::string &name) {
+
+    std::string attr = getXmlAttrStr(element, name);
+    return toCountry(attr);
+}
+
+Game::Language Api::getXmlAttrLang(tinyxml2::XMLElement *element, const std::string &name) {
+
+    std::string attr = getXmlAttrStr(element, name);
+    return toLanguage(attr);
+}
+
+std::string Api::getXmlTextStr(tinyxml2::XMLElement *element) {
 
     if (element == nullptr || element->GetText() == nullptr) {
         return "";
     }
 
     return element->GetText();
+}
+
+int Api::getXmlTextInt(tinyxml2::XMLElement *element) {
+
+    std::string text = getXmlTextStr(element);
+    return parseInt(text);
+}
+
+bool Api::getXmlTextBool(tinyxml2::XMLElement *element) {
+
+    std::string text = getXmlTextStr(element);
+    return parseBool(text);
+}
+
+Game::Country Api::getXmlTextCountry(tinyxml2::XMLElement *element) {
+
+    std::string text = getXmlTextStr(element);
+    return toCountry(text);
+}
+
+Game::Language Api::getXmlTextLang(tinyxml2::XMLElement *element) {
+
+    std::string text = getXmlTextStr(element);
+    return toLanguage(text);
 }
 
 tinyxml2::XMLElement *Api::addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,
@@ -193,7 +241,7 @@ Game::Country Api::toCountry(const std::string &country) {
     else if (country == "tr") { return Game::Country::TR; }
     else if (country == "us") { return Game::Country::US; }
     else if (country == "all") { return Game::Country::ALL; }
-    else return Game::Country::UNKNOWN;
+    else return Game::Country::UNK;
 }
 
 Game::Language Api::toLanguage(const std::string &language) {
@@ -202,7 +250,7 @@ Game::Language Api::toLanguage(const std::string &language) {
     else if (language == "es") { return Game::Language::ES; }
     else if (language == "pt") { return Game::Language::PT; }
     else if (language == "all") { return Game::Language::ALL; }
-    else return Game::Language::UNKNOWN;
+    else return Game::Language::UNK;
 }
 
 bool Api::sortByName(const std::string &g1, const std::string &g2) {
@@ -226,10 +274,20 @@ int Api::parseInt(const std::string &str, int defValue) {
     return defValue;
 }
 
+bool Api::parseBool(const std::string &str, bool defValue) {
+    if (str.empty() || str != "true" || str != "false"
+        || str != "0" || str != "1") {
+        return defValue;
+    }
+
+    return str == "true" || str == "1";
+}
+
 #ifdef _MSC_VER
 void Api::printc(int color, const char* format, ...) {
 #else
-void Api::printc(const char *color, const char* format, ...) {
+
+void Api::printc(const char *color, const char *format, ...) {
 #endif
 
     char buffer[1024];
@@ -261,3 +319,4 @@ void Api::printe(int code, int delay) {
         printc(COLOR_Y, "NOK: timeout reached... retrying in %i seconds\n", delay);
     }
 }
+

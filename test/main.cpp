@@ -24,7 +24,7 @@ static void fixFbnClone(Game *game, const GameList &list) {
         return;
     }
     // fix screenscrapecloneof !
-    game->cloneof = (*fbaGame).cloneof + ".zip";
+    game->cloneOf = (*fbaGame).cloneOf + ".zip";
 }
 
 // if a custom sscrap custom id is set (fbneo console games),
@@ -163,13 +163,13 @@ static void *scrap_thread(void *ptr) {
             GameSearch search = GameSearch(name, scrap->systemId, scrap->usr, scrap->pwd, retryDelay);
             SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
             if (!search.games.empty()) {
-                const std::string id = scrap->systemId;
+                int id = Api::parseInt(scrap->systemId);
                 auto game = std::find_if(search.games.begin(), search.games.end(), [id](const Game &game) {
                     return game.system.id == id || game.system.parentId == id;
                 });
                 if (game != search.games.end()) {
                     gameInfo = GameInfo("", "", "", "", "", file,
-                                        "", (*game).id, scrap->usr, scrap->pwd, retryDelay);
+                                        "", std::to_string((*game).id), scrap->usr, scrap->pwd, retryDelay);
                     if (gameInfo.http_error == 0) {
                         searchType = "search";
                     }
@@ -183,13 +183,13 @@ static void *scrap_thread(void *ptr) {
                     search = GameSearch(name, scrap->systemId, scrap->usr, scrap->pwd, retryDelay);
                     SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
                     if (!search.games.empty()) {
-                        const std::string id = scrap->systemId;
+                        int id = Api::parseInt(scrap->systemId);
                         auto game = std::find_if(search.games.begin(), search.games.end(), [id](const Game &game) {
                             return game.system.id == id || game.system.parentId == id;
                         });
                         if (game != search.games.end()) {
                             gameInfo = GameInfo("", "", "", "", "", file,
-                                                "", (*game).id, scrap->usr, scrap->pwd, retryDelay);
+                                                "", std::to_string((*game).id), scrap->usr, scrap->pwd, retryDelay);
                             if (gameInfo.http_error == 0) {
                                 searchType = "search";
                             }
@@ -251,7 +251,7 @@ static void *scrap_thread(void *ptr) {
                 game = fbnGame;
                 scrap->gameList.games.emplace_back(game);
             } else {
-                game.names.emplace_back(Api::toString(Game::Country::WOR), file);
+                game.names.emplace_back(Game::Country::WOR, file);
                 game.path = file;
                 scrap->gameList.games.emplace_back(game);
             }

@@ -45,31 +45,49 @@ namespace ss_api {
 
         static int parseInt(const std::string &str, int defValue = 0);
 
-#ifdef _MSC_VER
-        static void printc(int color, const char* format, ...);
-#else
-
-        static void printc(const char *color, const char *format, ...);
-
-#endif
-
-        static void printe(int code, int delay);
-
-        static std::string ss_devid;
-        static std::string ss_devpassword;
-        static std::string ss_softname;
+        static bool parseBool(const std::string &str, bool defValue = false);
 
         // internal
         static bool sortByName(const std::string &g1, const std::string &g2);
 
         static bool sortGameByName(const Game &g1, const Game &g2);
 
-        static std::string getXmlAttribute(tinyxml2::XMLElement *element, const std::string &name);
+        // get attributes
+        static std::string getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name);
 
-        static std::string getXmlText(tinyxml2::XMLElement *element);
+        static int getXmlAttrInt(tinyxml2::XMLElement *element, const std::string &name);
 
+        static bool getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name);
+
+        static Game::Country getXmlAttrCountry(tinyxml2::XMLElement *element, const std::string &name);
+
+        static Game::Language getXmlAttrLang(tinyxml2::XMLElement *element, const std::string &name);
+
+        // get text
+        static std::string getXmlTextStr(tinyxml2::XMLElement *element);
+
+        static int getXmlTextInt(tinyxml2::XMLElement *element);
+
+        static bool getXmlTextBool(tinyxml2::XMLElement *element);
+
+        static Game::Country getXmlTextCountry(tinyxml2::XMLElement *element);
+
+        static Game::Language getXmlTextLang(tinyxml2::XMLElement *element);
+
+        // add
         static tinyxml2::XMLElement *addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,
                                                    const std::string &name, const std::string &value);
+
+#ifdef _MSC_VER
+        static void printc(int color, const char* format, ...);
+#else
+        static void printc(const char *color, const char *format, ...);
+#endif
+        static void printe(int code, int delay);
+
+        static std::string ss_devid;
+        static std::string ss_devpassword;
+        static std::string ss_softname;
     };
 }
 

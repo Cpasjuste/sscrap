@@ -74,20 +74,20 @@ bool MediasGameList::parseMedia(Media *media, tinyxml2::XMLNode *mediaNode) {
         return false;
     }
 
-    media->id = Api::getXmlText(mediaNode->FirstChildElement("id"));
-    media->name = Api::getXmlText(mediaNode->FirstChildElement("nom"));
-    media->nameShort = Api::getXmlText(mediaNode->FirstChildElement("nomcourt"));
-    media->category = Api::getXmlText(mediaNode->FirstChildElement("categorie"));
-    media->platformtypes = Api::getXmlText(mediaNode->FirstChildElement("plateformtypes"));
-    media->plateforms = Api::getXmlText(mediaNode->FirstChildElement("plateforms"));
-    media->type = Api::getXmlText(mediaNode->FirstChildElement("type"));
-    media->fileformat = Api::getXmlText(mediaNode->FirstChildElement("fileformat"));
-    media->fileformat2 = Api::getXmlText(mediaNode->FirstChildElement("fileformat2"));
-    media->autogen = Api::getXmlText(mediaNode->FirstChildElement("autogen"));
-    media->multiregions = Api::getXmlText(mediaNode->FirstChildElement("multiregions"));
-    media->multisupports = Api::getXmlText(mediaNode->FirstChildElement("multisupports"));
-    media->multiversions = Api::getXmlText(mediaNode->FirstChildElement("multiversions"));
-    media->extrainfostxt = Api::getXmlText(mediaNode->FirstChildElement("extrainfostxt"));
+    media->id = Api::getXmlTextStr(mediaNode->FirstChildElement("id"));
+    media->name = Api::getXmlTextStr(mediaNode->FirstChildElement("nom"));
+    media->nameShort = Api::getXmlTextStr(mediaNode->FirstChildElement("nomcourt"));
+    media->category = Api::getXmlTextStr(mediaNode->FirstChildElement("categorie"));
+    media->platformtypes = Api::getXmlTextStr(mediaNode->FirstChildElement("plateformtypes"));
+    media->plateforms = Api::getXmlTextStr(mediaNode->FirstChildElement("plateforms"));
+    media->type = Api::getXmlTextStr(mediaNode->FirstChildElement("type"));
+    media->fileformat = Api::getXmlTextStr(mediaNode->FirstChildElement("fileformat"));
+    media->fileformat2 = Api::getXmlTextStr(mediaNode->FirstChildElement("fileformat2"));
+    media->autogen = Api::getXmlTextStr(mediaNode->FirstChildElement("autogen"));
+    media->multiregions = Api::getXmlTextStr(mediaNode->FirstChildElement("multiregions"));
+    media->multisupports = Api::getXmlTextStr(mediaNode->FirstChildElement("multisupports"));
+    media->multiversions = Api::getXmlTextStr(mediaNode->FirstChildElement("multiversions"));
+    media->extrainfostxt = Api::getXmlTextStr(mediaNode->FirstChildElement("extrainfostxt"));
 
     return true;
 }
