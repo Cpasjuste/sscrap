@@ -96,7 +96,8 @@ if (BUILD_SSCRAP)
     set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
     find_package(Threads REQUIRED)
     find_package(MiniZip REQUIRED)
-    add_executable(${PROJECT_NAME}.elf test/main.cpp test/utility.cpp)
+    file(GLOB HASH_SRC test/hashlibpp/*.cpp)
+    add_executable(${PROJECT_NAME}.elf test/main.cpp test/utility.cpp ${HASH_SRC})
     target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME}
             ${CMAKE_THREAD_LIBS_INIT}
             ${MINIZIP_LIBRARIES}

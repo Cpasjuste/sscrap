@@ -99,6 +99,14 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
     return std::string(hex);
 }
 
+Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string &file) {
+    ZipInfo info;
+    info.name = file;
+    // TODO
+
+    return info;
+}
+
 void Utility::replace(std::string &str, const std::string &from, const std::string &to) {
     size_t start_pos = str.find(from);
     while (start_pos != std::string::npos) {

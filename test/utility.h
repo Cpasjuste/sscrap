@@ -12,13 +12,24 @@
 class Utility {
 public:
 
+    struct ZipInfo {
+        std::string name;
+        std::string size;
+        std::string serial;
+        std::string crc;
+        std::string md5;
+        std::string sha1;
+    };
+
     static std::string getExt(const std::string &file);
 
     static std::string getZipCrc(const std::string &zipPath);
 
     static std::string getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList = {});
 
-    static void replace(std::string& str, const std::string& from, const std::string& to);
+    static ZipInfo getZipInfo(const std::string &path, const std::string &file);
+
+    static void replace(std::string &str, const std::string &from, const std::string &to);
 
     static void printGame(const ss_api::Game &game);
 };
