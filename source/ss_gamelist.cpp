@@ -63,46 +63,59 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     while (gameNode != nullptr) {
         Game game;
         Game::parseGame(&game, gameNode, "", format);
+        // set game "real path", minus filename (for pFBN)
+        game.romsPath = rPath;
         // is rom available?
         auto p = std::find(files.begin(), files.end(), game.path);
         if (p != files.end()) {
             game.available = true;
         }
         // add stuff for later filtering
-        p = std::find(systems.begin(), systems.end(), game.system.text);
+        std::string system = game.system.text.empty() ? "Unknown" : game.system.text;
+        p = std::find(systems.begin(), systems.end(), system);
         if (p == systems.end()) {
-            systems.emplace_back(game.system.text);
+            systems.emplace_back(system);
         }
-        p = std::find(editors.begin(), editors.end(), game.editor.text);
+        std::string editor = game.editor.text.empty() ? "Unknown" : game.editor.text;
+        p = std::find(editors.begin(), editors.end(), editor);
         if (p == editors.end()) {
-            editors.emplace_back(game.editor.text);
+            editors.emplace_back(editor);
         }
-        p = std::find(developers.begin(), developers.end(), game.developer.text);
+        std::string developer = game.developer.text.empty() ? "Unknown" : game.developer.text;
+        p = std::find(developers.begin(), developers.end(), developer);
         if (p == developers.end()) {
-            developers.emplace_back(game.developer.text);
+            developers.emplace_back(developer);
         }
-        p = std::find(players.begin(), players.end(), game.players);
+        std::string _players = game.players.empty() ? "Unknown" : game.players;
+        p = std::find(players.begin(), players.end(), _players);
         if (p == players.end()) {
-            players.emplace_back(game.players);
+            players.emplace_back(_players);
         }
-        p = std::find(ratings.begin(), ratings.end(), game.rating);
+        std::string rating = game.rating.empty() ? "Unknown" : game.rating;
+        p = std::find(ratings.begin(), ratings.end(), rating);
         if (p == ratings.end()) {
-            ratings.emplace_back(game.rating);
+            ratings.emplace_back(rating);
         }
-        p = std::find(topstaffs.begin(), topstaffs.end(), game.topstaff);
+        std::string topstaff = game.topstaff.empty() ? "Unknown" : game.topstaff;
+        p = std::find(topstaffs.begin(), topstaffs.end(), topstaff);
         if (p == topstaffs.end()) {
-            topstaffs.emplace_back(game.topstaff);
+            topstaffs.emplace_back(topstaff);
         }
-        p = std::find(rotations.begin(), rotations.end(), game.rotation);
+        std::string rotation = game.rotation.empty() ? "Unknown" : game.rotation;
+        p = std::find(rotations.begin(), rotations.end(), rotation);
         if (p == rotations.end()) {
-            rotations.emplace_back(game.rotation);
+            rotations.emplace_back(rotation);
         }
-        p = std::find(resolutions.begin(), resolutions.end(), game.resolution);
+        std::string resolution = game.resolution.empty() ? "Unknown" : game.resolution;
+        p = std::find(resolutions.begin(), resolutions.end(), resolution);
         if (p == resolutions.end()) {
-            resolutions.emplace_back(game.resolution);
+            resolutions.emplace_back(resolution);
         }
         if (!game.dates.empty()) {
             std::string date = game.getDate(Game::Country::WOR).text;
+            if (date.empty()) {
+                date = "Unknown";
+            }
             p = std::find(dates.begin(), dates.end(), date);
             if (p == dates.end()) {
                 dates.emplace_back(date);
@@ -110,6 +123,9 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
         }
         if (!game.genres.empty()) {
             std::string genre = game.getGenre(Game::Language::EN).text;
+            if (genre.empty()) {
+                genre = "Unknown";
+            }
             p = std::find(genres.begin(), genres.end(), genre);
             if (p == genres.end()) {
                 genres.emplace_back(genre);
@@ -134,6 +150,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     std::sort(resolutions.begin(), resolutions.end(), Api::sortByName);
     std::sort(dates.begin(), dates.end(), Api::sortByName);
     std::sort(genres.begin(), genres.end(), Api::sortByName);
+
     // default lists values
     if (systems.empty() || systems.at(0) != "All") {
         systems.insert(systems.begin(), "All");

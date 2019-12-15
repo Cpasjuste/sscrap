@@ -38,6 +38,8 @@ public:
 
     void run();
 
+    void parseSid(const std::string &sid);
+
     ArgumentParser args;
     std::string usr;
     std::string pwd;
@@ -45,8 +47,11 @@ public:
     ss_api::MediasGameList mediasGameList;
     ss_api::SystemList systemList;
     ss_api::GameList gameList;
+    ss_api::GameList fbnGameList;
     std::vector<std::string> filesList;
     std::vector<MissFile> missList;
+    std::string systemId;
+    bool isFbNeoSid = false;
     ss_api::User user;
     int filesCount = 0;
     bool mediasClone = false;

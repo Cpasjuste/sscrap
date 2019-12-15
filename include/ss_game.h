@@ -213,6 +213,7 @@ namespace ss_api {
         // emulationstation compatibility
         std::string source;
         std::string path;
+        std::string romsPath;
     };
 }
 

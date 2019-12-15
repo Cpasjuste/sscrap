@@ -1,8 +1,22 @@
 fbneo - coleco
 ==============
-found 207/219 games
-12 was not found:
-boxxle.zip, bbears.zip, castelo.zip, coldblood.zip, digger.zip, frostbite.zip, kaboom.zip, mecha8.zip, mash.zip, moduleman.zip, numbump.zip, sword.zip
+All Done... found 204/219 games
+15 game(s) not found:
+One on One (1on1.zip), zip_crc: 6316d9a6, rom_crc: babea7d6
+Boxxle (boxxle.zip), zip_crc: eb681081, rom_crc: 62dacf07
+The Berenstain Bears (Prototype) (bbears.zip), zip_crc: 9bbb847e, rom_crc: 18864abc
+Castelo (castelo.zip), zip_crc: 57cd190a, rom_crc: 07a3d3db
+Digger (digger.zip), zip_crc: b90362ba, rom_crc: 77088cab
+Cold Blood (coldblood.zip), zip_crc: 6dd7cfdf, rom_crc: 960f7086
+Frost Bite (frostbite.zip), zip_crc: bcd6a8bc, rom_crc: b3212318
+Kaboom! (kaboom.zip), zip_crc: ff512dfb, rom_crc: 24a2b61b
+Mecha-8 (mecha8.zip), zip_crc: b87e4a27, rom_crc: 53da40bc
+M*A*S*H (Prototype) (mash.zip), zip_crc: 77d0953c, rom_crc: 1bdfdaa5
+Module Man (moduleman.zip), zip_crc: dba888c1, rom_crc: eb6be8ec
+Mousetrap (mtrap.zip), zip_crc: 38994825, rom_crc: c99d687f
+Mousetrap (Alt) (mtrapa.zip), zip_crc: 194ec7dd, rom_crc: f7b51bd5
+Number Bumper (numbump.zip), zip_crc: 3dc5dfbf, rom_crc: 4a2cb66a
+Sword and Sorcerer (Prototype) (sword.zip), zip_crc: b6757e28, rom_crc: a1548994
 
 fbneo - gamegear
 ================
@@ -10,9 +24,77 @@ found 759/759 games
 
 fbneo - megadriv
 ================
-found 2353/2369 games
-16 was not found:
-bigfd.zip, chase.zip, masiaka.zip, mevo.zip, oldtowers.zip, somarita.zip, xenocrises.zip, bk3pro.zip, nba2k5.zip, tgunii.zip, virak.zip, bcdverifier.zip, miniplanets.zip, misplaced.zip, misplacedr.zip, sor3bk3p.zip
+All Done... found 2355/2369 games
+14 game(s) not found:
+Big's Fishing Derby (bigfd.zip), zip_crc: 7323183e, rom_crc: e1448457
+Chase (chase.zip), zip_crc: 97867dbd, rom_crc: 0b3426ed
+Masiaka (Demo) (masiaka.zip), zip_crc: 2efc397a, rom_crc: d237b970
+Mobius Evolution (Hack V3.6) (mevo.zip), zip_crc: 0fb1070f, rom_crc: f2a974f4
+Old Towers (Rev 1.2) (oldtowers.zip), zip_crc: 5c2588bb, rom_crc: d875e97d
+Somari The Adventurer (Hack V1.1) (somarita.zip), zip_crc: 81864f31, rom_crc: 6ab80fca
+Xenocrises (USA) (xenocrises.zip), zip_crc: 486d1161, rom_crc: ac5f4cca
+NBA 2005 (Rus) (nba2k5.zip), zip_crc: c6a631d6, rom_crc: e8610238
+T*GUN II (tgunii.zip), zip_crc: 0f3a9075, rom_crc: c842b4d4
+Voina Irak (Pirate) (virak.zip), zip_crc: 5b6c9b07, rom_crc: c7177e93
+BCD Verifier (Test) (bcdverifier.zip), zip_crc: 411f0c41, rom_crc: 0f9bbe9d
+Mini Planets (REV02) (miniplanets.zip), zip_crc: f1bc65c2, rom_crc: 48460e4a
+Misplaced (English) (misplaced.zip), zip_crc: 23e701ea, rom_crc: d79fd3ec
+Misplaced (Russian) (misplacedr.zip), zip_crc: e9a4c445, rom_crc: 1997b949
+
+fbneo - msx
+===========
+All Done... found 1142/1155 games
+13 game(s) not found:
+Amurisus (demo) (amurisus.zip), zip_crc: 3b61b4ee, rom_crc: acf0cab8
+Alter Ego (alterego.zip), zip_crc: 8a99c71e, rom_crc: 41b51564
+Atsarias (demo) (atsarias.zip), zip_crc: bfe8bf69, rom_crc: e7e245de
+Zemmix Baduk Gyosil (Kor) (baduk.zip), zip_crc: 5011b03d, rom_crc: 5ad4442d
+BitLogic (bitlogic.zip), zip_crc: 32345485, rom_crc: fbcd1942
+Betiled! (betiled.zip), zip_crc: 35479e22, rom_crc: 4f89a784
+Cyborg Z (Kor) (cyborgz.zip), zip_crc: 616940be, rom_crc: 77efe84a
+Bold (demo) (bold.zip), zip_crc: 9bb5df3f, rom_crc: 00d02aa4
+Eat It (eatit.zip), zip_crc: b6f2f9a6, rom_crc: 54851e18
+La Corona Encantada (lacorona.zip), zip_crc: c3288cc0, rom_crc: 71e4252e
+Puznic (puznic.zip), zip_crc: c96c63e6, rom_crc: ac28fa71
+El Motorista Sideral (Spa) (sideral.zip), zip_crc: 267b4aa0, rom_crc: 8b07f4f6
+Wonsiin (Kor) (wonsiin.zip), zip_crc: ae17a15f, rom_crc: a05258f5
+
+
+fbneo - pce
+===========
+All Done... found 313/313 games
+
+fbneo - sg1000
+==============
+All Done... found 173/200 games
+27 game(s) not found:
+Bi Li Da Dao (Tw) (bilidada.zip), zip_crc: 137fda5c, rom_crc: bd43fde4
+Beom Jjaek (Kor) (bombjackk2.zip), zip_crc: e6146101, rom_crc: b0c7b310
+Chaoren (Tw) (bombjackt2.zip), zip_crc: 68d1c9f0, rom_crc: deb213fe
+Mowang migong ~ The Castle (Tw) (castlet.zip), zip_crc: 82f39e86, rom_crc: 2e366ccf
+Qugunqiu (Tw) (champicet.zip), zip_crc: 7ceb59d2, rom_crc: c6e5192f
+Jiandao (Tw) (champkent.zip), zip_crc: af7c8243, rom_crc: a5f61363
+Maxi Tuan ~ Circus Charlie (Tw) (circusc.zip), zip_crc: e4a0d40a, rom_crc: 3404fce4
+Xun Bao Er Dai (Tw) (cloderunt.zip), zip_crc: 6484fb43, rom_crc: ec95ebcb
+Wanpi Gui (Tw) (csot.zip), zip_crc: 3ae331bc, rom_crc: 82c4e3e5
+Da Yu (Tw) (dayu.zip), zip_crc: c80fd4a0, rom_crc: d81a72ce
+Die Dui Die (Tw) (elevatort.zip), zip_crc: 79754aea, rom_crc: 6846e36d
+Fa Gui Qibing (Tw) (faguiqib.zip), zip_crc: 3db8e312, rom_crc: 476a079b
+Fa Gui Qibing (Tw, Alt) (faguiqiba.zip), zip_crc: 40fa6a69, rom_crc: 4e93bc8e
+Fei Lang ~ Choplifter (Tw, Alt) (feilanga.zip), zip_crc: 0f5fe66d, rom_crc: 7c603987
+Fei Lang (Tw) (feilang.zip), zip_crc: 0d344e9f, rom_crc: 746a8d86
+Motuo Feiche (Tw) (hangon2t2.zip), zip_crc: 2f518767, rom_crc: e98a111e
+Hei Bai Qi (Tw) (heibaiqi.zip), zip_crc: bb61ffd1, rom_crc: 1d1a0ca3
+Huo Hu Li (Tw) (huohuli.zip), zip_crc: a1fec847, rom_crc: 9943fc2b
+Qing Feng Xia (Tw) (herot.zip), zip_crc: 60d6a5a2, rom_crc: 83958998
+I.Q. (Kor) (iq.zip), zip_crc: 71ea4f0a, rom_crc: 89bafec5
+Jing Wu Men (Tw) (jingwumn.zip), zip_crc: 60b998d7, rom_crc: 7c7d4397
+Jing Wu Men (Tw, Alt) (jingwumna.zip), zip_crc: cd313353, rom_crc: 6f94e5c0
+Mo Tian Da Lou (Tw) (motianda.zip), zip_crc: 92b8ac89, rom_crc: 4eacb981
+Renzhe Gongzhu (Tw) (ninjaprit.zip), zip_crc: 3ec4b22c, rom_crc: 464d144b
+Ping Pong (Tw) (pingpong.zip), zip_crc: 08eab3c9, rom_crc: 4d972a9e
+Chaoji Tanke (Tw) (supertnkt.zip), zip_crc: 474875f8, rom_crc: d0c3df3f
+Taotailang (Tw) (wboyt.zip), zip_crc: 3d9b5834, rom_crc: 953fc2b2
 
 fbneo - tg16
 ============
@@ -23,12 +105,6 @@ fbneo - sms
 found 587/594 games
 7 was not found:
 alesteiigg2sms.zip, baraburu10.zip, lambo.zip, darc10.zip, fpigarus.zip, sdmilhao.zip, WaimanuSMS.zip
-
-fbneo - sg1000
-==============
-found 173/200 games
-27 was not found:
-bilidada.zip, bombjackk2.zip, bombjackt2.zip, castlet.zip, champicet.zip, champkent.zip, circusc.zip, cloderunt.zip, csot.zip, dayu.zip, elevatort.zip, faguiqiba.zip, faguiqib.zip, feilanga.zip, feilang.zip, herot.zip, huohuli.zip, iq.zip, heibaiqi.zip, hangon2t2.zip, jingwumn.zip, jingwumna.zip, ninjaprit.zip, motianda.zip, pingpong.zip, supertnkt.zip, wboyt.zip
 
 fbneo - zx3
 ==============

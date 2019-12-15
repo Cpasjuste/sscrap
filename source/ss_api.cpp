@@ -206,10 +206,10 @@ Game::Language Api::toLanguage(const std::string &language) {
 }
 
 bool Api::sortByName(const std::string &g1, const std::string &g2) {
-#ifdef _MSC_VER 
-    return _stricmp(g1.c_str(), g2.c_str()) <= 0;
+#ifdef _MSC_VER
+    return _stricmp(g1.c_str(), g2.c_str()) < 0;
 #else
-    return strcasecmp(g1.c_str(), g2.c_str()) <= 0;
+    return strcasecmp(g1.c_str(), g2.c_str()) < 0;
 #endif
 }
 
@@ -239,7 +239,7 @@ void Api::printc(const char *color, const char* format, ...) {
     va_end(arg);
 
 #ifdef _MSC_VER
-    WORD consoleAttr = FOREGROUND_INTENSITY | FOREGROUND_RED 
+    WORD consoleAttr = FOREGROUND_INTENSITY | FOREGROUND_RED
         | FOREGROUND_GREEN | FOREGROUND_BLUE;
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
