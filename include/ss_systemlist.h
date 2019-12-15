@@ -9,18 +9,18 @@
 #include <vector>
 #include <tinyxml2.h>
 
-#define SYSTEM_ID_COLECO "48"
-#define SYSTEM_ID_GAMEGEAR "21"
-#define SYSTEM_ID_SMS "2"
-#define SYSTEM_ID_MEGADRIVE "1"
-#define SYSTEM_ID_MEGADRIVE_HACK "203"
-#define SYSTEM_ID_MSX "113"
-#define SYSTEM_ID_MSX2 "116"
-#define SYSTEM_ID_PCE "31"
-#define SYSTEM_ID_SG1000 "109"
-#define SYSTEM_ID_SGX "105"
-#define SYSTEM_ID_TG16 "31"
-#define SYSTEM_ID_ZX3 "76"
+#define SYSTEM_ID_COLECO 48
+#define SYSTEM_ID_GAMEGEAR 21
+#define SYSTEM_ID_SMS 2
+#define SYSTEM_ID_MEGADRIVE 1
+#define SYSTEM_ID_MEGADRIVE_HACK 203
+#define SYSTEM_ID_MSX 113
+#define SYSTEM_ID_MSX2 116
+#define SYSTEM_ID_PCE 31
+#define SYSTEM_ID_SG1000 109
+#define SYSTEM_ID_SGX 105
+#define SYSTEM_ID_TG16 31
+#define SYSTEM_ID_ZX3 76
 
 namespace ss_api {
 
