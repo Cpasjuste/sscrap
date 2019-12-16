@@ -151,38 +151,6 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     std::sort(dates.begin(), dates.end(), Api::sortByName);
     std::sort(genres.begin(), genres.end(), Api::sortByName);
 
-    // default lists values
-    if (systems.empty() || systems.at(0) != "All") {
-        systems.insert(systems.begin(), "All");
-    }
-    if (editors.empty() || editors.at(0) != "All") {
-        editors.insert(editors.begin(), "All");
-    }
-    if (developers.empty() || developers.at(0) != "All") {
-        developers.insert(developers.begin(), "All");
-    }
-    if (players.empty() || players.at(0) != "All") {
-        players.insert(players.begin(), "All");
-    }
-    if (ratings.empty() || ratings.at(0) != "All") {
-        ratings.insert(ratings.begin(), "All");
-    }
-    if (topStaffs.empty() || topStaffs.at(0) != "All") {
-        topStaffs.insert(topStaffs.begin(), "All");
-    }
-    if (rotations.empty() || rotations.at(0) != "All") {
-        rotations.insert(rotations.begin(), "All");
-    }
-    if (resolutions.empty() || resolutions.at(0) != "All") {
-        resolutions.insert(resolutions.begin(), "All");
-    }
-    if (dates.empty() || dates.at(0) != "All") {
-        dates.insert(dates.begin(), "All");
-    }
-    if (genres.empty() || genres.at(0) != "All") {
-        genres.insert(genres.begin(), "All");
-    }
-
     return true;
 }
 
