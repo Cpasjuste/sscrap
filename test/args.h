@@ -32,7 +32,6 @@ public:
         return std::find(this->tokens.begin(), this->tokens.end(), option) != this->tokens.end();
     }
 
-private:
     std::vector<std::string> tokens;
 };
 

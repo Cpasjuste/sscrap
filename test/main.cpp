@@ -298,20 +298,22 @@ Scrap::Scrap(const ArgumentParser &parser) {
     Api::printc(COLOR_G, "/_______  /_______  / \\______  /____|_  /\\____|__ _/____|    \n");
     Api::printc(COLOR_G, "        \\/        \\/         \\/       \\/ 2020 @ cpasjuste\n\n");
 
-    Api::printc(COLOR_G, "Getting user information... ");
-    user = User(usr, pwd);
-    Api::printc(COLOR_G, "found user %s, threads: %s, requests: %s/%s, download speed: %s Ko/s\n",
-                user.id.c_str(), user.maxthreads.c_str(),
-                user.requeststoday.c_str(), user.maxrequestsperday.c_str(),
-                user.maxdownloadspeed.c_str());
+    if (!args.tokens.empty()) {
+        Api::printc(COLOR_G, "Getting user information... ");
+        user = User(usr, pwd);
+        Api::printc(COLOR_G, "found user %s, threads: %s, requests: %s/%s, download speed: %s Ko/s\n",
+                    user.id.c_str(), user.maxthreads.c_str(),
+                    user.requeststoday.c_str(), user.maxrequestsperday.c_str(),
+                    user.maxdownloadspeed.c_str());
 
-    Api::printc(COLOR_G, "Updating systems... ");
-    systemList = SystemList(usr, pwd, retryDelay);
-    Api::printc(COLOR_G, "found %zu systems\n", systemList.systems.size());
+        Api::printc(COLOR_G, "Updating systems... ");
+        systemList = SystemList(usr, pwd, retryDelay);
+        Api::printc(COLOR_G, "found %zu systems\n", systemList.systems.size());
 
-    Api::printc(COLOR_G, "Updating medias types... ");
-    mediasGameList = MediasGameList(usr, pwd, retryDelay);
-    Api::printc(COLOR_G, "found %zu medias type\n", mediasGameList.medias.size());
+        Api::printc(COLOR_G, "Updating medias types... ");
+        mediasGameList = MediasGameList(usr, pwd, retryDelay);
+        Api::printc(COLOR_G, "found %zu medias type\n", mediasGameList.medias.size());
+    }
 }
 
 void Scrap::run() {
