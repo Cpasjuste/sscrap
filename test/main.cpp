@@ -395,7 +395,7 @@ void Scrap::run() {
             } else if (args.exist("pt")) {
                 lang = Game::Language::PT;
             }
-            GameList::Format fmt = args.exist("screenscraper") ?
+            GameList::Format fmt = args.exist("pemu") ?
                                    GameList::Format::ScreenScrapper : GameList::Format::EmulationStation;
             std::vector<std::string> mediaList;
             if (fmt == GameList::ScreenScrapper) {
@@ -404,12 +404,13 @@ void Scrap::run() {
                         mediaList.emplace_back(mediaType.nameShort);
                     }
                 }
+                gameList.save(romPath + "/gamelist_pemu.xml", lang, fmt, mediaList);
             } else {
                 mediaList.emplace_back(args.get("-i"));
                 mediaList.emplace_back(args.get("-t"));
                 mediaList.emplace_back(args.get("-v"));
+                gameList.save(romPath + "/gamelist.xml", lang, fmt, mediaList);
             }
-            gameList.save(romPath + "/gamelist.xml", lang, fmt, mediaList);
         }
         Api::printc(COLOR_G, "\nAll Done... ");
         Api::printc(COLOR_G, "found %zu/%i games\n", gameList.games.size() - missList.size(), filesCount);
@@ -464,7 +465,7 @@ void Scrap::run() {
         printf("\t\t-sid <system_id>               screenscraper system id to scrap\n");
         printf("\t\t-dlm <mediaType1 mediaType2>   download given medias types\n");
         printf("\t\t-dlmc                          download medias for clones\n");
-        printf("\t\t-sx <language> <format>        save xml with given output language and format to romspath\n");
+        printf("\t\t-sx <format> <language>        save xml with given output language and format to romspath\n");
         printf("\n\toptions_es:\n");
         printf("\t\t-i <mediaType>                 use given media type for image\n");
         printf("\t\t-t <mediaType>                 use given media type for thumbnail\n");
@@ -476,7 +477,7 @@ void Scrap::run() {
         printf("\t\tpt: portuguese\n");
         printf("\n\tsscrap supported output formats:\n");
         printf("\t\temulationstation: emulationstation gamelist.xml, default\n");
-        printf("\t\tscreenscraper: screenscraper gamelist.xml\n");
+        printf("\t\tpemu: pEMU (pFBN, pSNES, pNES) gamelist.xml\n");
         printf("\n\tsscrap customs systemid (fbneo):\n");
         printf("\t\t750: ColecoVision\n");
         printf("\t\t751: Game Gear\n");
@@ -493,8 +494,8 @@ void Scrap::run() {
         printf("\tscrap mame/fbneo system, download \'mixrbv2\' for \'image\', \'box-3D\' for \'thumbnail\' and \'video\' "
                "for \'video\' and output xml as emulationstation format in english:\n");
         printf("\t\tsscrap -u user -p password -r /roms -sid 75 -dlm mixrbv2 box-3D video -i mixrbv2 -t box-3D -v video -sx\n\n");
-        printf("\tscrap mame/fbneo system, download \'mixrbv2\' and \'video\' medias types and output xml as screenscraper format in french (for pFBN):\n");
-        printf("\t\tsscrap -u user -p password -r /roms -sid 75 -dlm mixrbv2 video -sx fr screenscraper\n");
+        printf("\tscrap mame/fbneo system, download \'mixrbv2\' and \'video\' medias types and output xml as pEMU format in french (for pFBN):\n");
+        printf("\t\tsscrap -u user -p password -r /roms -sid 75 -dlm mixrbv2 video -sx pemu fr\n");
         printf("\n");
     }
 }
