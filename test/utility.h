@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <ss_game.h>
+#include "hashlibpp/hashlibpp.h"
 
 class Utility {
 public:
@@ -21,13 +22,19 @@ public:
         std::string sha1;
     };
 
+    static int parseInt(const std::string &str, int defValue = 0);
+
     static std::string getExt(const std::string &file);
 
     static std::string getZipCrc(const std::string &zipPath);
 
     static std::string getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList = {});
 
-    static ZipInfo getZipInfo(const std::string &path, const std::string &file);
+    static ZipInfo getZipInfo(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
+                              const std::string &path, const std::string &file);
+
+    static std::string getZipInfoStr(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
+                                     const std::string &path, const std::string &file);
 
     static void replace(std::string &str, const std::string &from, const std::string &to);
 

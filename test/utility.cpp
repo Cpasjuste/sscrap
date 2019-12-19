@@ -10,6 +10,15 @@
 
 using namespace ss_api;
 
+int Utility::parseInt(const std::string &str, int defValue) {
+    char *end = nullptr;
+    long i = strtol(str.c_str(), &end, 10);
+    if (end != nullptr) {
+        return (int) i;
+    }
+    return defValue;
+}
+
 std::string Utility::getExt(const std::string &file) {
 
     char ext[3];
@@ -99,12 +108,26 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
     return std::string(hex);
 }
 
-Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string &file) {
+Utility::ZipInfo Utility::getZipInfo(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
+                                     const std::string &path, const std::string &file) {
+
     ZipInfo info;
+    std::string fullPath = path + file;
+
     info.name = file;
-    // TODO
+    info.size = std::to_string(Io::getSize(fullPath));
+    info.crc = getZipCrc(fullPath);
+    info.md5 = md5Wrapper->getHashFromFile(fullPath);
+    info.sha1 = sha1Wrapper->getHashFromFile(fullPath);
 
     return info;
+}
+
+std::string Utility::getZipInfoStr(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
+                                   const std::string &path, const std::string &file) {
+
+    ZipInfo info = getZipInfo(md5Wrapper, sha1Wrapper, path, file);
+    return info.name + "|" + info.size + "|" + info.serial + "|" + info.crc + "|" + info.md5 + "|" + info.sha1;
 }
 
 void Utility::replace(std::string &str, const std::string &from, const std::string &to) {

@@ -38,7 +38,7 @@ public:
 
     void run();
 
-    void parseSid(const std::string &sid);
+    void parseSid(int sid);
 
     ArgumentParser args;
     std::string usr;
@@ -50,7 +50,8 @@ public:
     ss_api::GameList fbnGameList;
     std::vector<std::string> filesList;
     std::vector<MissFile> missList;
-    std::string systemId;
+    int systemId;
+    int systemIdFbNeo;
     bool isFbNeoSid = false;
     ss_api::User user;
     int filesCount = 0;

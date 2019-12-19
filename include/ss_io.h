@@ -18,6 +18,8 @@ namespace ss_api {
 
         static bool exist(const std::string &file);
 
+        static size_t getSize(const std::string &file);
+
         static void delay(int seconds);
     };
 }

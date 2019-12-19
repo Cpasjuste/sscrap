@@ -1,22 +1,20 @@
 fbneo - coleco
 ==============
 All Done... found 204/219 games
-15 game(s) not found:
-One on One (1on1.zip), zip_crc: 6316d9a6, rom_crc: babea7d6
-Boxxle (boxxle.zip), zip_crc: eb681081, rom_crc: 62dacf07
-The Berenstain Bears (Prototype) (bbears.zip), zip_crc: 9bbb847e, rom_crc: 18864abc
-Castelo (castelo.zip), zip_crc: 57cd190a, rom_crc: 07a3d3db
-Digger (digger.zip), zip_crc: b90362ba, rom_crc: 77088cab
-Cold Blood (coldblood.zip), zip_crc: 6dd7cfdf, rom_crc: 960f7086
-Frost Bite (frostbite.zip), zip_crc: bcd6a8bc, rom_crc: b3212318
-Kaboom! (kaboom.zip), zip_crc: ff512dfb, rom_crc: 24a2b61b
-Mecha-8 (mecha8.zip), zip_crc: b87e4a27, rom_crc: 53da40bc
-M*A*S*H (Prototype) (mash.zip), zip_crc: 77d0953c, rom_crc: 1bdfdaa5
-Module Man (moduleman.zip), zip_crc: dba888c1, rom_crc: eb6be8ec
-Mousetrap (mtrap.zip), zip_crc: 38994825, rom_crc: c99d687f
-Mousetrap (Alt) (mtrapa.zip), zip_crc: 194ec7dd, rom_crc: f7b51bd5
-Number Bumper (numbump.zip), zip_crc: 3dc5dfbf, rom_crc: 4a2cb66a
-Sword and Sorcerer (Prototype) (sword.zip), zip_crc: b6757e28, rom_crc: a1548994
+12 game(s) not found:
+castelo.zip|1425||57cd190a|91c9999aa6fc633c1a364bb391cce63e|9e353e58847e751bc87384089287072245ea1cc0
+boxxle.zip|30328||eb681081|3290fed6d580ec339b8140d6b7c2915f|c28535c2dc20964d842c5ed2f90ac3e8d1e43114
+bbears.zip|3130||9bbb847e|de2f990bfbc8c656827f174ac1f945d3|ac3482602f6ee8796f62fa40182c7a0cab8cdea0
+digger.zip|11032||b90362ba|f13ac96dda3513282007d3fa62b36156|a9e0c8f2a7e5d4ec46434039e94c64cc71eb79d8
+frostbite.zip|15365||bcd6a8bc|d80e92d5d7523d29952ad2bc356c2d2c|89991a4d45b5a2b0c005db3c60bb2ca46a269dcd
+coldblood.zip|27203||6dd7cfdf|952098d501f8468366f1cf62a8127dba|fcfda2933076dc3bb9f89d1e4930686e984dc2a8
+kaboom.zip|9162||ff512dfb|ee99a9c409251f4980eb8091b2038235|6d8be0fd18a84290b971225d8ae76a404d2b8512
+moduleman.zip|17320||dba888c1|074d609be80005b18af245a22fecad22|902dbe017041995dd39a56e24cb6c7102d5fdaf2
+mecha8.zip|51662||b87e4a27|5e8ab4acde1667e30dcb44cf0b0fab7a|c7169dbb6255bbb8733df68d3549cab947aae5c0
+mash.zip|10437||77d0953c|b5ccf4d0f5a422f897b3d95a333cbcde|9d3645efad36fd20b3957b918e9710ca2227db2f
+numbump.zip|8644||3dc5dfbf|41c1a17af0b6297cb537f0f29eded527|f0a9f49df21d6083d316f5b720c107331e3a835f
+sword.zip|5256||b6757e28|1c61b91907843ea2d39fa8255583df16|628cf6bcd20292b9865a76d251bfa51b7027374d
+
 
 fbneo - gamegear
 ================
@@ -26,38 +24,38 @@ fbneo - megadriv
 ================
 All Done... found 2355/2369 games
 14 game(s) not found:
-Big's Fishing Derby (bigfd.zip), zip_crc: 7323183e, rom_crc: e1448457
-Chase (chase.zip), zip_crc: 97867dbd, rom_crc: 0b3426ed
-Masiaka (Demo) (masiaka.zip), zip_crc: 2efc397a, rom_crc: d237b970
-Mobius Evolution (Hack V3.6) (mevo.zip), zip_crc: 0fb1070f, rom_crc: f2a974f4
-Old Towers (Rev 1.2) (oldtowers.zip), zip_crc: 5c2588bb, rom_crc: d875e97d
-Somari The Adventurer (Hack V1.1) (somarita.zip), zip_crc: 81864f31, rom_crc: 6ab80fca
-Xenocrises (USA) (xenocrises.zip), zip_crc: 486d1161, rom_crc: ac5f4cca
-NBA 2005 (Rus) (nba2k5.zip), zip_crc: c6a631d6, rom_crc: e8610238
-T*GUN II (tgunii.zip), zip_crc: 0f3a9075, rom_crc: c842b4d4
-Voina Irak (Pirate) (virak.zip), zip_crc: 5b6c9b07, rom_crc: c7177e93
-BCD Verifier (Test) (bcdverifier.zip), zip_crc: 411f0c41, rom_crc: 0f9bbe9d
-Mini Planets (REV02) (miniplanets.zip), zip_crc: f1bc65c2, rom_crc: 48460e4a
-Misplaced (English) (misplaced.zip), zip_crc: 23e701ea, rom_crc: d79fd3ec
-Misplaced (Russian) (misplacedr.zip), zip_crc: e9a4c445, rom_crc: 1997b949
+chase.zip|123491||97867dbd|77837646bfdbe260548e6d515be0ddcc|418ec213316b6e42d6c688966d2ea3c083f7c3ae
+bigfd.zip|428591||7323183e|3c276e76255d2171e6f2254d090a6d71|05c21c996528d4ff78405bd7e59d831f34187e59
+bcdverifier.zip|37408||411f0c41|6f24cf5ef2fb73099ad90ee35c895010|3c67c7c00f43d7a8948355ea9d502a80a7a9a5da
+masiaka.zip|853873||2efc397a|e57c03f5a2c606c88aa0b4d50977cad4|54b7122cac19c50eab4b361116a1b19b30220314
+mevo.zip|704168||0fb1070f|1036479a2e4ac3d48cd3ed3d168a5d40|00347ee7e01a066df5e21773d31da0d3bb21b37e
+misplaced.zip|259951||23e701ea|6382d5e87f3cdfba37387a468af06381|5740f2365ffe854c0a5bb55238101fe6b2f30052
+miniplanets.zip|103113||f1bc65c2|ca92ab0da0bd1c6638e0cf8245f63d93|0ef6025ea65db4a146181b6dca8ec6cc675d1525
+misplacedr.zip|259970||e9a4c445|ee0e883f8b9423b501e59578b71212df|51f9e003531012b4a1f581530183806e1e45b6b7
+tgunii.zip|206440||0f3a9075|803bcf0b5a77ed2dd570c6f3f4701c2a|dcfff0129e53ae0daeeba44f1e812a4ad58ba44c
+somarita.zip|399993||81864f31|ecb1d1abbfff26bb44f6d2c46e0721ae|f116e08efc8c5eda5592cbbd9b5d1e48445c5600
+nba2k5.zip|970613||c6a631d6|2bbf5a643a809dda236d85c645b7a8c2|8ae179cf6c04379db55d1d74172e1ba1bc0d8467
+oldtowers.zip|241677||5c2588bb|ef51844cdd01376f7407ca8a4942c385|b805a5d0e08af9099b84801fa0e4cc274992f38d
+virak.zip|519340||5b6c9b07|834625af86c5506019ee9fc6a3e37d45|f8d7fafef030fcbf00332a71a90fb595a03298e7
+xenocrises.zip|1980242||486d1161|62bdab7736014e0caf59a1675cceffb7|c613227aa9057cce8ec37ae2f5682a3ec0da6344
 
 fbneo - msx
 ===========
 All Done... found 1142/1155 games
 13 game(s) not found:
-Amurisus (demo) (amurisus.zip), zip_crc: 3b61b4ee, rom_crc: acf0cab8
-Alter Ego (alterego.zip), zip_crc: 8a99c71e, rom_crc: 41b51564
-Atsarias (demo) (atsarias.zip), zip_crc: bfe8bf69, rom_crc: e7e245de
-Zemmix Baduk Gyosil (Kor) (baduk.zip), zip_crc: 5011b03d, rom_crc: 5ad4442d
-BitLogic (bitlogic.zip), zip_crc: 32345485, rom_crc: fbcd1942
-Betiled! (betiled.zip), zip_crc: 35479e22, rom_crc: 4f89a784
-Cyborg Z (Kor) (cyborgz.zip), zip_crc: 616940be, rom_crc: 77efe84a
-Bold (demo) (bold.zip), zip_crc: 9bb5df3f, rom_crc: 00d02aa4
-Eat It (eatit.zip), zip_crc: b6f2f9a6, rom_crc: 54851e18
-La Corona Encantada (lacorona.zip), zip_crc: c3288cc0, rom_crc: 71e4252e
-Puznic (puznic.zip), zip_crc: c96c63e6, rom_crc: ac28fa71
-El Motorista Sideral (Spa) (sideral.zip), zip_crc: 267b4aa0, rom_crc: 8b07f4f6
-Wonsiin (Kor) (wonsiin.zip), zip_crc: ae17a15f, rom_crc: a05258f5
+baduk.zip|7689||5011b03d|8833981b23e3a45f137d14b4f2600a9b|31407458254638dbf96bb11fa08b4456c6ec570d
+amurisus.zip|26907||3b61b4ee|9dc3a36fe365d5bd055721e0aba43d04|bc10d6aa75bddeed07bcdafdb4179453dce472da
+atsarias.zip|30750||bfe8bf69|a0b62594c491043b11381ca8e4bf3abd|91ce5298db9c2657ab89a4800a09b6e46704a98f
+alterego.zip|20979||8a99c71e|9bbfcb30fba7485eaf0587c879cf7a67|57e16a367fea6fede9954fcb4a596a7af4c656a5
+betiled.zip|36727||35479e22|ae91719c5ae4742d1587066e67b262d7|f44a8a9c4ff3a42a699eae11b282cef9e6836a83
+bitlogic.zip|30157||32345485|22613ebb155fb5fec2c7a8fefd081974|cf83f0c079570228b1ef293c4cbc045418d851f1
+bold.zip|56779||9bb5df3f|ab6d580087aa4450a3a86a39f4c05b81|2dc1d162f74e72cf2d02e077bd1ebb9d7effa86a
+cyborgz.zip|83997||616940be|a58d3ec3da047f37afd171a34911a2e4|3ee40e3c66c6898f6da0e5b5a8587cdfa657ca16
+eatit.zip|30058||b6f2f9a6|f130edc1564a672b0f0e8ec5e4546991|d48578b370e3ab06addca0ca3160cee0c909e6a2
+lacorona.zip|32217||c3288cc0|3ccc62b85b9f1ad32a17720d511ae5ab|337b61b320f510855226aba1b0e4417c8f4afbb6
+puznic.zip|16816||c96c63e6|2af9b2d4c3f9f2be661d09d73a7e946d|21b1ea850a946f004bfa319d67125b14bd2306ef
+wonsiin.zip|52534||ae17a15f|c8e1ab21b6a5a3ccb72a6e8bb55c6cd1|89dbc096c72839b5fb3cf29e4bd81718db003f34
+sideral.zip|13962||267b4aa0|6b85731b5352cd62c53527d3d9ee5fca|c5c28caebf1b7a48f05f0a61daecff959f58ed09
 
 
 fbneo - pce
@@ -68,33 +66,34 @@ fbneo - sg1000
 ==============
 All Done... found 173/200 games
 27 game(s) not found:
-Bi Li Da Dao (Tw) (bilidada.zip), zip_crc: 137fda5c, rom_crc: bd43fde4
-Beom Jjaek (Kor) (bombjackk2.zip), zip_crc: e6146101, rom_crc: b0c7b310
-Chaoren (Tw) (bombjackt2.zip), zip_crc: 68d1c9f0, rom_crc: deb213fe
-Mowang migong ~ The Castle (Tw) (castlet.zip), zip_crc: 82f39e86, rom_crc: 2e366ccf
-Qugunqiu (Tw) (champicet.zip), zip_crc: 7ceb59d2, rom_crc: c6e5192f
-Jiandao (Tw) (champkent.zip), zip_crc: af7c8243, rom_crc: a5f61363
-Maxi Tuan ~ Circus Charlie (Tw) (circusc.zip), zip_crc: e4a0d40a, rom_crc: 3404fce4
-Xun Bao Er Dai (Tw) (cloderunt.zip), zip_crc: 6484fb43, rom_crc: ec95ebcb
-Wanpi Gui (Tw) (csot.zip), zip_crc: 3ae331bc, rom_crc: 82c4e3e5
-Da Yu (Tw) (dayu.zip), zip_crc: c80fd4a0, rom_crc: d81a72ce
-Die Dui Die (Tw) (elevatort.zip), zip_crc: 79754aea, rom_crc: 6846e36d
-Fa Gui Qibing (Tw) (faguiqib.zip), zip_crc: 3db8e312, rom_crc: 476a079b
-Fa Gui Qibing (Tw, Alt) (faguiqiba.zip), zip_crc: 40fa6a69, rom_crc: 4e93bc8e
-Fei Lang ~ Choplifter (Tw, Alt) (feilanga.zip), zip_crc: 0f5fe66d, rom_crc: 7c603987
-Fei Lang (Tw) (feilang.zip), zip_crc: 0d344e9f, rom_crc: 746a8d86
-Motuo Feiche (Tw) (hangon2t2.zip), zip_crc: 2f518767, rom_crc: e98a111e
-Hei Bai Qi (Tw) (heibaiqi.zip), zip_crc: bb61ffd1, rom_crc: 1d1a0ca3
-Huo Hu Li (Tw) (huohuli.zip), zip_crc: a1fec847, rom_crc: 9943fc2b
-Qing Feng Xia (Tw) (herot.zip), zip_crc: 60d6a5a2, rom_crc: 83958998
-I.Q. (Kor) (iq.zip), zip_crc: 71ea4f0a, rom_crc: 89bafec5
-Jing Wu Men (Tw) (jingwumn.zip), zip_crc: 60b998d7, rom_crc: 7c7d4397
-Jing Wu Men (Tw, Alt) (jingwumna.zip), zip_crc: cd313353, rom_crc: 6f94e5c0
-Mo Tian Da Lou (Tw) (motianda.zip), zip_crc: 92b8ac89, rom_crc: 4eacb981
-Renzhe Gongzhu (Tw) (ninjaprit.zip), zip_crc: 3ec4b22c, rom_crc: 464d144b
-Ping Pong (Tw) (pingpong.zip), zip_crc: 08eab3c9, rom_crc: 4d972a9e
-Chaoji Tanke (Tw) (supertnkt.zip), zip_crc: 474875f8, rom_crc: d0c3df3f
-Taotailang (Tw) (wboyt.zip), zip_crc: 3d9b5834, rom_crc: 953fc2b2
+bilidada.zip|21247||137fda5c|c8a17cba2028e11b4f0519a1dc883c51|a83968f186da67704ac593b5ef0fceb157e12145
+bombjackk2.zip|19500||e6146101|9851000a00c13f90c8217b119f1ef34e|b084d57438921b9b8c2ba22e9e35228a61f64952
+bombjackt2.zip|19465||68d1c9f0|6fbe715ca684fecfac302cd5c0eb4726|903d902c04762f0c1757c5b9cdcc9e0890101b2e
+castlet.zip|25929||82f39e86|61a9a874b53cdf54ec61e6fcb4a72f27|38794d38ad4363e9f9164dd1522f2aca4ba1911a
+champkent.zip|19863||af7c8243|9361112ee6e14b69b2d69cc78d56f55e|4c89e2dc2c30872a37756c6bf7dac84331272547
+champicet.zip|18289||7ceb59d2|c92cbe24ef5bad147661bc8f3db846ad|4bdc63254defafe814ae1adadcfc164c837f2c1b
+circusc.zip|15609||e4a0d40a|c4a8b46b42098c0101eb7e95e8fd77e5|9579a80a4448e98dd6a54b16803e13baf35aff86
+cloderunt.zip|20538||6484fb43|8e12c960a9be10c86aaa6689793c8c05|a2c42fa6eba81e7bef4ad451683a7535a019381f
+csot.zip|24164||3ae331bc|5018335d4968cce3f5903f1ab752a85e|014c641f00896d60538a24347bb7d77a3bfcbc4f
+dayu.zip|17231||c80fd4a0|37772d3c21427211bad8b58034765c4e|4de5c5d8ff37961c28ba0547ac63614b9d26ddfb
+faguiqib.zip|17915||3db8e312|c19ad750e7f5128433a6ce5a4e238a83|f93d0a10910946e817445ac3854c62049fc1038f
+elevatort.zip|18702||79754aea|76f94ccb53b00311ae8453053175bc8e|9ce8d3d27c11b4fac87e608b400ea51ef85bd9ca
+faguiqiba.zip|17883||40fa6a69|527bd541ff96d9b9406367fa162a9f42|0d6af5d6b336518e32e983dc716cbe651d1b904c
+hangon2t2.zip|18142||2f518767|d65f7cb036b3b4c466fae6dd253d51be|f41636029922797b95f48283cf1adf9cdb225e74
+feilanga.zip|17560||0f5fe66d|cb13e85f10fa4b0f27e09464b036ff86|83b98c7f7a6b9fbae8fc04c37189e972254227ff
+feilang.zip|17483||0d344e9f|201dd7c8cdbcbc3f08c7e890f7fd4f26|e84fc4250949ec0b7c3e735a8b8a301d08206f41
+heibaiqi.zip|14561||bb61ffd1|62b79c014334c8b99f9611574564e2a8|4d156171c459e3dd426415cc85abcee71ee5d7d7
+huohuli.zip|20021||a1fec847|466bcecdcbb5a884cca061b4ce6e87e8|e9a2398fcff31ae5e230a81eaca0209d40d72eed
+iq.zip|18412||71ea4f0a|de8b4eec0a7d6b0aa264e2d50ee33058|6ddb853e570d186fd93687d71a81c697b2f41a25
+herot.zip|18975||60d6a5a2|2692e943fc42002b9bfebfdee6c66958|0f9918d0b13fc361ebd2c8d21b0b1edc80173ee5
+jingwumn.zip|19048||60b998d7|82541ef6e6cb7c2b6d728c3355a849ae|c676dd7b546c263e629cc30d159fc267bbeaed11
+ninjaprit.zip|20551||3ec4b22c|a2f42f55f8f8a93a3529a7107f3e1f5b|7ca8f3d580ee43c505b1f729424ca814a393dc19
+jingwumna.zip|19020||cd313353|62a434a015df6d4685ff31e60c09474d|1250c44ac7473ce9b6f60b25401016facfd0be86
+motianda.zip|19377||92b8ac89|e1156e04227d29d2ec7754f9ff5b0f44|99eefe2ca3fc4a34651b564b69d7f41aacd8bd07
+supertnkt.zip|23430||474875f8|cb729ed5d950a341b7396ebbdd7818e0|6ae595c8016c728a1f6673928f3fe0b327aa0d9f
+pingpong.zip|15636||08eab3c9|388726b1a2f0155504a7f9baee5735ea|d1de5b18bca7723c5b3636fad6037b6651ae0a8b
+wboyt.zip|20519||3d9b5834|58291094a76922eb5112252c6dfa6a23|900ea8f747655a0f76658733793981d8179aea09
+
 
 fbneo - tg16
 ============

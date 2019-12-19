@@ -66,6 +66,14 @@ bool Io::exist(const std::string &file) {
     return (stat(file.c_str(), &st) == 0);
 }
 
+size_t Io::getSize(const std::string &file) {
+    struct stat st{};
+    if (stat(file.c_str(), &st) != 0) {
+        return 0;
+    }
+    return (size_t) st.st_size;
+}
+
 void Io::delay(int seconds) {
     sleep(seconds);
 }
