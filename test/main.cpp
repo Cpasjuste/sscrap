@@ -310,7 +310,7 @@ Scrap::Scrap(const ArgumentParser &parser) {
     Api::printc(COLOR_G, "/_______  /_______  / \\______  /____|_  /\\____|__ _/____|    \n");
     Api::printc(COLOR_G, "        \\/        \\/         \\/       \\/ 2020 @ cpasjuste\n\n");
 
-    if (!args.tokens.empty()) {
+    if (!args.tokens.empty() && !args.exist("-zi")) {
         Api::printc(COLOR_G, "Getting user information... ");
         user = User(usr, pwd);
         Api::printc(COLOR_G, "found user %s, threads: %s, requests: %s/%s, download speed: %s Ko/s\n",
@@ -439,6 +439,19 @@ void Scrap::run() {
                         system.names.eu.c_str(), system.id.c_str(), system.company.c_str(), system.type.c_str());
         }
         printf("\n");
+    } else if (args.exist("-zi")) {
+        const std::string fullPath = args.get("-zi");
+        size_t sep = fullPath.rfind('/');
+        if (sep != std::string::npos) {
+            hashwrapper *md5Wrapper = new md5wrapper();
+            hashwrapper *sha1Wrapper = new sha1wrapper();
+            std::string zipInfo = Utility::getZipInfoStr(md5Wrapper, sha1Wrapper,
+                                                         fullPath.substr(0, sep),
+                                                         fullPath.substr(sep + 1, fullPath.size()));
+            Api::printc(COLOR_R, "%s\n", zipInfo.c_str());
+            delete (md5Wrapper);
+            delete (sha1Wrapper);
+        }
     } else {
         printf("\n");
         printf("usage: sscrap -u <screenscraper_user> -p <screenscraper_password> [options] [options_es]\n");
@@ -446,6 +459,7 @@ void Scrap::run() {
         printf("\t\t-d                             enable debug output\n");
         printf("\t\t-sl                            list available screenscraper systems and exit\n");
         printf("\t\t-ml                            list available screenscraper medias types and exit\n");
+        printf("\t\t-zi <rom_path>                 show zip information (size, crc, md5, sha1) and exit\n");
         printf("\t\t-r <roms_path>                 path to roms files to scrap\n");
         printf("\t\t-sid <system_id>               screenscraper system id to scrap\n");
         printf("\t\t-dlm <mediaType1 mediaType2>   download given medias types\n");

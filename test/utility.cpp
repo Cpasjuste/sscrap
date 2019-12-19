@@ -112,7 +112,7 @@ Utility::ZipInfo Utility::getZipInfo(hashwrapper *md5Wrapper, hashwrapper *sha1W
                                      const std::string &path, const std::string &file) {
 
     ZipInfo info;
-    std::string fullPath = path + file;
+    std::string fullPath = path + "/" + file;
 
     info.name = file;
     info.size = std::to_string(Io::getSize(fullPath));
