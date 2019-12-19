@@ -73,7 +73,7 @@ void Scrap::parseSid(int sid) {
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, SuprGrafx only).dat");
         } else if (sid == 758) {
             // turbo grafx
-            systemId = SYSTEM_ID_TG16;
+            systemId = SYSTEM_ID_PCE;
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, TurboGrafx16 only).dat");
         } else {
             // zx spectrum
@@ -237,6 +237,11 @@ static void *scrap_thread(void *ptr) {
             }
 
             pthread_mutex_lock(&scrap->mutex);
+            // pFBN custom id
+            if (scrap->systemIdFbNeo == SYSTEM_ID_TG16) {
+                gameInfo.game.system.id = SYSTEM_ID_TG16;
+                gameInfo.game.system.parentId = SYSTEM_ID_PCE;
+            }
             Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (%s)\n",
                         scrap->filesCount - filesSize, scrap->filesCount,
                         file.c_str(), gameInfo.game.getName().text.c_str(),
@@ -249,6 +254,11 @@ static void *scrap_thread(void *ptr) {
             Game game;
             if (scrap->isFbNeoSid) {
                 game = fbnGame;
+                // pFBN custom id
+                if (scrap->systemIdFbNeo == SYSTEM_ID_TG16) {
+                    game.system.id = SYSTEM_ID_TG16;
+                    game.system.parentId = SYSTEM_ID_PCE;
+                }
                 scrap->gameList.games.emplace_back(game);
             } else {
                 game.names.emplace_back(Game::Country::WOR, file);
