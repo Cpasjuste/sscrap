@@ -241,6 +241,7 @@ static void *scrap_thread(void *ptr) {
             if (scrap->systemIdFbNeo == SYSTEM_ID_TG16) {
                 gameInfo.game.system.id = SYSTEM_ID_TG16;
                 gameInfo.game.system.parentId = SYSTEM_ID_PCE;
+                gameInfo.game.system.text = "PC Engine TurboGrafx";
             }
             Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (%s)\n",
                         scrap->filesCount - filesSize, scrap->filesCount,
@@ -258,6 +259,7 @@ static void *scrap_thread(void *ptr) {
                 if (scrap->systemIdFbNeo == SYSTEM_ID_TG16) {
                     game.system.id = SYSTEM_ID_TG16;
                     game.system.parentId = SYSTEM_ID_PCE;
+                    game.system.text = "PC Engine TurboGrafx";
                 }
                 scrap->gameList.games.emplace_back(game);
             } else {
