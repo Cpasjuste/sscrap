@@ -104,7 +104,8 @@ int Curl::getData(const std::string &url, const std::string &dstPath, int timeou
         }
     }
 
-    if (res != 0) {
+    if (res != 0 && http_code != nullptr && (*http_code) == 0) {
+        *http_code = res;
         SS_PRINT("Curl::getData: error: curl_easy_perform failed: %s, http_code: %li\n",
                  curl_easy_strerror((CURLcode) res), http_code ? *http_code : 0);
         remove(dstPath.c_str());

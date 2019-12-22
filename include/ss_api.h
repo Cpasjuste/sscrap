@@ -17,7 +17,7 @@
 #include "ss_mediasgamelist.h"
 #include "ss_systemlist.h"
 
-#define SS_TIMEOUT 10
+#define SS_TIMEOUT 30
 
 #ifdef _MSC_VER
 #define COLOR_R (FOREGROUND_INTENSITY | FOREGROUND_RED)
