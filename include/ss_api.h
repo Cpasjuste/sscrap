@@ -27,6 +27,7 @@
 #define COLOR_R "\x1B[91m"
 #define COLOR_G "\x1B[92m"
 #define COLOR_Y "\x1B[93m"
+#define COLOR_O "\x1B[33m"
 #endif
 
 namespace ss_api {

@@ -162,7 +162,7 @@ namespace ss_api {
             std::string support;
             Country country;
 
-            int download(const std::string &dstPath);
+            int download(const std::string &dstPath, int retryDelay = 10);
         };
 
         Game::Name getName(const Game::Country &country = Game::Country::WOR) const;

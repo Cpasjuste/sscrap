@@ -184,7 +184,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             if (!game.source.empty()) {
                 gameElement->SetAttribute("source", game.source.c_str());
             }
-            Api::addXmlElement(&doc, gameElement, "path", game.path);
+            Api::addXmlElement(&doc, gameElement, "path", "./" + game.path);
             Api::addXmlElement(&doc, gameElement, "name", game.getName().text);
             Api::addXmlElement(&doc, gameElement, "desc", game.getSynopsis(language).text);
             Api::addXmlElement(&doc, gameElement, "rating", std::to_string(game.rating));
@@ -203,7 +203,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
                 if (!media.url.empty()) {
                     std::string mediaPath = media.url;
                     if (mediaPath.rfind("http", 0) == 0) {
-                        mediaPath = "media/" + mediaList.at(i) + "/"
+                        mediaPath = "./media/" + mediaList.at(i) + "/"
                                     + game.path.substr(0, game.path.find_last_of('.') + 1)
                                     + media.format;
                     }

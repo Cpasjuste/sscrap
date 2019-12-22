@@ -127,7 +127,7 @@ static void *scrap_thread(void *ptr) {
                 if (gameInfo.http_error == 0) {
                     searchType = "rom_crc";
                 } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
-                    Api::printc(COLOR_Y, "NOK: thread[%i] => Quota reached for today... "
+                    Api::printc(COLOR_O, "NOK: thread[%i] => Quota reached for today... "
                                          "See https://www.screenscraper.fr if you want to support "
                                          "screenscraper and maximize your quota!\n", tid);
                     break;
@@ -223,16 +223,7 @@ static void *scrap_thread(void *ptr) {
                     if (Io::exist(path)) {
                         continue;
                     }
-                    int res = media.download(path);
-                    while (res == 429) {
-                        pthread_mutex_lock(&scrap->mutex);
-                        Api::printc(COLOR_Y,
-                                    "NOK: thread[%i] => maximum requests per minute reached... retrying in %i seconds\n",
-                                    tid, retryDelay);
-                        pthread_mutex_unlock(&scrap->mutex);
-                        Io::delay(retryDelay);
-                        res = media.download(path);
-                    }
+                    media.download(path);
                 }
             }
 
@@ -243,10 +234,17 @@ static void *scrap_thread(void *ptr) {
                 gameInfo.game.system.parentId = SYSTEM_ID_PCE;
                 gameInfo.game.system.text = "PC Engine TurboGrafx";
             }
-            Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (%s)\n",
-                        scrap->filesCount - filesSize, scrap->filesCount,
-                        file.c_str(), gameInfo.game.getName().text.c_str(),
-                        gameInfo.game.system.text.c_str(), searchType.c_str());
+            if (searchType == "search") {
+                Api::printc(COLOR_Y, "[%i/%i] OK: %s => %s (%s) (%s)\n",
+                            scrap->filesCount - filesSize, scrap->filesCount,
+                            file.c_str(), gameInfo.game.getName().text.c_str(),
+                            gameInfo.game.system.text.c_str(), searchType.c_str());
+            } else {
+                Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (%s)\n",
+                            scrap->filesCount - filesSize, scrap->filesCount,
+                            file.c_str(), gameInfo.game.getName().text.c_str(),
+                            gameInfo.game.system.text.c_str(), searchType.c_str());
+            }
             scrap->gameList.games.emplace_back(gameInfo.game);
             pthread_mutex_unlock(&scrap->mutex);
         } else {
@@ -415,7 +413,7 @@ void Scrap::run() {
         Api::printc(COLOR_G, "\nAll Done... ");
         Api::printc(COLOR_G, "found %zu/%i games\n", gameList.games.size() - missList.size(), filesCount);
         if (!missList.empty()) {
-            Api::printc(COLOR_Y, "\n%zu game(s) not found:\n", missList.size());
+            Api::printc(COLOR_O, "\n%zu game(s) not found:\n", missList.size());
             hashwrapper *md5Wrapper = new md5wrapper();
             hashwrapper *sha1Wrapper = new sha1wrapper();
             for (const auto &miss : missList) {

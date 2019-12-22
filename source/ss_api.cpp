@@ -314,9 +314,8 @@ void Api::printc(const char *color, const char *format, ...) {
 
 void Api::printe(int code, int delay) {
     if (code == 429) {
-        printc(COLOR_Y, "NOK: maximum requests per minute reached... retrying in %i seconds\n", delay);
+        printc(COLOR_O, "NOK: maximum requests per minute reached... retrying in %i seconds\n", delay);
     } else if (code == 28) {
-        printc(COLOR_Y, "NOK: timeout reached... retrying in %i seconds\n", delay);
+        printc(COLOR_O, "NOK: timeout reached... retrying in %i seconds\n", delay);
     }
 }
-

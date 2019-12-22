@@ -117,20 +117,28 @@ bool Game::isClone() const {
     return !cloneOf.empty() && cloneOf != "0";
 }
 
-int Game::Media::download(const std::string &dstPath) {
+int Game::Media::download(const std::string &dstPath, int retryDelay) {
 
     if (dstPath.empty()) {
         return -1;
     }
 
     SS_PRINT("Game::Media::download: %s\n", url.c_str());
-    long http_code = 0;
+    long code = 0;
     Curl ss_curl;
-    int res = ss_curl.getData(url, dstPath, SS_TIMEOUT, &http_code);
+    int res = ss_curl.getData(url, dstPath, SS_TIMEOUT, &code);
+    if (retryDelay > 0) {
+        while (code == 429 || code == 28) {
+            Api::printe((int) code, retryDelay);
+            Io::delay(retryDelay);
+            res = ss_curl.getData(url, dstPath, SS_TIMEOUT, &code);
+        }
+    }
+
     if (res != 0) {
         SS_PRINT("Game::Media::download: error: curl failed: %s, http_code: %li\n",
-                 curl_easy_strerror((CURLcode) res), http_code);
-        return (int) http_code;
+                 curl_easy_strerror((CURLcode) res), code);
+        return (int) code;
     }
 
     return 0;
