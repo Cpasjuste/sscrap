@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+
 #include "ss_api.h"
 
 using namespace ss_api;
@@ -420,6 +421,19 @@ Game GameList::findByPath(const std::string &path) {
 
     auto it = std::find_if(games.begin(), games.end(), [path](const Game &game) {
         return game.path == path;
+    });
+
+    if (it != games.end()) {
+        return *it;
+    }
+
+    return Game();
+}
+
+Game GameList::findByPathAndSystem(const std::string &path, int systemId) {
+
+    auto it = std::find_if(games.begin(), games.end(), [path, systemId](const Game &game) {
+        return game.system.id == systemId && game.path == path;
     });
 
     if (it != games.end()) {

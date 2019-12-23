@@ -40,6 +40,8 @@ namespace ss_api {
 
         Game findByPath(const std::string &path);
 
+        Game findByPathAndSystem(const std::string &path, int systemId);
+
         bool exist(int romId);
 
         bool remove(int romId);
