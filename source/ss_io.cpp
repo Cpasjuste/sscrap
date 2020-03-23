@@ -17,7 +17,7 @@ using namespace ss_api;
 std::vector<std::string> Io::getDirList(const std::string &path, const std::string &ext) {
 
     std::vector<std::string> files;
-
+    struct stat st{};
     struct dirent *ent;
     DIR *dir;
 #ifdef __WINDOWS__
@@ -37,7 +37,13 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
                 continue;
             }
 #else
-            if (ent->d_type != DT_REG) {
+            std::string filePath = path + "/" + ent->d_name;
+            if (stat(filePath.c_str(), &st) != 0) {
+                printf("skip: %s\n", ent->d_name);
+                continue;
+            }
+            if (!S_ISREG(st.st_mode)) {
+                printf("skip: %s\n", ent->d_name);
                 continue;
             }
 #endif
