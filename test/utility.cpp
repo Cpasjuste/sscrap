@@ -4,7 +4,11 @@
 
 #include <cstring>
 #include <algorithm>
+
+#ifndef __VITA__
 #include <minizip/unzip.h>
+#endif
+
 #include <ss_api.h>
 #include "utility.h"
 
@@ -39,6 +43,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     char *zipFileName, *data, buffer[16];
     memset(buffer, 0, 16);
 
+#ifndef __VITA__
     unzFile zip = unzOpen(zipPath.c_str());
     if (zip == nullptr) {
         printf("could not open zip file for crc check (%s)\n", zipPath.c_str());
@@ -75,7 +80,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     }
 
     unzClose(zip);
-
+#endif
     return std::string(buffer);
 }
 
@@ -88,6 +93,7 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
 
     memset(hex, 0, 16);
 
+#ifndef __VITA__
 #ifdef _MSC_VER
     fopen_s(&pFile, zipPath.c_str(), "rb");
 #else
@@ -104,7 +110,7 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
     snprintf(hex, 16, "%08lx", crc);
 
     fclose(pFile);
-
+#endif
     return std::string(hex);
 }
 

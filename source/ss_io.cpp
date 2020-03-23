@@ -10,6 +10,10 @@
 #ifdef __WINDOWS__
 #include <windows.h>
 #define mkdir(x, y) mkdir(x)
+#elif __VITA__
+#include <psp2/kernel/threadmgr.h>
+#include <psp2/io/stat.h>
+#define mkdir(x, y) sceIoMkdir(x, 06)
 #endif
 
 using namespace ss_api;
@@ -81,5 +85,9 @@ size_t Io::getSize(const std::string &file) {
 }
 
 void Io::delay(int seconds) {
+#ifdef __VITA__
+    sceKernelDelayThread(seconds * 1000000);
+#else
     sleep(seconds);
+#endif
 }
