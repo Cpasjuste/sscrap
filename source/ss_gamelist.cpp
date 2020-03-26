@@ -8,11 +8,11 @@
 
 using namespace ss_api;
 
-GameList::GameList(const std::string &xmlPath, const std::string &rPath) {
-    append(xmlPath, rPath);
+GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool sort) {
+    append(xmlPath, rPath, sort);
 }
 
-bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
+bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort) {
 
     tinyxml2::XMLDocument doc;
     std::vector<std::string> files;
@@ -138,6 +138,14 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
         gameNode = gameNode->NextSibling();
     }
 
+    if (sort) {
+        sortAlpha();
+    }
+
+    return true;
+}
+
+void GameList::sortAlpha() {
     // sort games
     std::sort(games.begin(), games.end(), Api::sortGameByName);
     // sort lists
@@ -151,8 +159,6 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath) {
     std::sort(resolutions.begin(), resolutions.end(), Api::sortByName);
     std::sort(dates.begin(), dates.end(), Api::sortByName);
     std::sort(genres.begin(), genres.end(), Api::sortByName);
-
-    return true;
 }
 
 bool GameList::save(const std::string &dstPath, const Game::Language &language,

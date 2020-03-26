@@ -21,9 +21,11 @@ namespace ss_api {
 
         GameList() = default;
 
-        explicit GameList(const std::string &xmlPath, const std::string &romPath = "");
+        explicit GameList(const std::string &xmlPath, const std::string &romPath = "", bool sort = true);
 
-        bool append(const std::string &xmlPath, const std::string &romPath = "");
+        bool append(const std::string &xmlPath, const std::string &romPath = "", bool sort = true);
+
+        void sortAlpha();
 
         GameList filter(bool available = false, bool clones = false,
                         const std::string &system = "All", const std::string &editor = "All",
