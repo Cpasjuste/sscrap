@@ -34,23 +34,6 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
             if (ent->d_name[0] == '.') {
                 continue;
             }
-#ifdef __WINDOWS__
-            filePath = path + "\\" + ent->d_name;
-            if(GetFileAttributes(filePath.c_str()) & FILE_ATTRIBUTE_DIRECTORY) {
-                printf("skip: %s\n", ent->d_name);
-                continue;
-            }
-#else
-            std::string filePath = path + "/" + ent->d_name;
-            if (stat(filePath.c_str(), &st) != 0) {
-                printf("skip: %s\n", ent->d_name);
-                continue;
-            }
-            if (!S_ISREG(st.st_mode)) {
-                printf("skip: %s\n", ent->d_name);
-                continue;
-            }
-#endif
             std::string file = ent->d_name;
             if (!ext.empty()) {
                 if (file.rfind('.') != std::string::npos
