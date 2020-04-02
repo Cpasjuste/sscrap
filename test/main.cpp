@@ -473,9 +473,6 @@ void Scrap::run() {
         printf("\t\tfr: french\n");
         printf("\t\tes: spanish\n");
         printf("\t\tpt: portuguese\n");
-        printf("\n\tsscrap supported output formats:\n");
-        printf("\t\temulationstation: emulationstation gamelist.xml, default\n");
-        printf("\t\tpemu: pEMU (pFBN, pSNES, pNES) gamelist.xml\n");
         printf("\n\tsscrap customs systemid (fbneo):\n");
         printf("\t\t750: ColecoVision\n");
         printf("\t\t751: Game Gear\n");
