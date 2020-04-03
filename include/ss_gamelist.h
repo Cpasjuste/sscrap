@@ -25,7 +25,7 @@ namespace ss_api {
 
         bool append(const std::string &xmlPath, const std::string &romPath = "", bool sort = true);
 
-        void sortAlpha();
+        void sortAlpha(bool byPath = false);
 
         GameList filter(bool available = false, bool clones = false,
                         const std::string &system = "All", const std::string &editor = "All",

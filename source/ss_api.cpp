@@ -265,6 +265,10 @@ bool Api::sortGameByName(const Game &g1, const Game &g2) {
     return g1.getName().text < g2.getName().text;
 }
 
+bool Api::sortGameByPath(const Game &g1, const Game &g2) {
+    return g1.path < g2.path;
+}
+
 int Api::parseInt(const std::string &str, int defValue) {
     char *end = nullptr;
     long i = strtol(str.c_str(), &end, 10);

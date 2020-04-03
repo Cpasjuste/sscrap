@@ -145,9 +145,15 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     return true;
 }
 
-void GameList::sortAlpha() {
+void GameList::sortAlpha(bool byPath) {
     // sort games
-    std::sort(games.begin(), games.end(), Api::sortGameByName);
+    if (byPath) {
+        std::sort(games.begin(), games.end(), Api::sortGameByPath);
+        printf("sortAlpha: byPath = true\n");
+    } else {
+        std::sort(games.begin(), games.end(), Api::sortGameByName);
+        printf("sortAlpha: byPath = false\n");
+    }
     // sort lists
     std::sort(systems.begin(), systems.end(), Api::sortByName);
     std::sort(editors.begin(), editors.end(), Api::sortByName);
