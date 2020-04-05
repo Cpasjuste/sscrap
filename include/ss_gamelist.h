@@ -21,9 +21,11 @@ namespace ss_api {
 
         GameList() = default;
 
-        explicit GameList(const std::string &xmlPath, const std::string &romPath = "", bool sort = true);
+        explicit GameList(const std::string &xmlPath, const std::string &romPath = "",
+                          bool sort = true, bool addUnknownFiles = false);
 
-        bool append(const std::string &xmlPath, const std::string &romPath = "", bool sort = true);
+        bool append(const std::string &xmlPath, const std::string &romPath = "",
+                    bool sort = true, bool addUnknownFiles = false);
 
         void sortAlpha(bool byPath = false);
 

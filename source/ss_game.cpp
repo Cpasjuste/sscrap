@@ -11,6 +11,10 @@ Game::Name Game::getName(const Game::Country &country) const {
 
     std::vector<Game::Name> list;
 
+    if (names.empty()) {
+        return Name(Country::UNK, "Unknown");
+    }
+
     remove_copy_if(names.begin(), names.end(), back_inserter(list),
                    [country](const Game::Name &name) {
                        return country != Country::ALL && name.country != country;
@@ -31,6 +35,10 @@ Game::Name Game::getName(const Game::Country &country) const {
 Game::Synopsis Game::getSynopsis(const Game::Language &language) const {
 
     std::vector<Game::Synopsis> list;
+
+    if (synopses.empty()) {
+        return Synopsis(Language::UNK, "Unavailable");
+    }
 
     copy_if(synopses.begin(), synopses.end(), back_inserter(list),
             [language](const Game::Synopsis &p) {
@@ -53,6 +61,10 @@ Game::Date Game::getDate(const Game::Country &country) const {
 
     std::vector<Game::Date> list;
 
+    if (dates.empty()) {
+        return Date(Country::UNK, "Unavailable");
+    }
+
     copy_if(dates.begin(), dates.end(), back_inserter(list),
             [country](const Game::Date &p) {
                 return p.country == country;
@@ -74,6 +86,10 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
 
     std::vector<Game::Genre> list;
 
+    if (genres.empty()) {
+        return Genre(0, 0, 0, "Unavailable", Language::UNK);
+    }
+
     copy_if(genres.begin(), genres.end(), back_inserter(list),
             [language](const Game::Genre &p) {
                 return p.language == language;
@@ -94,6 +110,10 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
 Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country &country) const {
 
     std::vector<Game::Media> mediaList;
+
+    if (medias.empty()) {
+        return Media();
+    }
 
     remove_copy_if(medias.begin(), medias.end(), back_inserter(mediaList),
                    [mediaTypeName, country](const Game::Media &media) {

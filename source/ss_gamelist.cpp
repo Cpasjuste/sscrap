@@ -8,11 +8,11 @@
 
 using namespace ss_api;
 
-GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool sort) {
-    append(xmlPath, rPath, sort);
+GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool sort, bool addUnknownFiles) {
+    append(xmlPath, rPath, sort, addUnknownFiles);
 }
 
-bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort) {
+bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort, bool addUnknownFiles) {
 
     tinyxml2::XMLDocument doc;
     std::vector<std::string> files;
@@ -70,6 +70,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         auto p = std::find(files.begin(), files.end(), game.path);
         if (p != files.end()) {
             game.available = true;
+            files.erase(p);
         }
         // add stuff for later filtering
         std::string system = game.system.text.empty() ? "Unknown" : game.system.text;
@@ -136,6 +137,17 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         games.emplace_back(game);
         // move to next node (game)
         gameNode = gameNode->NextSibling();
+    }
+
+    if (addUnknownFiles) {
+        for (const auto &file : files) {
+            Game game;
+            game.path = file;
+            game.romsPath = rPath;
+            game.names.emplace_back(Game::Country::UNK, file);
+            game.available = true;
+            games.emplace_back(game);
+        }
     }
 
     if (sort) {
