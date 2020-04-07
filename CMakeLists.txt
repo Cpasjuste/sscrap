@@ -55,10 +55,16 @@ if (PLATFORM_SWITCH)
     list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 nx)
 elseif (PLATFORM_VITA)
     #####################
-    # SWITCH PLATORM
+    # VITA PLATORM
     #####################
     list(APPEND CFLAGS -D__VITA__)
     list(APPEND LDFLAGS ssl crypto)
+elseif (PLATFORM_3DS)
+    #####################
+    # 3DS PLATORM
+    #####################
+    list(APPEND CFLAGS -D__3DS__)
+    list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 ctru)
 elseif (PLATFORM_LINUX)
     #####################
     # LINUX PLATORM
