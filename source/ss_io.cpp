@@ -21,12 +21,8 @@ using namespace ss_api;
 std::vector<std::string> Io::getDirList(const std::string &path, const std::string &ext) {
 
     std::vector<std::string> files;
-    struct stat st{};
     struct dirent *ent;
     DIR *dir;
-#ifdef __WINDOWS__
-    std::string filePath;
-#endif
 
     if ((dir = opendir(path.c_str())) != nullptr) {
         while ((ent = readdir(dir)) != nullptr) {
