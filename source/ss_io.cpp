@@ -37,7 +37,9 @@ std::vector<std::string> Io::getDirList(const std::string &path, const std::stri
                     files.emplace_back(file);
                 }
             } else {
-                files.emplace_back(file);
+                if (file.size() > 3 && file[file.size() - 4] == '.') {
+                    files.emplace_back(file);
+                }
             }
         }
         closedir(dir);
