@@ -58,7 +58,11 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
 
     if (!rPath.empty()) {
         romPaths.emplace_back(rPath);
-        files = Io::getDirList(rPath);
+        if (addUnknownFiles) {
+            files = Io::getDirList(rPath, "");
+        } else {
+            files = Io::getDirList(rPath);
+        }
     }
 
     while (gameNode != nullptr) {
