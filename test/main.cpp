@@ -33,7 +33,7 @@ static void fixFbnClone(Game *game, const GameList &list) {
 void Scrap::parseSid(int sid) {
 
     systemId = systemIdFbNeo = sid;
-    if (sid == 75 || (sid >= 750 && sid <= 790)) {
+    if (sid == 75 || (sid >= 750 && sid <= 761)) {
         isFbNeoSid = true;
         if (sid == 75) {
             // mame/fbneo
@@ -82,6 +82,10 @@ void Scrap::parseSid(int sid) {
             // nes
             systemId = SYSTEM_ID_NES;
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, NES Games only).dat");
+        } else if (sid == 761) {
+            // nes
+            systemId = SYSTEM_ID_NES_FDS;
+            fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, FDS Games only).dat");
         }
     }
 }
@@ -488,6 +492,7 @@ void Scrap::run() {
         printf("\t\t758: NEC Turbo Grafx\n");
         printf("\t\t759: ZX Spectrum\n");
         printf("\t\t760: Nintendo NES\n");
+        printf("\t\t761: Nintendo NES FDS\n");
         printf("\n");
         printf("examples:\n\n");
         printf("\tscrap mame/fbneo system, download \'mixrbv2\' for \'image\', \'box-3D\' for \'thumbnail\' and \'video\' for \'video\':\n");

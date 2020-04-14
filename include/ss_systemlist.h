@@ -23,6 +23,7 @@
 #define SYSTEM_ID_TG16 758 // pFBN custom id
 #define SYSTEM_ID_ZX3 76
 #define SYSTEM_ID_NES 3
+#define SYSTEM_ID_NES_FDS 106
 
 namespace ss_api {
 
