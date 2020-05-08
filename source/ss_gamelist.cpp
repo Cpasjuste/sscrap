@@ -415,16 +415,16 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
                      // TODO: use integer for rating, resolution and date
                      return (!available || (available && game.available))
                             && (clones || !game.isClone())
-                            && (system == "All" || game.system.text == system)
-                            && (editor == "All" || game.editor.text == editor)
-                            && (developer == "All" || game.developer.text == developer)
-                            && (player == "All" || game.players == player)
-                            && (rating == "All" || game.rating == Api::parseInt(rating))
-                            && (topstaff == "All" || game.topStaff == Api::parseBool(topstaff))
-                            && (rotation == "All" || game.rotation == Api::parseInt(rotation))
-                            && (resolution == "All" || game.resolution == resolution)
-                            && (date == "All" || game.getDate(Game::Country::WOR).text == date)
-                            && (genre == "All" || game.getGenre(Game::Language::EN).text == genre);
+                            && (system == "ALL" || game.system.text == system)
+                            && (editor == "ALL" || game.editor.text == editor)
+                            && (developer == "ALL" || game.developer.text == developer)
+                            && (player == "ALL" || game.players == player)
+                            && (rating == "ALL" || game.rating == Api::parseInt(rating))
+                            && (topstaff == "ALL" || game.topStaff == Api::parseBool(topstaff))
+                            && (rotation == "ALL" || game.rotation == Api::parseInt(rotation))
+                            && (resolution == "ALL" || game.resolution == resolution)
+                            && (date == "ALL" || game.getDate(Game::Country::WOR).text == date)
+                            && (genre == "ALL" || game.getGenre(Game::Language::EN).text == genre);
                  });
 
     return gameList;
