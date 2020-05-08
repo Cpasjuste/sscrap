@@ -262,11 +262,25 @@ bool Api::sortByName(const std::string &g1, const std::string &g2) {
 }
 
 bool Api::sortGameByName(const Game &g1, const Game &g2) {
-    return g1.getName().text < g2.getName().text;
+    const std::string lhs = g1.getName().text;
+    const std::string rhs = g2.getName().text;
+    const auto result = mismatch(
+            lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto &lhs, const auto &rhs) {
+                return tolower(lhs) == tolower(rhs);
+            });
+    return result.second != rhs.cend() &&
+           (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
 }
 
 bool Api::sortGameByPath(const Game &g1, const Game &g2) {
-    return g1.path < g2.path;
+    const std::string lhs = g1.path;
+    const std::string rhs = g2.path;
+    const auto result = mismatch(
+            lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto &lhs, const auto &rhs) {
+                return tolower(lhs) == tolower(rhs);
+            });
+    return result.second != rhs.cend() &&
+           (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
 }
 
 int Api::parseInt(const std::string &str, int defValue) {
