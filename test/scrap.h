@@ -49,6 +49,7 @@ public:
     ss_api::GameList gameList;
     ss_api::GameList fbnGameList;
     std::vector<std::string> filesList;
+    std::vector<std::string> namesList;
     std::vector<MissFile> missList;
     int systemId;
     int systemIdFbNeo;

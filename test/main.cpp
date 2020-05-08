@@ -212,25 +212,49 @@ static void *scrap_thread(void *ptr) {
         }
 
         if (gameInfo.http_error == 0) {
-            if (scrap->args.exist("-dlm") && (!scrap->mediasClone && !gameInfo.game.isClone())) {
-                for (const auto &mediaType : scrap->mediasGameList.medias) {
-                    if (!scrap->args.exist(mediaType.nameShort)) {
-                        continue;
+            // process medias download
+            bool processMedia = scrap->args.exist("-dlm") && (!scrap->mediasClone && !gameInfo.game.isClone());
+            if (processMedia) {
+                // if rom media was already scrapped for a same "screenscraper game", skip it
+                // this is useful for non arcade roms for which clone notion doesn't exist
+                if (!scrap->mediasClone) {
+                    const std::string name = gameInfo.game.getName().text;
+                    auto it = std::find_if(scrap->namesList.begin(), scrap->namesList.end(),
+                                           [name](const std::string &n) {
+                                               return n == name;
+                                           });
+                    if (it != scrap->namesList.end()) {
+                        processMedia = false;
                     }
-                    Game::Media media = gameInfo.game.getMedia(mediaType.nameShort, Game::Country::SS);
-                    if (media.url.empty()) {
-                        continue;
+                }
+                pthread_mutex_lock(&scrap->mutex);
+                scrap->namesList.emplace_back(gameInfo.game.getName().text);
+                pthread_mutex_unlock(&scrap->mutex);
+
+                if (processMedia) {
+                    for (const auto &mediaType : scrap->mediasGameList.medias) {
+                        // if media type is not in args, skip it
+                        if (!scrap->args.exist(mediaType.nameShort)) {
+                            continue;
+                        }
+                        Game::Media media = gameInfo.game.getMedia(mediaType.nameShort, Game::Country::SS);
+                        if (media.url.empty()) {
+                            continue;
+                        }
+                        std::string name = file.substr(0, file.find_last_of('.') + 1) + media.format;
+                        path = scrap->romPath + "/media/" + media.type + "/";
+                        if (!Io::exist(path)) {
+                            Io::makedir(path);
+                        }
+                        path += name;
+                        if (Io::exist(path)) {
+                            continue;
+                        }
+                        media.download(path);
+                        //std::string src = "\"/home/cpasjuste/emulation/media/" + media.type + "/" + name + "\"";
+                        //std::string cmd = "cp " + src + " \"" + path + "\"";
+                        //system(cmd.c_str());
                     }
-                    std::string name = file.substr(0, file.find_last_of('.') + 1) + media.format;
-                    path = scrap->romPath + "/media/" + media.type + "/";
-                    if (!Io::exist(path)) {
-                        Io::makedir(path);
-                    }
-                    path += name;
-                    if (Io::exist(path)) {
-                        continue;
-                    }
-                    media.download(path);
                 }
             }
 
@@ -504,7 +528,6 @@ void Scrap::run() {
 int main(int argc, char *argv[]) {
 
     ArgumentParser args(argc, argv);
-
     scrap = new Scrap(args);
     scrap->run();
 
