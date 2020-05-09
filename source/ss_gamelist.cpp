@@ -430,17 +430,15 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
     return gameList;
 }
 
-Game GameList::findByName(const std::string &name) {
+std::vector<Game> GameList::findByName(const std::string &name) {
 
-    auto it = std::find_if(games.begin(), games.end(), [name](const Game &game) {
+    std::vector<Game> matches;
+
+    auto it = std::copy_if(games.begin(), games.end(), std::back_inserter(matches), [name](const Game &game) {
         return game.getName().text == name;
     });
 
-    if (it != games.end()) {
-        return *it;
-    }
-
-    return Game();
+    return matches;
 }
 
 Game GameList::findByRomId(int romId) {

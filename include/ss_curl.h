@@ -6,6 +6,9 @@
 #define SS_CURL_H
 
 #include <string>
+#ifndef fd_set
+#include <sys/select.h>
+#endif
 #include <curl/curl.h>
 
 namespace ss_api {

@@ -40,7 +40,7 @@ namespace ss_api {
                   const Game::Language &language = Game::Language::EN,
                   const Format &format = ScreenScrapper, const std::vector<std::string> &mediaList = {});
 
-        Game findByName(const std::string &name);
+        std::vector<Game> findByName(const std::string &name);
 
         Game findByRomId(int romId);
 
