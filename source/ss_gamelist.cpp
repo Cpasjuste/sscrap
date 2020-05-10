@@ -161,24 +161,27 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     return true;
 }
 
-void GameList::sortAlpha(bool byPath) {
+void GameList::sortAlpha(bool byPath, bool gamesOnly) {
     // sort games
     if (byPath) {
         std::sort(games.begin(), games.end(), Api::sortGameByPath);
     } else {
         std::sort(games.begin(), games.end(), Api::sortGameByName);
     }
+
     // sort lists
-    std::sort(systems.begin(), systems.end(), Api::sortByName);
-    std::sort(editors.begin(), editors.end(), Api::sortByName);
-    std::sort(developers.begin(), developers.end(), Api::sortByName);
-    std::sort(players.begin(), players.end(), Api::sortByName);
-    std::sort(ratings.begin(), ratings.end(), Api::sortByName);
-    std::sort(topStaffs.begin(), topStaffs.end(), Api::sortByName);
-    std::sort(rotations.begin(), rotations.end(), Api::sortByName);
-    std::sort(resolutions.begin(), resolutions.end(), Api::sortByName);
-    std::sort(dates.begin(), dates.end(), Api::sortByName);
-    std::sort(genres.begin(), genres.end(), Api::sortByName);
+    if (!gamesOnly) {
+        std::sort(systems.begin(), systems.end(), Api::sortByName);
+        std::sort(editors.begin(), editors.end(), Api::sortByName);
+        std::sort(developers.begin(), developers.end(), Api::sortByName);
+        std::sort(players.begin(), players.end(), Api::sortByName);
+        std::sort(ratings.begin(), ratings.end(), Api::sortByName);
+        std::sort(topStaffs.begin(), topStaffs.end(), Api::sortByName);
+        std::sort(rotations.begin(), rotations.end(), Api::sortByName);
+        std::sort(resolutions.begin(), resolutions.end(), Api::sortByName);
+        std::sort(dates.begin(), dates.end(), Api::sortByName);
+        std::sort(genres.begin(), genres.end(), Api::sortByName);
+    }
 }
 
 bool GameList::save(const std::string &dstPath, const Game::Language &language,
