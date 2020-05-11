@@ -444,6 +444,17 @@ std::vector<Game> GameList::findByName(const std::string &name) {
     return matches;
 }
 
+std::vector<Game> GameList::findByName(const Game &game) {
+
+    std::vector<Game> matches;
+
+    auto it = std::copy_if(games.begin(), games.end(), std::back_inserter(matches), [game](const Game &g) {
+        return game.getName().text == g.getName().text && game.path != g.path;
+    });
+
+    return matches;
+}
+
 Game GameList::findByRomId(int romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {

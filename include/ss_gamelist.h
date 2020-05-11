@@ -42,6 +42,8 @@ namespace ss_api {
 
         std::vector<Game> findByName(const std::string &name);
 
+        std::vector<Game> findByName(const Game &game);
+
         Game findByRomId(int romId);
 
         Game findByPath(const std::string &path);
