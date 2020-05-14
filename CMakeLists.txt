@@ -44,6 +44,8 @@ set(LDFLAGS
         ${TinyXML2_LIBRARIES}
         ${ZLIB_LIBRARIES})
 
+set(CMAKE_CXX_STANDARD 14)
+
 #####################
 # PLATORM SPECIFIC
 #####################
