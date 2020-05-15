@@ -74,7 +74,8 @@ elseif (PLATFORM_LINUX)
     if (PLATFORM_WINDOWS)
         # TODO: try to fix nghttp2 static linking...
         list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
-        set(LDFLAGS curl.a tinyxml2.a nghttp2 idn2.a psl.a ssl.a
+        set(LDFLAGS curl.a ssh2.a
+                tinyxml2.a nghttp2 idn2.a psl.a ssl.a
                 crypto.a crypt32.a unistring brotlidec-static.a
                 brotlicommon-static.a intl.a iconv.a wldap32.a ws2_32.a
                 -static -static-libgcc -static-libstdc++)

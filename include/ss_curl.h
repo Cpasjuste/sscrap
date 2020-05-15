@@ -6,7 +6,7 @@
 #define SS_CURL_H
 
 #include <string>
-#ifndef fd_set
+#if !defined(__WINDOWS__) && !defined(fd_set)
 #include <sys/select.h>
 #endif
 #include <curl/curl.h>
