@@ -104,63 +104,69 @@ static void *scrap_thread(void *ptr) {
         pthread_mutex_unlock(&scrap->mutex);
 
         GameInfo gameInfo;
+        std::string path;
         std::string searchType = "None";
         std::string zipCrc, romCrc;
 
-        // first, search by zip crc
-        std::string path = scrap->romPath + "/" + file;
-        zipCrc = Utility::getZipCrc(path);
-        if (!zipCrc.empty()) {
-            gameInfo = GameInfo(zipCrc, "", "", std::to_string(scrap->systemId), "", file,
-                                "", "", scrap->usr, scrap->pwd, retryDelay);
-            if (gameInfo.http_error == 0) {
-                searchType = "zip_crc";
-            } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
-                Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
-                                     "See https://www.screenscraper.fr if you want to support "
-                                     "screenscraper and maximize your quota!\n", tid);
-                break;
-            }
-        }
-        SS_PRINT("zip crc: %s (%s), res = %i\n", file.c_str(), zipCrc.c_str(), gameInfo.http_error);
-
-        // next, try by rom crc if not mame / fbneo arcade (multiple roms in zip...)
-        if (gameInfo.http_error != 0 && scrap->systemId != 75) {
+        if (scrap->systemId != SYSTEM_ID_DREAMCAST) {
+            // first, search by zip crc
             path = scrap->romPath + "/" + file;
-            romCrc = Utility::getRomCrc(path);
-            if (!romCrc.empty()) {
-                gameInfo = GameInfo(romCrc, "", "", std::to_string(scrap->systemId), "", file,
+            zipCrc = Utility::getZipCrc(path);
+            if (!zipCrc.empty()) {
+                gameInfo = GameInfo(zipCrc, "", "", std::to_string(scrap->systemId), "", file,
                                     "", "", scrap->usr, scrap->pwd, retryDelay);
                 if (gameInfo.http_error == 0) {
-                    searchType = "rom_crc";
+                    searchType = "zip_crc";
                 } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
-                    Api::printc(COLOR_O, "NOK: thread[%i] => Quota reached for today... "
+                    Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
                                          "See https://www.screenscraper.fr if you want to support "
                                          "screenscraper and maximize your quota!\n", tid);
                     break;
                 }
             }
-            SS_PRINT("rom crc: %s (%s), res = %i\n", file.c_str(), romCrc.c_str(), gameInfo.http_error);
-        }
+            SS_PRINT("zip crc: %s (%s), res = %i\n", file.c_str(), zipCrc.c_str(), gameInfo.http_error);
 
-        // fbneo consoles zip names doesn't match standard consoles zip names
-        // this will also help fbneo arcade games if not found by zip name
-        if (scrap->isFbNeoSid) {
-            fbnGame = scrap->fbnGameList.findByPath(file);
-        }
+            // next, try by rom crc if not mame / fbneo arcade (multiple roms in zip...)
+            if (gameInfo.http_error != 0 && scrap->systemId != 75) {
+                path = scrap->romPath + "/" + file;
+                romCrc = Utility::getRomCrc(path);
+                if (!romCrc.empty()) {
+                    gameInfo = GameInfo(romCrc, "", "", std::to_string(scrap->systemId), "", file,
+                                        "", "", scrap->usr, scrap->pwd, retryDelay);
+                    if (gameInfo.http_error == 0) {
+                        searchType = "rom_crc";
+                    } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
+                        Api::printc(COLOR_O, "NOK: thread[%i] => Quota reached for today... "
+                                             "See https://www.screenscraper.fr if you want to support "
+                                             "screenscraper and maximize your quota!\n", tid);
+                        break;
+                    }
+                }
+                SS_PRINT("rom crc: %s (%s), res = %i\n", file.c_str(), romCrc.c_str(), gameInfo.http_error);
+            }
 
-        // now try with zip name
-        if (gameInfo.http_error != 0) {
-            std::string name = (scrap->isFbNeoSid && scrap->systemId != 75) ? fbnGame.getName().text + ".zip" : file;
-            gameInfo = GameInfo("", "", "", std::to_string(scrap->systemId), "rom", name,
-                                "", "", scrap->usr, scrap->pwd, retryDelay);
-            if (gameInfo.http_error == 0) {
-                searchType = "zip_name";
+            // fbneo consoles zip names doesn't match standard consoles zip names
+            // this will also help fbneo arcade games if not found by zip name
+            if (scrap->isFbNeoSid) {
+                fbnGame = scrap->fbnGameList.findByPath(file);
             }
-            if (scrap->isFbNeoSid && scrap->systemId != 75) {
-                gameInfo.game.path = file;
+
+            // now try with zip name
+            if (gameInfo.http_error != 0) {
+                std::string name = (scrap->isFbNeoSid && scrap->systemId != 75) ? fbnGame.getName().text + ".zip"
+                                                                                : file;
+                gameInfo = GameInfo("", "", "", std::to_string(scrap->systemId), "rom", name,
+                                    "", "", scrap->usr, scrap->pwd, retryDelay);
+                if (gameInfo.http_error == 0) {
+                    searchType = "zip_name";
+                }
+                if (scrap->isFbNeoSid && scrap->systemId != 75) {
+                    gameInfo.game.path = file;
+                }
+                SS_PRINT("zip name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
             }
-            SS_PRINT("zip name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
+        } else {
+            gameInfo.http_error = 1;
         }
 
         // finally, try a game search (jeuRecherche)
