@@ -173,6 +173,7 @@ static void *scrap_thread(void *ptr) {
         if (gameInfo.http_error != 0) {
             // the rom is not know by screenscraper, try to find the game with a game search (jeuRecherche)
             std::string name = scrap->isFbNeoSid ? fbnGame.getName().text : file;
+            name = Utility::removeExt(name);
             GameSearch search = GameSearch(name, std::to_string(scrap->systemId), scrap->usr, scrap->pwd, retryDelay);
             SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
             if (!search.games.empty()) {

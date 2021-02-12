@@ -6,13 +6,24 @@
 #include <algorithm>
 
 #ifndef __VITA__
+
 #include <minizip/unzip.h>
+
 #endif
 
 #include <ss_api.h>
 #include "utility.h"
 
 using namespace ss_api;
+
+std::string Utility::removeExt(const std::string &str) {
+    size_t pos = str.find_last_of('.');
+    if (pos != std::string::npos) {
+        return str.substr(0, pos);
+    } else {
+        return str;
+    }
+}
 
 int Utility::parseInt(const std::string &str, int defValue) {
     char *end = nullptr;

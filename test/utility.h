@@ -22,6 +22,8 @@ public:
         std::string sha1;
     };
 
+    static std::string removeExt(const std::string &str);
+
     static int parseInt(const std::string &str, int defValue = 0);
 
     static std::string getExt(const std::string &file);
