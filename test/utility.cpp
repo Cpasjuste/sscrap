@@ -57,7 +57,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
 #ifndef __VITA__
     unzFile zip = unzOpen(zipPath.c_str());
     if (zip == nullptr) {
-        printf("could not open zip file for crc check (%s)\n", zipPath.c_str());
+        SS_PRINT("could not open zip file for crc check (%s)\n", zipPath.c_str());
         return std::string(buffer);
     }
 

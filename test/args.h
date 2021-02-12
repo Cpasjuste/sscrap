@@ -12,7 +12,7 @@ class ArgumentParser {
 public:
     ArgumentParser() = default;
 
-    ArgumentParser(int argc, char* argv[]) {
+    ArgumentParser(int argc, char *argv[]) {
         for (int i = 1; i < argc; ++i) {
             tokens.emplace_back(std::string(argv[i]));
         }

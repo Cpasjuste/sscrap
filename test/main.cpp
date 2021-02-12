@@ -108,7 +108,7 @@ static void *scrap_thread(void *ptr) {
         std::string searchType = "None";
         std::string zipCrc, romCrc;
 
-        if (scrap->systemId != SYSTEM_ID_DREAMCAST) {
+        if (!scrap->args.exist("-skipcrc")) {
             // first, search by zip crc
             path = scrap->romPath + "/" + file;
             zipCrc = Utility::getZipCrc(path);
@@ -116,7 +116,7 @@ static void *scrap_thread(void *ptr) {
                 gameInfo = GameInfo(zipCrc, "", "", std::to_string(scrap->systemId), "", file,
                                     "", "", scrap->usr, scrap->pwd, retryDelay);
                 if (gameInfo.http_error == 0) {
-                    searchType = "zip_crc";
+                    searchType = "game_info";
                 } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
                     Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
                                          "See https://www.screenscraper.fr if you want to support "
@@ -134,7 +134,7 @@ static void *scrap_thread(void *ptr) {
                     gameInfo = GameInfo(romCrc, "", "", std::to_string(scrap->systemId), "", file,
                                         "", "", scrap->usr, scrap->pwd, retryDelay);
                     if (gameInfo.http_error == 0) {
-                        searchType = "rom_crc";
+                        searchType = "game_info (rom_crc)";
                     } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
                         Api::printc(COLOR_O, "NOK: thread[%i] => Quota reached for today... "
                                              "See https://www.screenscraper.fr if you want to support "
@@ -172,8 +172,7 @@ static void *scrap_thread(void *ptr) {
         // finally, try a game search (jeuRecherche)
         if (gameInfo.http_error != 0) {
             // the rom is not know by screenscraper, try to find the game with a game search (jeuRecherche)
-            std::string name = scrap->isFbNeoSid ? fbnGame.getName().text : file;
-            name = Utility::removeExt(name);
+            std::string name = Utility::removeExt(scrap->isFbNeoSid ? fbnGame.getName().text : file);
             GameSearch search = GameSearch(name, std::to_string(scrap->systemId), scrap->usr, scrap->pwd, retryDelay);
             SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
             if (!search.games.empty()) {
@@ -390,7 +389,8 @@ void Scrap::run() {
     if (args.exist("-r")) {
         romPath = args.get("-r");
         Api::printc(COLOR_G, "Building roms list... ");
-        filesList = Io::getDirList(romPath);
+        std::string ext = args.exist("-filter") ? args.get("-filter") : "";
+        filesList = Io::getDirList(romPath, ext);
         filesCount = (int) filesList.size();
         Api::printc(COLOR_G, "found %zu roms\n", filesCount);
         if (filesList.empty()) {
@@ -497,8 +497,10 @@ void Scrap::run() {
         printf("\t\t-sl                            list available screenscraper systems and exit\n");
         printf("\t\t-ml                            list available screenscraper medias types and exit\n");
         printf("\t\t-zi <rom_path>                 show zip information (size, crc, md5, sha1) and exit\n");
-        printf("\t\t-r <roms_path>                 path to roms files to scrap\n");
         printf("\t\t-sid <system_id>               screenscraper system id to scrap\n");
+        printf("\t\t-r <roms_path>                 path to roms files to scrap\n");
+        printf("\t\t-filter <ext>                  only scrap files with this extension\n");
+        printf("\t\t-skipcrc                       skip crc/md5/sha1 search\n");
         printf("\t\t-dlm <mediaType1 mediaType2>   download given medias types\n");
         printf("\t\t-dlmc                          download medias for clones\n");
         printf("\t\t-lang <language>               use given output language for gamelist.xml\n");
