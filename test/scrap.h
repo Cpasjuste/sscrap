@@ -36,6 +36,8 @@ public:
 
     explicit Scrap(const ArgumentParser &parser);
 
+    ss_api::Game scrapGame(int tid, int remainingFiles, const ss_api::Io::File &file);
+
     void run();
 
     void parseSid(int sid);
@@ -48,7 +50,7 @@ public:
     ss_api::SystemList systemList;
     ss_api::GameList gameList;
     ss_api::GameList fbnGameList;
-    std::vector<std::string> filesList;
+    std::vector<ss_api::Io::File> filesList;
     std::vector<std::string> namesList;
     std::vector<MissFile> missList;
     int systemId;

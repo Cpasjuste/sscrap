@@ -17,6 +17,9 @@
 
 using namespace ss_api;
 
+static hashwrapper *md5Wrapper;
+static hashwrapper *sha1Wrapper;
+
 std::string Utility::removeExt(const std::string &str) {
     size_t pos = str.find_last_of('.');
     if (pos != std::string::npos) {
@@ -48,61 +51,6 @@ std::string Utility::getExt(const std::string &file) {
     ext[2] = file[file.size() - 1];
 
     return ext;
-}
-
-std::vector<std::string> Utility::getDirList(
-        const std::string &path, bool recursive, const std::vector<std::string> &filters) {
-
-    std::vector<std::string> files;
-    struct dirent *ent;
-    DIR *dir;
-
-    if (!path.empty()) {
-        if ((dir = opendir(path.c_str())) != nullptr) {
-            while ((ent = readdir(dir)) != nullptr) {
-                // skip "hidden" files
-                if (ent->d_name[0] == '.') {
-                    continue;
-                }
-
-                std::string fullPath = path + "/" + ent->d_name;
-                if (ent->d_type == DT_DIR) {
-                    if (!filters.empty()) {
-                        for (const auto &filter : filters) {
-                            if (std::string(ent->d_name).find(filter) != std::string::npos) {
-                                files.push_back(fullPath);
-                                break;
-                            }
-                        }
-                    } else {
-                        files.push_back(fullPath);
-                    }
-                    if (recursive) {
-                        std::vector<std::string> subFiles = getDirList(fullPath, true, filters);
-                        for (const auto &x : subFiles) {
-                            files.push_back(x);
-                        }
-                    }
-                } else if (ent->d_type == DT_REG) {
-                    if (!filters.empty()) {
-                        for (const auto &filter : filters) {
-                            if (std::string(ent->d_name).find(filter) != std::string::npos) {
-                                files.push_back(fullPath);
-                                break;
-                            }
-                        }
-                    } else {
-                        files.push_back(fullPath);
-                    }
-                } else {
-                    continue;
-                }
-            }
-            closedir(dir);
-        }
-    }
-
-    return files;
 }
 
 std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList) {
@@ -151,7 +99,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     return std::string(buffer);
 }
 
-std::string Utility::getZipCrc(const std::string &zipPath) {
+std::string Utility::getFileCrc(const std::string &zipPath) {
 
     unsigned char buffer[BUFSIZ];
     char hex[16];
@@ -181,25 +129,49 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
     return std::string(hex);
 }
 
-Utility::ZipInfo Utility::getZipInfo(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
-                                     const std::string &path, const std::string &file) {
+std::string Utility::getFileMd5(const std::string &path) {
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
+    return md5Wrapper->getHashFromFile(path);
+}
+
+std::string Utility::getFileSha1(const std::string &path) {
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
+    return sha1Wrapper->getHashFromFile(path);
+}
+
+Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string &file) {
 
     ZipInfo info;
     std::string fullPath = path + "/" + file;
 
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
+
     info.name = file;
     info.size = std::to_string(Io::getSize(fullPath));
-    info.crc = getZipCrc(fullPath);
+    info.crc = getFileCrc(fullPath);
     info.md5 = md5Wrapper->getHashFromFile(fullPath);
     info.sha1 = sha1Wrapper->getHashFromFile(fullPath);
 
     return info;
 }
 
-std::string Utility::getZipInfoStr(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
-                                   const std::string &path, const std::string &file) {
+std::string Utility::getZipInfoStr(const std::string &path, const std::string &file) {
 
-    ZipInfo info = getZipInfo(md5Wrapper, sha1Wrapper, path, file);
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
+
+    ZipInfo info = getZipInfo(path, file);
     return info.name + "|" + info.size + "|" + info.serial + "|" + info.crc + "|" + info.md5 + "|" + info.sha1;
 }
 
@@ -248,3 +220,4 @@ void Utility::printGame(const Game &game) {
     media = game.getMedia("mixrbv2", Game::Country::WOR);
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
 }
+

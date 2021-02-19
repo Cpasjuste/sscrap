@@ -18,31 +18,59 @@
 
 using namespace ss_api;
 
-std::vector<std::string> Io::getDirList(const std::string &path, const std::string &ext) {
+std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
+                                     const std::vector<std::string> &filters) {
 
-    std::vector<std::string> files;
+    std::vector<Io::File> files;
     struct dirent *ent;
     DIR *dir;
 
-    if ((dir = opendir(path.c_str())) != nullptr) {
-        while ((ent = readdir(dir)) != nullptr) {
-            // skip "."
-            if (ent->d_name[0] == '.') {
-                continue;
-            }
-            std::string file = ent->d_name;
-            if (!ext.empty()) {
-                if (file.rfind('.') != std::string::npos
-                    && file.substr(file.find_last_of('.') + 1) == ext) {
-                    files.emplace_back(file);
+    if (!path.empty()) {
+        if ((dir = opendir(path.c_str())) != nullptr) {
+            while ((ent = readdir(dir)) != nullptr) {
+
+                // skip "hidden" files
+                if (ent->d_name[0] == '.') {
+                    continue;
                 }
-            } else {
-                if (file.size() > 3 && file[file.size() - 4] == '.') {
-                    files.emplace_back(file);
+
+                File file = {ent->d_name, path + "/" + ent->d_name};
+                file.size = getSize(file.path);
+
+                if (ent->d_type == DT_DIR) {
+                    if (!filters.empty()) {
+                        for (const auto &filter : filters) {
+                            if (file.name.find(filter) != std::string::npos) {
+                                files.push_back(file);
+                                break;
+                            }
+                        }
+                    } else {
+                        files.push_back(file);
+                    }
+                    if (recursive) {
+                        std::vector<Io::File> subFiles = getDirList(file.path, true, filters);
+                        for (const auto &x : subFiles) {
+                            files.push_back(x);
+                        }
+                    }
+                } else if (ent->d_type == DT_REG) {
+                    if (!filters.empty()) {
+                        for (const auto &filter : filters) {
+                            if (file.name.find(filter) != std::string::npos) {
+                                files.push_back(file);
+                                break;
+                            }
+                        }
+                    } else {
+                        files.push_back(file);
+                    }
+                } else {
+                    continue;
                 }
             }
+            closedir(dir);
         }
-        closedir(dir);
     }
 
     return files;
