@@ -12,6 +12,7 @@
 #endif
 
 #include <ss_api.h>
+#include <dirent.h>
 #include "utility.h"
 
 using namespace ss_api;
@@ -47,6 +48,61 @@ std::string Utility::getExt(const std::string &file) {
     ext[2] = file[file.size() - 1];
 
     return ext;
+}
+
+std::vector<std::string> Utility::getDirList(
+        const std::string &path, bool recursive, const std::vector<std::string> &filters) {
+
+    std::vector<std::string> files;
+    struct dirent *ent;
+    DIR *dir;
+
+    if (!path.empty()) {
+        if ((dir = opendir(path.c_str())) != nullptr) {
+            while ((ent = readdir(dir)) != nullptr) {
+                // skip "hidden" files
+                if (ent->d_name[0] == '.') {
+                    continue;
+                }
+
+                std::string fullPath = path + "/" + ent->d_name;
+                if (ent->d_type == DT_DIR) {
+                    if (!filters.empty()) {
+                        for (const auto &filter : filters) {
+                            if (std::string(ent->d_name).find(filter) != std::string::npos) {
+                                files.push_back(fullPath);
+                                break;
+                            }
+                        }
+                    } else {
+                        files.push_back(fullPath);
+                    }
+                    if (recursive) {
+                        std::vector<std::string> subFiles = getDirList(fullPath, true, filters);
+                        for (const auto &x : subFiles) {
+                            files.push_back(x);
+                        }
+                    }
+                } else if (ent->d_type == DT_REG) {
+                    if (!filters.empty()) {
+                        for (const auto &filter : filters) {
+                            if (std::string(ent->d_name).find(filter) != std::string::npos) {
+                                files.push_back(fullPath);
+                                break;
+                            }
+                        }
+                    } else {
+                        files.push_back(fullPath);
+                    }
+                } else {
+                    continue;
+                }
+            }
+            closedir(dir);
+        }
+    }
+
+    return files;
 }
 
 std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList) {

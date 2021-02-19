@@ -6,6 +6,7 @@
 #include "scrap.h"
 #include "args.h"
 #include "utility.h"
+#include "dreamcast.h"
 
 using namespace ss_api;
 
@@ -386,19 +387,35 @@ void Scrap::run() {
         return;
     }
 
+    parseSid(Utility::parseInt(args.get("-sid")));
+
     if (args.exist("-r")) {
         romPath = args.get("-r");
         Api::printc(COLOR_G, "Building roms list... ");
         std::string ext = args.exist("-filter") ? args.get("-filter") : "";
-        filesList = Io::getDirList(romPath, ext);
-        filesCount = (int) filesList.size();
+
+        if (systemId == SYSTEM_ID_DREAMCAST) {
+            /*
+            std::vector<std::string> files = Utility::getDirList(romPath, true,
+                                                                 {"track01.iso", "track01.bin"});
+            for (auto &file : files) {
+                Dreamcast::IpHeader header = Dreamcast::getIpHeader(file);
+                printf("file: \"%s\"\n"
+                       "\tname: %s (disc type: %s, disc number: %s, hardware_id: %s)\n",
+                       file.c_str(), header.name, header.disk_type, header.disk_num, header.hardware_id);
+            }
+            */
+        } else {
+            filesList = Io::getDirList(romPath, ext);
+            filesCount = (int) filesList.size();
+        }
+
         Api::printc(COLOR_G, "found %zu roms\n", filesCount);
         if (filesList.empty()) {
             Api::printc(COLOR_R, "ERROR: no files found in rom path\n");
             return;
         }
 
-        parseSid(Utility::parseInt(args.get("-sid")));
         SystemList::System system = systemList.findById(std::to_string(systemId));
         Api::printc(COLOR_G, "Scrapping system '%s', let's go!\n\n", system.names.eu.c_str());
 
@@ -537,8 +554,19 @@ void Scrap::run() {
 int main(int argc, char *argv[]) {
 
     ArgumentParser args(argc, argv);
+    /*
     scrap = new Scrap(args);
     scrap->run();
+    */
+
+    std::vector<std::string> files = Utility::getDirList(
+            args.get("-r"), true, {"track01.iso", "track01.bin"});
+    for (auto &file : files) {
+        Dreamcast::IpHeader header = Dreamcast::getIpHeader(file);
+        printf("file: \"%s\"\n"
+               "\tname: %s (disc type: %s, disc number: %s, hardware_id: %s)\n",
+               file.c_str(), header.name, header.disk_type, header.disk_num, header.hardware_id);
+    }
 
     return 0;
 }

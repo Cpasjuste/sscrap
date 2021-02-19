@@ -26,6 +26,10 @@ public:
 
     static int parseInt(const std::string &str, int defValue = 0);
 
+    static std::vector<std::string> getDirList(
+            const std::string &path, bool recursive,
+            const std::vector<std::string> &filters = std::vector<std::string>());
+
     static std::string getExt(const std::string &file);
 
     static std::string getZipCrc(const std::string &zipPath);
