@@ -58,6 +58,10 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     char *zipFileName, *data, buffer[16];
     memset(buffer, 0, 16);
 
+    if (!Io::endsWith(zipPath, ".zip", false)) {
+        return "";
+    }
+
 #ifndef __VITA__
     unzFile zip = unzOpen(zipPath.c_str());
     if (zip == nullptr) {
@@ -148,7 +152,12 @@ std::string Utility::getFileSha1(const std::string &path) {
 Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string &file) {
 
     ZipInfo info;
+    info.name = file;
     std::string fullPath = path + "/" + file;
+
+    if (!Io::exist(fullPath)) {
+        return info;
+    }
 
     if (!md5Wrapper) {
         md5Wrapper = new md5wrapper();

@@ -36,7 +36,8 @@ public:
 
     explicit Scrap(const ArgumentParser &parser);
 
-    ss_api::Game scrapGame(int tid, int remainingFiles, const ss_api::Io::File &file);
+    ss_api::Game scrapGame(int tid, int tryCount, int remainingFiles, const std::string &fileName,
+                           const std::string &filePath, const std::string &searchName);
 
     void run();
 

@@ -16,6 +16,9 @@ namespace ss_api {
             std::string name;
             std::string path;
             size_t size;
+            bool isFile;
+            std::string dc_title; // dc
+            std::string dc_track01; // dc
         };
 
         static std::vector<File> getDirList(
@@ -27,6 +30,14 @@ namespace ss_api {
         static bool exist(const std::string &file);
 
         static size_t getSize(const std::string &file);
+
+        static bool endsWith(const std::string &value, const std::string &ending, bool sensitive);
+
+        static std::string getExt(const std::string &file);
+
+        static std::string toLower(const std::string &str);
+
+        static std::string toUpper(const std::string &str);
 
         static void delay(int seconds);
     };
