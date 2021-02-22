@@ -224,6 +224,13 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int remainingFiles, const s
             pthread_mutex_unlock(&scrap->mutex);
 
             if (processMedia) {
+                std::string mediaPath = scrap->romPath + "/media/";
+                if (args.exist("-m")) {
+                    mediaPath = args.get("-m") + "/";
+                }
+                if (!Io::exist(mediaPath)) {
+                    Io::makedir(mediaPath);
+                }
                 for (const auto &mediaType : scrap->mediasGameList.medias) {
                     // if media type is not in args, skip it
                     if (!scrap->args.exist(mediaType.nameShort)) {
@@ -242,7 +249,8 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int remainingFiles, const s
                         mediaName = fileName + "." + media.format;
                         mediaNameRoq = fileName + ".roq";
                     }
-                    std::string path = scrap->romPath + "/media/" + media.type + "/";
+
+                    std::string path = mediaPath + media.type + "/";
                     if (!Io::exist(path)) {
                         Io::makedir(path);
                     }
@@ -443,10 +451,6 @@ void Scrap::run() {
         SystemList::System system = systemList.findById(std::to_string(systemId));
         Api::printc(COLOR_G, "Scrapping system '%s', let's go!\n\n", system.names.eu.c_str());
 
-        if (args.exist("-dlm")) {
-            Io::makedir(romPath + "/media");
-        }
-
         pthread_mutex_init(&mutex, nullptr);
         int maxThreads = user.getMaxThreads();
 
@@ -531,6 +535,7 @@ void Scrap::run() {
         printf("\t\t-zi <rom_path>                 show zip information (size, crc, md5, sha1) and exit\n");
         printf("\t\t-sid <system_id>               screenscraper system id to scrap\n");
         printf("\t\t-r <roms_path>                 path to roms files to scrap\n");
+        printf("\t\t-m <medias_path>               path to medias files\n");
         printf("\t\t-filter <ext>                  only scrap files with this extension\n");
         printf("\t\t-dlm <mediaType1 mediaType2>   download given medias types\n");
         printf("\t\t-dlmc                          download medias for clones\n");

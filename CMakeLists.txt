@@ -132,36 +132,40 @@ if (BUILD_SSCRAP)
             COMMENT "Copying databases to binary directory..."
             )
     if (PLATFORM_WINDOWS)
+
         add_custom_command(TARGET ${PROJECT_NAME}-utility POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/release
-                COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/release
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-utility.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/databases ${CMAKE_CURRENT_BINARY_DIR}/release/databases
-                # utils (dc)
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/dc_convert.ps1 ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/ffmpeg.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/magick.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/pngquant.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-utility.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/databases ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/databases
                 # ouch...
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libtinyxml2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libgcc_s_seh-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libwinpthread-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libminizip-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libcurl-4.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libstdc++-6.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/zlib1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libcrypto-1_1-x64.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libbrotlidec.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libbrotlicommon.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libidn2-0.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libnghttp2-14.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libpsl-5.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libssh2-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libssl-1_1-x64.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libzstd.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libiconv-2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libunistring-2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libintl-8.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libtinyxml2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libgcc_s_seh-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libwinpthread-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libminizip-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libcurl-4.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libstdc++-6.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/zlib1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libcrypto-1_1-x64.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libbrotlidec.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libbrotlicommon.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libidn2-0.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libnghttp2-14.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libpsl-5.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libssh2-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libssl-1_1-x64.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libzstd.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libiconv-2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libunistring-2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libintl-8.dll ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                )
+        add_custom_target(${PROJECT_NAME}-retrodream
+                DEPENDS ${PROJECT_NAME}-utility
+                # utils (dc)
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/ffmpeg.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/magick.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/pngquant.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/sscrap-retrodream.ps1 ${CMAKE_CURRENT_BINARY_DIR}/release/
                 )
     endif ()
 endif ()
