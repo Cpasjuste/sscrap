@@ -5,6 +5,8 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <algorithm>
+#include "ss_api.h"
 #include "ss_io.h"
 
 #ifdef __WINDOWS__
@@ -18,31 +20,108 @@
 
 using namespace ss_api;
 
-std::vector<std::string> Io::getDirList(const std::string &path, const std::string &ext) {
+static std::string dcGetIpHeaderTitle(const std::string &path) {
 
-    std::vector<std::string> files;
+    int offset = 0;
+    char buffer[128];
+
+    FILE *file = fopen(path.c_str(), "rb");
+    if (!file) {
+        SS_PRINT("dcGetIpHeaderTitle: could not open file: \"%s\"\n", path.c_str());
+        return "";
+    }
+
+    // NO OPT
+    if (Io::getExt(path) == "bin") {
+        offset = 16;
+        fseek(file, 16, SEEK_SET);
+    }
+
+    // read header hardware id (our magic)
+    size_t read = fread(buffer, 1, 15, file);
+    if (read != 15) {
+        SS_PRINT("dcGetIpHeaderTitle: could not read file (1): \"%s\"\n", path.c_str());
+        fclose(file);
+        return "";
+    }
+
+    if (strncmp(buffer, "SEGA SEGAKATANA", 15) != 0) {
+        SS_PRINT("dcGetIpHeaderTitle: ip.bin header magic not found (SEGA SEGAKATANA) in \"%s\"\n", path.c_str());
+        fclose(file);
+        return "";
+    }
+
+    // read header title
+    fseek(file, offset + 128, SEEK_SET);
+    read = fread(buffer, 1, 128, file);
+    if (read != 128) {
+        SS_PRINT("dcGetIpHeaderTitle: could not read file (1): \"%s\"\n", path.c_str());
+        fclose(file);
+        return "";
+    }
+    fclose(file);
+
+    // trim..
+    for (int i = 126; i > 0; i--) {
+        if (!isspace(buffer[i])) {
+            buffer[i + 1] = '\0';
+            break;
+        }
+    }
+
+    return std::string(buffer);
+}
+
+std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
+                                     const std::vector<std::string> &filters) {
+
+    std::vector<Io::File> files;
     struct dirent *ent;
     DIR *dir;
 
-    if ((dir = opendir(path.c_str())) != nullptr) {
-        while ((ent = readdir(dir)) != nullptr) {
-            // skip "."
-            if (ent->d_name[0] == '.') {
-                continue;
-            }
-            std::string file = ent->d_name;
-            if (!ext.empty()) {
-                if (file.rfind('.') != std::string::npos
-                    && file.substr(file.find_last_of('.') + 1) == ext) {
-                    files.emplace_back(file);
+    if (!path.empty()) {
+        if ((dir = opendir(path.c_str())) != nullptr) {
+            while ((ent = readdir(dir)) != nullptr) {
+
+                // skip "hidden" files
+                if (ent->d_name[0] == '.') {
+                    continue;
                 }
-            } else {
-                if (file.size() > 3 && file[file.size() - 4] == '.') {
-                    files.emplace_back(file);
+
+                File file = {ent->d_name, path + "/" + ent->d_name};
+                file.size = getSize(file.path);
+                file.isFile = ent->d_type == DT_REG;
+
+                // DC, extract title from track0.bin/iso
+                if (file.isFile && endsWith(file.name, ".gdi", false)) {
+                    file.dc_title = dcGetIpHeaderTitle(path + "/track01.iso");
+                    file.dc_track01 = path + "/track01.iso";
+                    if (file.dc_title.empty()) {
+                        file.dc_title = dcGetIpHeaderTitle(path + "/track01.bin");
+                        file.dc_track01 = path + "/track01.bin";
+                    }
+                }
+
+                if (!filters.empty()) {
+                    for (const auto &filter : filters) {
+                        if (file.name.find(filter) != std::string::npos) {
+                            files.push_back(file);
+                            break;
+                        }
+                    }
+                } else {
+                    files.push_back(file);
+                }
+
+                if (recursive && ent->d_type == DT_DIR) {
+                    std::vector<Io::File> subFiles = getDirList(file.path, true, filters);
+                    for (const auto &x : subFiles) {
+                        files.push_back(x);
+                    }
                 }
             }
+            closedir(dir);
         }
-        closedir(dir);
     }
 
     return files;
@@ -63,6 +142,46 @@ size_t Io::getSize(const std::string &file) {
         return 0;
     }
     return (size_t) st.st_size;
+}
+
+std::string Io::toLower(const std::string &str) {
+    std::string ret = str;
+    std::transform(ret.begin(), ret.end(), ret.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return ret;
+}
+
+std::string Io::toUpper(const std::string &str) {
+    std::string ret = str;
+    std::transform(ret.begin(), ret.end(), ret.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+    return ret;
+}
+
+bool Io::endsWith(const std::string &value, const std::string &ending, bool sensitive) {
+    if (ending.size() > value.size()) return false;
+    if (sensitive) {
+        return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+    } else {
+        std::string val_low = toLower(value);
+        std::string end_low = toLower(ending);
+        return std::equal(end_low.rbegin(), end_low.rend(), val_low.rbegin());
+    }
+}
+
+std::string Io::getExt(const std::string &file) {
+
+    char ext[3];
+
+    if (file.length() < 4) {
+        return "";
+    }
+
+    ext[0] = file[file.size() - 3];
+    ext[1] = file[file.size() - 2];
+    ext[2] = file[file.size() - 1];
+
+    return ext;
 }
 
 void Io::delay(int seconds) {

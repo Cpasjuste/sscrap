@@ -12,9 +12,13 @@
 #endif
 
 #include <ss_api.h>
+#include <dirent.h>
 #include "utility.h"
 
 using namespace ss_api;
+
+static hashwrapper *md5Wrapper;
+static hashwrapper *sha1Wrapper;
 
 std::string Utility::removeExt(const std::string &str) {
     size_t pos = str.find_last_of('.');
@@ -53,6 +57,10 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
 
     char *zipFileName, *data, buffer[16];
     memset(buffer, 0, 16);
+
+    if (!Io::endsWith(zipPath, ".zip", false)) {
+        return "";
+    }
 
 #ifndef __VITA__
     unzFile zip = unzOpen(zipPath.c_str());
@@ -95,7 +103,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     return std::string(buffer);
 }
 
-std::string Utility::getZipCrc(const std::string &zipPath) {
+std::string Utility::getFileCrc(const std::string &zipPath) {
 
     unsigned char buffer[BUFSIZ];
     char hex[16];
@@ -125,25 +133,54 @@ std::string Utility::getZipCrc(const std::string &zipPath) {
     return std::string(hex);
 }
 
-Utility::ZipInfo Utility::getZipInfo(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
-                                     const std::string &path, const std::string &file) {
+std::string Utility::getFileMd5(const std::string &path) {
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
+    return md5Wrapper->getHashFromFile(path);
+}
+
+std::string Utility::getFileSha1(const std::string &path) {
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
+    return sha1Wrapper->getHashFromFile(path);
+}
+
+Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string &file) {
 
     ZipInfo info;
+    info.name = file;
     std::string fullPath = path + "/" + file;
+
+    if (!Io::exist(fullPath)) {
+        return info;
+    }
+
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
 
     info.name = file;
     info.size = std::to_string(Io::getSize(fullPath));
-    info.crc = getZipCrc(fullPath);
+    info.crc = getFileCrc(fullPath);
     info.md5 = md5Wrapper->getHashFromFile(fullPath);
     info.sha1 = sha1Wrapper->getHashFromFile(fullPath);
 
     return info;
 }
 
-std::string Utility::getZipInfoStr(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
-                                   const std::string &path, const std::string &file) {
+std::string Utility::getZipInfoStr(const std::string &path, const std::string &file) {
 
-    ZipInfo info = getZipInfo(md5Wrapper, sha1Wrapper, path, file);
+    if (!md5Wrapper) {
+        md5Wrapper = new md5wrapper();
+        sha1Wrapper = new sha1wrapper();
+    }
+
+    ZipInfo info = getZipInfo(path, file);
     return info.name + "|" + info.size + "|" + info.serial + "|" + info.crc + "|" + info.md5 + "|" + info.sha1;
 }
 
@@ -192,3 +229,4 @@ void Utility::printGame(const Game &game) {
     media = game.getMedia("mixrbv2", Game::Country::WOR);
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
 }
+

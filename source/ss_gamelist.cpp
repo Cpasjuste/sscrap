@@ -15,7 +15,7 @@ GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool so
 bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort, bool addUnknownFiles) {
 
     tinyxml2::XMLDocument doc;
-    std::vector<std::string> files;
+    std::vector<Io::File> files;
 
     xml = xmlPath;
     tinyxml2::XMLError e = doc.LoadFile(xmlPath.c_str());
@@ -59,9 +59,9 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     if (!rPath.empty()) {
         romPaths.emplace_back(rPath);
         if (addUnknownFiles) {
-            files = Io::getDirList(rPath, "");
+            files = Io::getDirList(rPath, false, {});
         } else {
-            files = Io::getDirList(rPath);
+            files = Io::getDirList(rPath, false);
         }
     }
 
@@ -71,50 +71,54 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         // set game "real path", minus filename (for pFBN)
         game.romsPath = rPath;
         // is rom available?
-        auto p = std::find(files.begin(), files.end(), game.path);
-        if (p != files.end()) {
+        //auto p = std::find(files.begin(), files.end(), game.path);
+        const std::string n = game.path;
+        auto it = std::find_if(files.begin(), files.end(), [n](const Io::File &f) {
+            return f.name == n;
+        });
+        if (it != files.end()) {
             game.available = true;
-            files.erase(p);
+            files.erase(it);
         }
         // add stuff for later filtering
         std::string system = game.system.text.empty() ? "Unknown" : game.system.text;
-        p = std::find(systems.begin(), systems.end(), system);
-        if (p == systems.end()) {
+        auto it2 = std::find(systems.begin(), systems.end(), system);
+        if (it2 == systems.end()) {
             systems.emplace_back(system);
         }
         std::string editor = game.editor.text.empty() ? "Unknown" : game.editor.text;
-        p = std::find(editors.begin(), editors.end(), editor);
-        if (p == editors.end()) {
+        it2 = std::find(editors.begin(), editors.end(), editor);
+        if (it2 == editors.end()) {
             editors.emplace_back(editor);
         }
         std::string developer = game.developer.text.empty() ? "Unknown" : game.developer.text;
-        p = std::find(developers.begin(), developers.end(), developer);
-        if (p == developers.end()) {
+        it2 = std::find(developers.begin(), developers.end(), developer);
+        if (it2 == developers.end()) {
             developers.emplace_back(developer);
         }
         std::string _players = game.players.empty() ? "Unknown" : game.players;
-        p = std::find(players.begin(), players.end(), _players);
-        if (p == players.end()) {
+        it2 = std::find(players.begin(), players.end(), _players);
+        if (it2 == players.end()) {
             players.emplace_back(_players);
         }
         std::string rating = std::to_string(game.rating);
-        p = std::find(ratings.begin(), ratings.end(), rating);
-        if (p == ratings.end()) {
+        it2 = std::find(ratings.begin(), ratings.end(), rating);
+        if (it2 == ratings.end()) {
             ratings.emplace_back(rating);
         }
         std::string topStaff = std::to_string((int) game.topStaff);
-        p = std::find(topStaffs.begin(), topStaffs.end(), topStaff);
-        if (p == topStaffs.end()) {
+        it2 = std::find(topStaffs.begin(), topStaffs.end(), topStaff);
+        if (it2 == topStaffs.end()) {
             topStaffs.emplace_back(topStaff);
         }
         std::string rotation = std::to_string(game.rotation);
-        p = std::find(rotations.begin(), rotations.end(), rotation);
-        if (p == rotations.end()) {
+        it2 = std::find(rotations.begin(), rotations.end(), rotation);
+        if (it2 == rotations.end()) {
             rotations.emplace_back(rotation);
         }
         std::string resolution = game.resolution.empty() ? "Unknown" : game.resolution;
-        p = std::find(resolutions.begin(), resolutions.end(), resolution);
-        if (p == resolutions.end()) {
+        it2 = std::find(resolutions.begin(), resolutions.end(), resolution);
+        if (it2 == resolutions.end()) {
             resolutions.emplace_back(resolution);
         }
         if (!game.dates.empty()) {
@@ -122,8 +126,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             if (date.empty()) {
                 date = "Unknown";
             }
-            p = std::find(dates.begin(), dates.end(), date);
-            if (p == dates.end()) {
+            it2 = std::find(dates.begin(), dates.end(), date);
+            if (it2 == dates.end()) {
                 dates.emplace_back(date);
             }
         }
@@ -132,8 +136,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             if (genre.empty()) {
                 genre = "Unknown";
             }
-            p = std::find(genres.begin(), genres.end(), genre);
-            if (p == genres.end()) {
+            it2 = std::find(genres.begin(), genres.end(), genre);
+            if (it2 == genres.end()) {
                 genres.emplace_back(genre);
             }
         }
@@ -146,9 +150,9 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     if (addUnknownFiles) {
         for (const auto &file : files) {
             Game game;
-            game.path = file;
+            game.path = file.name;
             game.romsPath = rPath;
-            game.names.emplace_back(Game::Country::UNK, file);
+            game.names.emplace_back(Game::Country::UNK, file.name);
             game.available = true;
             games.emplace_back(game);
         }

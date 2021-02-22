@@ -28,15 +28,17 @@ public:
 
     static std::string getExt(const std::string &file);
 
-    static std::string getZipCrc(const std::string &zipPath);
+    static std::string getFileCrc(const std::string &path);
+
+    static std::string getFileMd5(const std::string &path);
+
+    static std::string getFileSha1(const std::string &path);
 
     static std::string getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList = {});
 
-    static ZipInfo getZipInfo(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
-                              const std::string &path, const std::string &file);
+    static ZipInfo getZipInfo(const std::string &path, const std::string &file);
 
-    static std::string getZipInfoStr(hashwrapper *md5Wrapper, hashwrapper *sha1Wrapper,
-                                     const std::string &path, const std::string &file);
+    static std::string getZipInfoStr(const std::string &path, const std::string &file);
 
     static void replace(std::string &str, const std::string &from, const std::string &to);
 
