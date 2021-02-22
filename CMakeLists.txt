@@ -28,6 +28,11 @@ find_package(ZLIB REQUIRED)
 find_package(CURL REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
+#include(FindPkgConfig)
+#pkg_search_module(CURL REQUIRED libcurl)
+#message(FATAL_ERROR ${CURL_STATIC_LDFLAGS})
+#message(FATAL_ERROR ${CURL_STATIC_LIBRARIES})
+
 # sources
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.c*)
 
@@ -43,6 +48,7 @@ set(LDFLAGS
         ${CURL_LIBRARIES}
         ${TinyXML2_LIBRARIES}
         ${ZLIB_LIBRARIES})
+
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -73,12 +79,16 @@ elseif (PLATFORM_LINUX)
     #####################
     if (PLATFORM_WINDOWS)
         # TODO: try to fix nghttp2 static linking...
-        list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
+        # https://github.com/google/brotli/issues/795
+        #list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
+        #list(APPEND LDFLAGS -static)
+        #[[
         set(LDFLAGS curl.a ssh2.a
                 tinyxml2.a nghttp2 idn2.a psl.a ssl.a
                 crypto.a crypt32.a unistring brotlidec-static.a
                 brotlicommon-static.a intl.a iconv.a wldap32.a ws2_32.a
                 -static -static-libgcc -static-libstdc++)
+       ]]
     endif ()
 endif ()
 
@@ -112,13 +122,24 @@ if (BUILD_SSCRAP)
     find_package(Threads REQUIRED)
     find_package(MiniZip REQUIRED)
     file(GLOB HASH_SRC test/hashlibpp/*.cpp)
-    add_executable(${PROJECT_NAME}.elf test/main.cpp test/utility.cpp ${HASH_SRC})
-    target_link_libraries(${PROJECT_NAME}.elf ${PROJECT_NAME}
+    add_executable(${PROJECT_NAME}-utility test/main.cpp test/utility.cpp ${HASH_SRC})
+    target_link_libraries(${PROJECT_NAME}-utility ${PROJECT_NAME}
             ${CMAKE_THREAD_LIBS_INIT}
             ${MINIZIP_LIBRARIES}
             ${ZLIB_LIBRARIES})
-    add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-            COMMAND cp -rf ${CMAKE_SOURCE_DIR}/databases ${CMAKE_BINARY_DIR}/
+    add_custom_command(TARGET ${PROJECT_NAME}-utility POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/databases ${CMAKE_BINARY_DIR}/databases
             COMMENT "Copying databases to binary directory..."
             )
+    if (PLATFORM_WINDOWS)
+        add_custom_command(TARGET ${PROJECT_NAME}-utility POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/release
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/release
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-utility.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/databases ${CMAKE_CURRENT_BINARY_DIR}/release/databases
+                # ouch...
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libtinyxml2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                #COMMAND ${CMAKE_COMMAND} -E copy /mingw64/bin/libtinyxml2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                )
+    endif ()
 endif ()
