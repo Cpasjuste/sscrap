@@ -137,6 +137,11 @@ if (BUILD_SSCRAP)
                 COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/release
                 COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-utility.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
                 COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/databases ${CMAKE_CURRENT_BINARY_DIR}/release/databases
+                # utils (dc)
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/dc_convert.ps1 ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/ffmpeg.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/magick.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/pngquant.exe ${CMAKE_CURRENT_BINARY_DIR}/release/
                 # ouch...
                 COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libtinyxml2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
                 COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libgcc_s_seh-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
