@@ -10,7 +10,9 @@
 #include "ss_io.h"
 
 #ifdef __WINDOWS__
+
 #include <windows.h>
+
 #define mkdir(x, y) mkdir(x)
 #elif __VITA__
 #include <psp2/kernel/threadmgr.h>
@@ -76,6 +78,7 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                                      const std::vector<std::string> &filters) {
 
     std::vector<Io::File> files;
+    struct stat st{};
     struct dirent *ent;
     DIR *dir;
 
@@ -89,8 +92,11 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                 }
 
                 File file = {ent->d_name, path + "/" + ent->d_name};
-                file.size = getSize(file.path);
-                file.isFile = ent->d_type == DT_REG;
+
+                if (stat(file.path.c_str(), &st) == 0) {
+                    file.size = (size_t) st.st_size;
+                    file.isFile = S_ISDIR(st.st_mode) ? false : true;
+                }
 
                 // DC, extract title from track0.bin/iso
                 if (file.isFile && endsWith(file.name, ".gdi", false)) {
@@ -113,7 +119,7 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                     files.push_back(file);
                 }
 
-                if (recursive && ent->d_type == DT_DIR) {
+                if (recursive && !file.isFile) {
                     std::vector<Io::File> subFiles = getDirList(file.path, true, filters);
                     for (const auto &x : subFiles) {
                         files.push_back(x);

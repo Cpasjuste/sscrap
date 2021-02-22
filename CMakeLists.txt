@@ -139,7 +139,24 @@ if (BUILD_SSCRAP)
                 COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/databases ${CMAKE_CURRENT_BINARY_DIR}/release/databases
                 # ouch...
                 COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libtinyxml2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
-                #COMMAND ${CMAKE_COMMAND} -E copy /mingw64/bin/libtinyxml2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libgcc_s_seh-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libwinpthread-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libminizip-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libcurl-4.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libstdc++-6.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/zlib1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libcrypto-1_1-x64.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libbrotlidec.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libbrotlicommon.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libidn2-0.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libnghttp2-14.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libpsl-5.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libssh2-1.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libssl-1_1-x64.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libzstd.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libiconv-2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libunistring-2.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy C:/msys64/mingw64/bin/libintl-8.dll ${CMAKE_CURRENT_BINARY_DIR}/release/
                 )
     endif ()
 endif ()
