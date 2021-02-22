@@ -233,21 +233,32 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int remainingFiles, const s
                     if (media.url.empty()) {
                         continue;
                     }
-                    std::string mediaName;
+                    std::string mediaName, mediaNameRoq;
                     if (fileName.find_last_of('.') != std::string::npos) {
-                        mediaName = fileName.substr(0, fileName.find_last_of('.') + 1) + media.format;
+                        std::string noExt = fileName.substr(0, fileName.find_last_of('.') + 1);
+                        mediaName = noExt + media.format;
+                        mediaNameRoq = noExt + "roq";
                     } else {
-                        mediaName = fileName;
+                        mediaName = fileName + "." + media.format;
+                        mediaNameRoq = fileName + ".roq";
                     }
                     std::string path = scrap->romPath + "/media/" + media.type + "/";
                     if (!Io::exist(path)) {
                         Io::makedir(path);
                     }
-                    path += mediaName;
-                    if (Io::exist(path)) {
+                    // skip if media already exists
+                    if (Io::exist(path + mediaName)) {
+                        SS_PRINT("MDL: SKIP: %s\n", (path + mediaName).c_str());
                         continue;
                     }
-                    media.download(path);
+                    // dc: skip if ".roq" converted video exists
+                    if (systemId == SYSTEM_ID_DREAMCAST) {
+                        if (media.format == "mp4" && Io::exist(path + mediaNameRoq)) {
+                            SS_PRINT("MDL: SKIP: %s\n", (path + mediaNameRoq).c_str());
+                            continue;
+                        }
+                    }
+                    media.download(path + mediaName);
                 }
             }
         }
