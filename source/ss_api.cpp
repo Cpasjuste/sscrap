@@ -301,7 +301,7 @@ bool Api::parseBool(const std::string &str, bool defValue) {
     return str == "true" || str == "1";
 }
 
-#ifdef _MSC_VER
+#ifdef __WINDOWS__
 void Api::printc(int color, const char* format, ...) {
 #else
 
@@ -314,9 +314,9 @@ void Api::printc(const char *color, const char *format, ...) {
     vsnprintf(buffer, 1024, format, arg);
     va_end(arg);
 
-#ifdef _MSC_VER
+#ifdef __WINDOWS__
     WORD consoleAttr = FOREGROUND_INTENSITY | FOREGROUND_RED
-        | FOREGROUND_GREEN | FOREGROUND_BLUE;
+                       | FOREGROUND_GREEN | FOREGROUND_BLUE;
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
     if (GetConsoleScreenBufferInfo(h, &csbi)) {

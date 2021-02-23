@@ -19,10 +19,11 @@
 
 #define SS_TIMEOUT 30
 
-#ifdef _MSC_VER
+#ifdef __WINDOWS__
 #define COLOR_R (FOREGROUND_INTENSITY | FOREGROUND_RED)
 #define COLOR_G (FOREGROUND_INTENSITY | FOREGROUND_GREEN)
 #define COLOR_Y (FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN)
+#define COLOR_O (FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN)
 #else
 #define COLOR_R "\x1B[91m"
 #define COLOR_G "\x1B[92m"
@@ -81,7 +82,7 @@ namespace ss_api {
         static tinyxml2::XMLElement *addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,
                                                    const std::string &name, const std::string &value);
 
-#ifdef _MSC_VER
+#ifdef __WINDOWS__
         static void printc(int color, const char* format, ...);
 #else
         static void printc(const char *color, const char *format, ...);
