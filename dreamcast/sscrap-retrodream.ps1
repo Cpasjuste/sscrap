@@ -1,4 +1,8 @@
-# Set-ExecutionPolicy Unrestricted
+# 1 - you need to enable script execution from powershell: "Set-ExecutionPolicy Unrestricted"
+# 2 - you need an account on screenscraper to be able to scrap => https://www.screenscraper.fr/
+# 3 - set you screenscraper username and password below...
+$user = "xxx"
+$password = "xxx"
 
 function write-error($msg){
     $msg | write-host -fore green -back red;
@@ -28,7 +32,7 @@ Write-Output "games_path: $games_path"
 Write-Output "media_path: $media_path"
 
 # sscrap
-.\sscrap\sscrap-utility.exe -u cpasjuste -p NuakvokVezCeog9 -sid 23 -r $games_path -m $media_path -dlm video-normalized box-2D
+.\sscrap\sscrap-utility.exe -u $user -p $password -sid 23 -r $games_path -m $media_path -dlm video-normalized box-2D
 
 
 # optimise png
