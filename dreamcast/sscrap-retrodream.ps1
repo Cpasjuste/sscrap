@@ -64,3 +64,6 @@ Get-ChildItem -Path $media_path -Filter *.mp4 -Recurse -ErrorAction SilentlyCont
                 Write-Output "skipped: $input (already converted)"
             }
         }
+
+Write-Host -NoNewLine "All done... Press any key to exit..."
+$x = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
