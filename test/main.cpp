@@ -493,16 +493,30 @@ void Scrap::run() {
             }
             gameList.save(romPath + "/gamelist_pemu.xml", lang, GameList::Format::ScreenScrapper, mediaList);
         }
+        // print results
+        FILE *f = fopen("sscrap.log", "w+");
         Api::printc(COLOR_G, "\nAll Done... ");
         Api::printc(COLOR_G, "found %zu/%i games\n", gameList.games.size() - missList.size(), filesCount);
+        if (f) {
+            fprintf(f, "Found %zu/%i games\n", gameList.games.size() - missList.size(), filesCount);
+        }
         if (!missList.empty()) {
             Api::printc(COLOR_O, "\n%zu game(s) not found:\n", missList.size());
+            if (f) {
+                fprintf(f, "\n%zu game(s) not found:\n", missList.size());
+            }
             for (const auto &miss : missList) {
                 std::string missInfo = Utility::getZipInfoStr(romPath + "/", miss.path);
                 Api::printc(COLOR_R, "%s\n", missInfo.c_str());
+                if (f) {
+                    fprintf(f, "%s\n", missInfo.c_str());
+                }
             }
         }
         printf("\n");
+        if (f) {
+            fclose(f);
+        }
     } else if (args.exist("-ml")) {
         Api::printc(COLOR_G, "\nAvailable screenscraper medias types:\n\n");
         for (const auto &media : mediasGameList.medias) {
