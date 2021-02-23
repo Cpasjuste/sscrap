@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "ss_api.h"
 #include "ss_io.h"
+#include "ss_dreamcast.h"
 
 #ifdef __WINDOWS__
 
@@ -71,7 +72,13 @@ static std::string dcGetIpHeaderTitle(const std::string &path) {
         }
     }
 
-    return std::string(buffer);
+    std::string headerName = std::string(buffer);
+    Dreamcast::HeaderFix headerFix = Dreamcast::getHeaderFix(headerName);
+    if (!headerFix.searchName.empty()) {
+        headerName = headerFix.searchName;
+    }
+
+    return headerName;
 }
 
 std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
