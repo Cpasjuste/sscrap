@@ -25,6 +25,7 @@
 #define SYSTEM_ID_NES 3
 #define SYSTEM_ID_NES_FDS 106
 #define SYSTEM_ID_DREAMCAST 23
+#define SYSTEM_ID_ATOMISWAVE 53
 
 namespace ss_api {
 

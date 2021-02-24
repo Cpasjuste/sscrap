@@ -17,7 +17,7 @@ namespace ss_api {
             std::string path;
             size_t size;
             bool isFile;
-            std::string dc_title; // dc
+            std::string dc_header_title; // dc
             std::string dc_track01; // dc
         };
 

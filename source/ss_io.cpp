@@ -30,7 +30,7 @@ static std::string dcGetIpHeaderTitle(const std::string &path) {
 
     FILE *file = fopen(path.c_str(), "rb");
     if (!file) {
-        SS_PRINT("dcGetIpHeaderTitle: could not open file: \"%s\"\n", path.c_str());
+        //SS_PRINT("dcGetIpHeaderTitle: could not open file: \"%s\"\n", path.c_str());
         return "";
     }
 
@@ -107,10 +107,10 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
 
                 // DC, extract title from track0.bin/iso
                 if (file.isFile && endsWith(file.name, ".gdi", false)) {
-                    file.dc_title = dcGetIpHeaderTitle(path + "/track01.iso");
+                    file.dc_header_title = dcGetIpHeaderTitle(path + "/track01.iso");
                     file.dc_track01 = path + "/track01.iso";
-                    if (file.dc_title.empty()) {
-                        file.dc_title = dcGetIpHeaderTitle(path + "/track01.bin");
+                    if (file.dc_header_title.empty()) {
+                        file.dc_header_title = dcGetIpHeaderTitle(path + "/track01.bin");
                         file.dc_track01 = path + "/track01.bin";
                     }
                 }

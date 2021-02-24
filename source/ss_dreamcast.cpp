@@ -8,12 +8,26 @@
 using namespace ss_api;
 
 static std::vector<Dreamcast::HeaderFix> headerFixList = {
-        {"VIRTUA STRIKER 2 VER.2000.1", "Virtua Striker 2"},
-        {"HEADHUNTER - SEGA - AMUZE - 2001", "Headhunter"},
-        {"SHENMUE2 EU", "Shenmue 2"},
-        {"STREET FIGHTER3 DOUBLE IMPACT", "Street Fighter 3 - Double Impact"},
-        {"SUPER PUZZLE FIGHTER2X FOR MATCHING SERVICE", "Super Puzzle Fighter 2 X"},
-        {"AERO DANCING TODOROKI TAICHOU NO HIMITSU DISK", "Aero Dancing - Todoroki Taichou No Himitsu Disc"}
+        {"VIRTUA STRIKER 2 VER.2000.1",                   "Virtua Striker 2"},
+        {"HEADHUNTER - SEGA - AMUZE - 2001",              "Headhunter"},
+        {"SHENMUE2 EU",                                   "Shenmue 2"},
+        {"STREET FIGHTER3 DOUBLE IMPACT",                 "Street Fighter 3 - Double Impact"},
+        {"SUPER PUZZLE FIGHTER2X FOR MATCHING SERVICE",   "Super Puzzle Fighter 2 X"},
+        {"AERO DANCING TODOROKI TAICHOU NO HIMITSU DISK", "Aero Dancing - Todoroki Taichou No Himitsu Disc"},
+        {"ESPN INTERNATIONAL TRACK AND FIELD",            "Ganbare Nippon! Olympic 2000"},
+        {"POWER STONE 2 USA",                             "Power Stone 2"},
+        {"POWER STONE 2 PAL",                             "Power Stone 2"},
+        {"SKIES OF ARCADIA DISC 1",                       "Skies of Arcadia"},
+        {"SKIES OF ARCADIA DISC 2",                       "Skies of Arcadia"},
+        {"SKIES OF ARCADIA DISC1",                        "Skies of Arcadia"},
+        {"SKIES OF ARCADIA DISC2",                        "Skies of Arcadia"},
+        {"ROADSTERS RC7",                                 "Roadsters"},
+        {"RESIDENT EVIL3",                                "Resident Evil 3 - Nemesis"},
+        {"ROYAL RUMBLE",                                  "Wwf Royal Rumble"},
+        {"VF3TB",                                         "Virtua Fighter 3tb"},
+        {"STREET FIGHTER ALPHA3 SAIKYO-DOJO",             "Street Fighter Alpha 3"},
+        {"STREET FIGHTER3 DOUBLE IMPACT",                 "Street Fighter 3 - Double Impact"},
+        {"ESL",                                           "European Super League"},
 };
 
 Dreamcast::HeaderFix Dreamcast::getHeaderFix(const std::string &headerName) {
