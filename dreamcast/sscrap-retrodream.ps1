@@ -60,7 +60,7 @@ Get-ChildItem -Path $media_path -Filter *.mp4 -Recurse -ErrorAction SilentlyCont
                 Write-Output "Processing: $file.mp4 > $file.roq"
                 .\sscrap\ffmpeg.exe -v 8 -i $input -ar 22050 -framerate 30 -vf "scale=256:-2" -t 30 $output
                 if(![System.IO.File]::Exists($output)) {
-                    Write-Output "error: could not convert $input"
+                    write-error "error: could not convert $input"
                 } else {
                     Remove-Item $input
                 }
