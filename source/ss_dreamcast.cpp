@@ -28,6 +28,7 @@ static std::vector<Dreamcast::HeaderFix> headerFixList = {
         {"STREET FIGHTER ALPHA3 SAIKYO-DOJO",             "Street Fighter Alpha 3"},
         {"STREET FIGHTER3 DOUBLE IMPACT",                 "Street Fighter 3 - Double Impact"},
         {"ESL",                                           "European Super League"},
+        {"PSO VER.2",                                     "Phantasy Star Online Ver.2"}
 };
 
 Dreamcast::HeaderFix Dreamcast::getHeaderFix(const std::string &headerName) {

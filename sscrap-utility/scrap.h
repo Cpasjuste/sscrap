@@ -59,7 +59,6 @@ public:
     bool isFbNeoSid = false;
     ss_api::User user;
     int filesCount = 0;
-    bool mediasClone = false;
     pthread_t threads[15]{};
     pthread_mutex_t mutex;
 };

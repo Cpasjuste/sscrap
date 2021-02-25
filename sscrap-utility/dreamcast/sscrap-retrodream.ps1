@@ -32,7 +32,7 @@ Write-Output "games_path: $games_path"
 Write-Output "media_path: $media_path"
 
 # sscrap
-.\sscrap\sscrap-utility.exe -u $user -p $password -sid 23 -r $games_path -m $media_path -dlm video-normalized box-2D
+.\sscrap\sscrap-utility.exe -u $user -p $password -sid 23 -r $games_path -m $media_path -dlmc -dlm video-normalized box-2D
 
 
 # optimise png

@@ -204,11 +204,13 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
     if (gameInfo.http_error == 0) {
         // process medias download
-        bool processMedia = args.exist("-dlm") && (!mediasClone && !gameInfo.game.isClone());
+        // TODO: verify this on fbn..
+        //bool processMedia = args.exist("-dlm") && (!mediasClone && !gameInfo.game.isClone());
+        bool processMedia = args.exist("-dlm");
         if (processMedia) {
             // if rom media was already scrapped for a same "screenscraper game", skip it
             // this is useful for non arcade roms for which clone notion doesn't exist
-            if (!mediasClone) {
+            if (!args.exist("-dlmc")) {
                 const std::string name = gameInfo.game.getName().text;
                 auto it = std::find_if(namesList.begin(), namesList.end(),
                                        [name](const std::string &n) {
@@ -308,7 +310,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             missList.emplace_back(game.getName().text, game.path, zipCrc, romCrc);
             pthread_mutex_unlock(&mutex);
         } else {
-            if (sid == SYSTEM_ID_DREAMCAST && tryCount < 2) {
+            if (sid == SYSTEM_ID_DREAMCAST && tryCount < 3) {
                 // wait for 2nd and 3nd try
             } else {
                 Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i) (retry: %i)\n",
@@ -344,17 +346,16 @@ static void *scrap_thread(void *ptr) {
             try_count++;
         }
 
-        if (game.id == 0 && Io::toLower(file.name) != "disc.gdi") {
+        if (game.id == 0) {
             game = scrap->scrapGame(tid, try_count, scrap->systemId,
                                     remainingFiles, file.name, file.path, file.name);
             try_count++;
         }
 
         // try atomiswave system
-        if (scrap->systemId == SYSTEM_ID_DREAMCAST && game.id == 0) {
+        if (game.id == 0 && scrap->systemId == SYSTEM_ID_DREAMCAST) {
             game = scrap->scrapGame(tid, try_count, SYSTEM_ID_ATOMISWAVE,
                                     remainingFiles, file.name, file.path, file.dc_header_title);
-            try_count++;
         }
 
         // add the game to game list in any case
@@ -385,7 +386,6 @@ Scrap::Scrap(const ArgumentParser &parser) {
 
     usr = args.get("-u");
     pwd = args.get("-p");
-    mediasClone = args.exist("-dlmc");
 
     // banner
     Api::printc(COLOR_G, "  _________ ____________________________    _____ __________ \n");
