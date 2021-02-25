@@ -121,8 +121,8 @@ if (BUILD_SSCRAP)
     set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
     find_package(Threads REQUIRED)
     find_package(MiniZip REQUIRED)
-    file(GLOB HASH_SRC test/hashlibpp/*.cpp)
-    add_executable(${PROJECT_NAME}-utility test/main.cpp test/utility.cpp ${HASH_SRC})
+    file(GLOB HASH_SRC sscrap-utility/hashlibpp/*.cpp)
+    add_executable(${PROJECT_NAME}-utility sscrap-utility/main.cpp sscrap-utility/utility.cpp ${HASH_SRC})
     target_link_libraries(${PROJECT_NAME}-utility ${PROJECT_NAME}
             ${CMAKE_THREAD_LIBS_INIT}
             ${MINIZIP_LIBRARIES}
@@ -162,10 +162,10 @@ if (BUILD_SSCRAP)
         add_custom_target(${PROJECT_NAME}-retrodream
                 DEPENDS ${PROJECT_NAME}-utility
                 # utils (dc)
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/ffmpeg.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/magick.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/pngquant.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/dreamcast/sscrap-retrodream.ps1 ${CMAKE_CURRENT_BINARY_DIR}/release/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/sscrap-utility/dreamcast/ffmpeg.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/sscrap-utility/dreamcast/magick.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/sscrap-utility/dreamcast/pngquant.exe ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap/
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/sscrap-utility/dreamcast/sscrap-retrodream.ps1 ${CMAKE_CURRENT_BINARY_DIR}/release/
                 )
     endif ()
 endif ()
