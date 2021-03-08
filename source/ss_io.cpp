@@ -113,6 +113,18 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                         file.dc_header_title = dcGetIpHeaderTitle(path + "/track01.bin");
                         file.dc_track01 = path + "/track01.bin";
                     }
+                    if (!file.dc_header_title.empty()) {
+                        // rename disc.gdi / disc_optimized.gdi
+                        std::string lowerName = toLower(file.name);
+                        if (lowerName == "disc.gdi" || lowerName == "disc_optimized.gdi") {
+                            std::string newGdiName = toLower(file.dc_header_title) + ".gdi";
+                            std::string newPath = path + "/" + newGdiName;
+                            if (!rename(file.path.c_str(), newPath.c_str())) {
+                                file.name = newGdiName;
+                                file.path = newPath;
+                            }
+                        }
+                    }
                 }
 
                 if (!filters.empty()) {
