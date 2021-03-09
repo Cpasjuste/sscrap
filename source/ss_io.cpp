@@ -99,10 +99,19 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                 }
 
                 File file = {ent->d_name, path + "/" + ent->d_name};
-
                 if (stat(file.path.c_str(), &st) == 0) {
                     file.size = (size_t) st.st_size;
                     file.isFile = S_ISDIR(st.st_mode) ? false : true;
+                }
+
+                if (!file.isFile) {
+                    if (recursive) {
+                        std::vector<Io::File> subFiles = getDirList(file.path, true, filters);
+                        for (const auto &x : subFiles) {
+                            files.push_back(x);
+                        }
+                    }
+                    continue;
                 }
 
                 // DC, extract title from track0.bin/iso
@@ -136,13 +145,6 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                     }
                 } else {
                     files.push_back(file);
-                }
-
-                if (recursive && !file.isFile) {
-                    std::vector<Io::File> subFiles = getDirList(file.path, true, filters);
-                    for (const auto &x : subFiles) {
-                        files.push_back(x);
-                    }
                 }
             }
             closedir(dir);
