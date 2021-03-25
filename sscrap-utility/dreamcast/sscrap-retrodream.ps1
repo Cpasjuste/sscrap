@@ -68,15 +68,13 @@ Get-ChildItem -Path $media_path -Filter *.mp4 -Recurse -ErrorAction SilentlyCont
             if(![System.IO.File]::Exists($output)) {
                 Write-Output "processing: $file.mp4 > $file.roq"
                 .\sscrap\ffmpeg.exe -v 8 -i $input -ar 22050 -framerate 30 -vf "scale=256:-2" -t 30 $output
-                if(![System.IO.File]::Exists($output)) {
-                    write-error "error: could not convert $input"
-                } else {
-                    Remove-Item $input
-                }
             } else {
                 Write-Output "skipped: $input (already converted)"
             }
         }
+Get-ChildItem -Path $media_path -Include *.mp4 -Recurse | Remove-Item
 
+# done...
+##########
 Write-Host -NoNewLine "All done... Press any key to exit..."
 $x = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

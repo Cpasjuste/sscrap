@@ -67,7 +67,12 @@ Dreamcast::HeaderFix Dreamcast::getHeaderFix(const std::string &headerName) {
                 {"MONACO GRAND PRIX RACING SIMULATION 2 ON-LINE",            "Monaco Grand Prix - Racing Simulation 2"},
                 {"SWWS 2000 EE",                                             "Sega Worldwide Soccer 2000 - Euro Edition"},
                 {"THE KING OF FIGHTERS DREAM MATCH 1999",                    "King of Fighters, The - Dream Match 1999"},
-                {"THE NEXT TETRIS ONLINE EDITION",                           "The Next Tetris - On-line Edition"}
+                {"THE NEXT TETRIS ONLINE EDITION",                           "The Next Tetris - On-line Edition"},
+                {"AERODANCING F/TODOROKI TSUBASA NO HATSU-HIKO",             "Aero Dancing F - Todoroki Tsubasa no Hatsu Hikou"},
+                {"First of the North Star",                                  "Fist Of The North Star"},
+                {"NeoGeo Battle Coliseum",                                   "Neo-geo Battle Coliseum"},
+                {"HELLO KITTY WAKUWAKU COOKIES",                             "Hello Kitty No Waku Waku Cookies"},
+                {"NET GOLF",                                                 "Nettou Golf"},
         };
     }
 
