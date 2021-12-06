@@ -12,7 +12,7 @@ Game::Name Game::getName(const Game::Country &country) const {
     std::vector<Game::Name> list;
 
     if (names.empty()) {
-        return Name(Country::UNK, "Unknown");
+        return {Country::UNK, "Unknown"};
     }
 
     remove_copy_if(names.begin(), names.end(), back_inserter(list),
@@ -26,7 +26,7 @@ Game::Name Game::getName(const Game::Country &country) const {
         } else if (!names.empty()) {
             return names.at(0);
         }
-        return Game::Name();
+        return {};
     } else {
         return list.at(0);
     }
@@ -37,7 +37,7 @@ Game::Synopsis Game::getSynopsis(const Game::Language &language) const {
     std::vector<Game::Synopsis> list;
 
     if (synopses.empty()) {
-        return Synopsis(Language::UNK, "Unavailable");
+        return {Language::UNK, "Unavailable"};
     }
 
     copy_if(synopses.begin(), synopses.end(), back_inserter(list),
@@ -51,7 +51,7 @@ Game::Synopsis Game::getSynopsis(const Game::Language &language) const {
         } else if (!synopses.empty()) {
             return synopses.at(0);
         }
-        return Game::Synopsis();
+        return {};
     }
 
     return list.at(0);
@@ -62,7 +62,7 @@ Game::Date Game::getDate(const Game::Country &country) const {
     std::vector<Game::Date> list;
 
     if (dates.empty()) {
-        return Date(Country::UNK, "Unavailable");
+        return {Country::UNK, "Unavailable"};
     }
 
     copy_if(dates.begin(), dates.end(), back_inserter(list),
@@ -76,7 +76,7 @@ Game::Date Game::getDate(const Game::Country &country) const {
         } else if (!dates.empty()) {
             return dates.at(0);
         }
-        return Game::Date();
+        return {};
     }
 
     return list.at(0);
@@ -87,7 +87,7 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
     std::vector<Game::Genre> list;
 
     if (genres.empty()) {
-        return Genre(0, 0, 0, "Unavailable", Language::UNK);
+        return {0, 0, 0, "Unavailable", Language::UNK};
     }
 
     copy_if(genres.begin(), genres.end(), back_inserter(list),
@@ -101,7 +101,7 @@ Game::Genre Game::getGenre(const Game::Language &language) const {
         } else if (!genres.empty()) {
             return genres.at(0);
         }
-        return Game::Genre();
+        return {};
     }
 
     return list.at(0);
@@ -112,7 +112,7 @@ Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country
     std::vector<Game::Media> mediaList;
 
     if (medias.empty()) {
-        return Media();
+        return {};
     }
 
     remove_copy_if(medias.begin(), medias.end(), back_inserter(mediaList),
@@ -127,7 +127,7 @@ Game::Media Game::getMedia(const std::string &mediaTypeName, const Game::Country
         } else if (country != Game::Country::ALL) {
             return getMedia(mediaTypeName, Game::Country::ALL);
         }
-        return Game::Media();
+        return {};
     }
 
     return mediaList.at(0);
