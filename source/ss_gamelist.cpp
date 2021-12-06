@@ -223,8 +223,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             Api::addXmlElement(&doc, gameElement, "desc", game.getSynopsis(language).text);
             Api::addXmlElement(&doc, gameElement, "rating", std::to_string(game.rating));
             // TODO: is this recalbox only?
-            //Api::addXmlElement(&doc, gameElement, "releasedate", game.getDate().text);
-            Api::addXmlElement(&doc, gameElement, "releasedate", game.getDate().text + "0000T000000");
+            Api::addXmlElement(&doc, gameElement, "releasedate", game.getDate().text + "0101T000000");
             // TODO: is this recalbox only?
             Api::addXmlElement(&doc, gameElement, "developer", game.developer.text);
             Api::addXmlElement(&doc, gameElement, "publisher", game.editor.text);

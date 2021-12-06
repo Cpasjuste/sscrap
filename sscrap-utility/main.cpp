@@ -233,7 +233,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                 if (!Io::exist(mediaPath)) {
                     Io::makedir(mediaPath);
                 }
-                for (const auto &mediaType : mediasGameList.medias) {
+                for (const auto &mediaType: mediasGameList.medias) {
                     // if media type is not in args, skip it
                     if (!args.exist(mediaType.nameShort)) {
                         continue;
@@ -496,7 +496,7 @@ void Scrap::run() {
 
             // save pemu gamelist.xml
             mediaList.clear();
-            for (const auto &mediaType : mediasGameList.medias) {
+            for (const auto &mediaType: mediasGameList.medias) {
                 if (args.exist(mediaType.nameShort)) {
                     mediaList.emplace_back(mediaType.nameShort);
                 }
@@ -515,7 +515,7 @@ void Scrap::run() {
             if (f) {
                 fprintf(f, "\n%zu game(s) not found:\n", missList.size());
             }
-            for (const auto &miss : missList) {
+            for (const auto &miss: missList) {
                 std::string missInfo = Utility::getZipInfoStr(romPath + "/", miss.path);
                 Api::printc(COLOR_R, "%s\n", missInfo.c_str());
                 if (f) {
@@ -529,14 +529,14 @@ void Scrap::run() {
         }
     } else if (args.exist("-ml")) {
         Api::printc(COLOR_G, "\nAvailable screenscraper medias types:\n\n");
-        for (const auto &media : mediasGameList.medias) {
+        for (const auto &media: mediasGameList.medias) {
             Api::printc(COLOR_G, "\t%s (type: %s, category: %s)\n",
                         media.nameShort.c_str(), media.type.c_str(), media.category.c_str());
         }
         printf("\n");
     } else if (args.exist("-sl")) {
         Api::printc(COLOR_G, "\nAvailable screenscraper systems:\n\n");
-        for (const auto &system : systemList.systems) {
+        for (const auto &system: systemList.systems) {
             Api::printc(COLOR_G, "\t%s (id: %s, company: %s, type: %s)\n",
                         system.names.eu.c_str(), system.id.c_str(), system.company.c_str(), system.type.c_str());
         }
@@ -599,42 +599,6 @@ int main(int argc, char *argv[]) {
     ArgumentParser args(argc, argv);
     scrap = new Scrap(args);
     scrap->run();
-
-#if 0
-    FILE *file = fopen("dc_serials.txt", "w+");
-
-    std::vector<Io::File> files = Io::getDirList(args.get("-r"), true, {".gdi"});
-    //"/media/cpasjuste/SSD/games/dc"
-
-    for (auto &f : files) {
-        //Dreamcast::IpHeader header = Dreamcast::getIpHeader(f.path);
-        /*
-        printf("file: \"%s\"\n"
-               "\tname: %s (disc type: %s, disc number: %s)\n",
-               f.path.c_str(), header.name, header.disk_type, header.disk_num);
-        fprintf(file, "%s|%zu|%s|%lu|%i|%i\n",
-                f.name.c_str(), f.size, header.name, Utility::getFileCrcInt(f.path), 0, 0);
-        */
-
-        std::string crc, md5, sha;
-        if (Io::exist(f.dc_track01)) {
-            crc = Utility::getFileCrc(f.dc_track01);
-            md5 = Utility::getFileMd5(f.dc_track01);
-            sha = Utility::getFileSha1(f.dc_track01);
-        }
-
-        printf("%s|%zu|%s|%s|%s|%s\n",
-               f.name.c_str(), f.size, f.dc_title.c_str(),
-               crc.c_str(), md5.c_str(), sha.c_str());
-
-        fprintf(file, "%s|%zu|%s|%s|%s|%s\n",
-                f.name.c_str(), f.size, f.dc_title.c_str(),
-                crc.c_str(), md5.c_str(), sha.c_str());
-
-    }
-
-    fclose(file);
-#endif
 
     return 0;
 }
