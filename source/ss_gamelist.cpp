@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <cmath>
 
 #include "ss_api.h"
 
@@ -148,7 +149,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     }
 
     if (addUnknownFiles) {
-        for (const auto &file : files) {
+        for (const auto &file: files) {
             Game game;
             game.path = file.name;
             game.romsPath = rPath;
@@ -209,7 +210,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
     // sort games
     std::sort(games.begin(), games.end(), Api::sortGameByName);
 
-    for (const auto &game : games) {
+    for (const auto &game: games) {
         if (fmt == Format::EmulationStation) {
             tinyxml2::XMLElement *gameElement = doc.NewElement("game");
             if (game.id > 0) {
@@ -221,8 +222,11 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             Api::addXmlElement(&doc, gameElement, "path", "./" + game.path);
             Api::addXmlElement(&doc, gameElement, "name", game.getName().text);
             Api::addXmlElement(&doc, gameElement, "desc", game.getSynopsis(language).text);
-            Api::addXmlElement(&doc, gameElement, "rating", std::to_string(game.rating));
             // TODO: is this recalbox only?
+            if (game.rating > 0) {
+                std::string rating = std::to_string((float) game.rating / 20.0f);
+                Api::addXmlElement(&doc, gameElement, "rating", rating.substr(0, rating.find('.') + 3));
+            }
             Api::addXmlElement(&doc, gameElement, "releasedate", game.getDate().text + "0101T000000");
             // TODO: is this recalbox only?
             Api::addXmlElement(&doc, gameElement, "developer", game.developer.text);
@@ -263,7 +267,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             Api::addXmlElement(&doc, gameElement, "path", game.path);
 
             tinyxml2::XMLElement *names = doc.NewElement("noms");
-            for (const auto &name : game.names) {
+            for (const auto &name: game.names) {
                 tinyxml2::XMLElement *n = doc.NewElement("nom");
                 n->SetAttribute("region", Api::toString(name.country).c_str());
                 n->SetText(name.text.c_str());
@@ -273,7 +277,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
             if (!game.countries.empty()) {
                 tinyxml2::XMLElement *countries = doc.NewElement("regions");
-                for (const auto &country : game.countries) {
+                for (const auto &country: game.countries) {
                     tinyxml2::XMLElement *n = doc.NewElement("region");
                     n->SetText(Api::toString(country).c_str());
                     countries->InsertEndChild(n);
@@ -293,7 +297,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
             if (!game.synopses.empty()) {
                 tinyxml2::XMLElement *synopses = doc.NewElement("synopsis");
-                for (const auto &synopsis : game.synopses) {
+                for (const auto &synopsis: game.synopses) {
                     if (synopsis.language != language) {
                         continue;
                     }
@@ -307,7 +311,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
             if (!game.medias.empty()) {
                 tinyxml2::XMLElement *mediasElement = doc.NewElement("medias");
-                for (const auto &mediaType : mediaList) {
+                for (const auto &mediaType: mediaList) {
                     Game::Media media = game.getMedia(mediaType, Game::Country::SS);
                     if (!media.url.empty()) {
                         tinyxml2::XMLElement *n = doc.NewElement("media");
@@ -334,7 +338,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
             if (!game.dates.empty()) {
                 tinyxml2::XMLElement *_dates = doc.NewElement("dates");
-                for (const auto &date : game.dates) {
+                for (const auto &date: game.dates) {
                     tinyxml2::XMLElement *n = doc.NewElement("date");
                     n->SetAttribute("region", Api::toString(date.country).c_str());
                     n->SetText(date.text.c_str());
@@ -359,7 +363,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
             if (!game.genres.empty()) {
                 tinyxml2::XMLElement *_genres = doc.NewElement("genres");
-                for (const auto &genre : game.genres) {
+                for (const auto &genre: game.genres) {
                     if (genre.language != language) {
                         continue;
                     }
