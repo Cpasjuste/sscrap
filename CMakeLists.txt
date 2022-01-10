@@ -10,7 +10,7 @@ option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
 option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
 option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
-include(Toolchain.cmake)
+#include(Toolchain.cmake)
 ####################
 # TARGET PLATFORM
 ####################
@@ -29,7 +29,7 @@ find_package(CURL REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
 #include(FindPkgConfig)
-#pkg_search_module(CURL REQUIRED libcurl)
+#pkg_search_module(CURL REQUIRED curl)
 #message(FATAL_ERROR ${CURL_STATIC_LDFLAGS})
 #message(FATAL_ERROR ${CURL_STATIC_LIBRARIES})
 
@@ -67,6 +67,12 @@ elseif (PLATFORM_VITA)
     #####################
     list(APPEND CFLAGS -D__VITA__)
     list(APPEND LDFLAGS ssl crypto)
+elseif (PLATFORM_PS4)
+    #####################
+    # PS4 PLATORM
+    #####################
+    list(APPEND CFLAGS)
+    list(APPEND LDFLAGS tinyxml2 mbedtls mbedcrypto mbedx509 SceNet)
 elseif (PLATFORM_3DS)
     #####################
     # 3DS PLATORM
@@ -132,7 +138,6 @@ if (BUILD_SSCRAP)
             COMMENT "Copying databases to binary directory..."
             )
     if (PLATFORM_WINDOWS)
-
         add_custom_command(TARGET ${PROJECT_NAME}-utility POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/release
                 COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/release/sscrap
