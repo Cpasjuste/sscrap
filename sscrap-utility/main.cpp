@@ -17,16 +17,18 @@ static void fixFbnGame(Game *game, const GameList &list) {
     // mame/fbneo: search fbn list for zip name (path), as game name may differ
     const std::string zipName = game->path;
     auto fbaGame = std::find_if(list.games.begin(), list.games.end(), [zipName](const Game &g) {
-        return zipName == g.path && g.isClone();
+        return zipName == g.path;
     });
 
-    // screenscraper game not found in fbneo dat, or is not a clone continue...
+    // screenscraper game not found in fbneo dat, continue...
     if (fbaGame == list.games.end()) {
         return;
     }
 
     // fix screenscraper "cloneof"
-    game->cloneOf = (*fbaGame).cloneOf + ".zip";
+    if (game->isClone()) {
+        game->cloneOf = (*fbaGame).cloneOf + ".zip";
+    }
 
     // replace screenscraper names by fbneo name
     size_t count = game->names.size();
@@ -211,9 +213,8 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
     if (gameInfo.http_error == 0) {
         // process medias download
-        // TODO: verify this on fbn..
-        //bool processMedia = args.exist("-dlm") && (!mediasClone && !gameInfo.game.isClone());
         bool processMedia = args.exist("-dlm");
+        bool useParentMedia = false;
         if (processMedia) {
             // if rom media was already scrapped for a same "screenscraper game", skip it
             // this is useful for non arcade roms for which clone notion doesn't exist
@@ -228,27 +229,46 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                 }
             }
 
+            // now check for clones (replace medias path with parent medias path)
+            useParentMedia = !args.exist("-dlmc") && gameInfo.game.isClone();
+
+            // push game name to list
             pthread_mutex_lock(&mutex);
             namesList.emplace_back(gameInfo.game.getName().text);
             pthread_mutex_unlock(&mutex);
 
+            // process...
             if (processMedia) {
                 std::string mediaPath = romPath + "/media/";
-                if (args.exist("-m")) {
-                    mediaPath = args.get("-m") + "/";
-                }
-                if (!Io::exist(mediaPath)) {
+                if (!Io::exist(mediaPath) && !useParentMedia) {
                     Io::makedir(mediaPath);
                 }
+
                 for (const auto &mediaType: mediasGameList.medias) {
                     // if media type is not in args, skip it
                     if (!args.exist(mediaType.nameShort)) {
                         continue;
                     }
+
+                    if (useParentMedia) {
+                        for (int i = 0; i < gameInfo.game.medias.size(); i++) {
+                            if (gameInfo.game.medias.at(i).type == mediaType.nameShort) {
+                                printf("%s => %s\n", gameInfo.game.medias.at(i).type.c_str(),
+                                       mediaType.nameShort.c_str());
+                                std::string ext = gameInfo.game.medias.at(i).format;
+                                gameInfo.game.medias.at(i).url =
+                                        "media/" + mediaType.nameShort + "/"
+                                        + Utility::removeExt(gameInfo.game.cloneOf) + "." + ext;
+                            }
+                        }
+                        continue;
+                    }
+
                     Game::Media media = gameInfo.game.getMedia(mediaType.nameShort, Game::Country::SS);
                     if (media.url.empty()) {
                         continue;
                     }
+
                     std::string mediaName, mediaNameRoq;
                     if (fileName.find_last_of('.') != std::string::npos) {
                         std::string noExt = fileName.substr(0, fileName.find_last_of('.') + 1);
@@ -260,7 +280,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                     }
 
                     std::string path = mediaPath + media.type + "/";
-                    if (!Io::exist(path)) {
+                    if (!Io::exist(path) && !useParentMedia) {
                         Io::makedir(path);
                     }
                     // skip if media already exists
@@ -287,10 +307,10 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             gameInfo.game.system.text = "PC Engine TurboGrafx";
         }
 
-        Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (%s) (try %i)\n",
+        Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (try %i: %s)\n",
                     filesCount - remainingFiles, filesCount,
                     fileName.c_str(), gameInfo.game.getName().text.c_str(),
-                    gameInfo.game.system.text.c_str(), searchType.c_str(), tryCount);
+                    gameInfo.game.system.text.c_str(), tryCount, searchType.c_str());
 
         return gameInfo.game;
     } else {
@@ -472,7 +492,7 @@ void Scrap::run() {
         int maxThreads = user.getMaxThreads();
 
         for (int i = 0; i < maxThreads; i++) {
-            // yes, there's a minor memory leak there...
+            // yes, there's a minor memory leak here...
             int *tid = (int *) malloc(sizeof(*tid));
             *tid = i;
             pthread_create(&threads[i], nullptr, scrap_thread, (void *) tid);
@@ -566,7 +586,6 @@ void Scrap::run() {
         printf("\t\t-zi <rom_path>                 show zip information (size, crc, md5, sha1) and exit\n");
         printf("\t\t-sid <system_id>               screenscraper system id to scrap\n");
         printf("\t\t-r <roms_path>                 path to roms files to scrap\n");
-        printf("\t\t-m <medias_path>               path to medias files\n");
         printf("\t\t-filter <ext>                  only scrap files with this extension\n");
         printf("\t\t-dlm <mediaType1 mediaType2>   download given medias types\n");
         printf("\t\t-dlmc                          download medias for clones\n");
