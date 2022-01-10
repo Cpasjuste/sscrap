@@ -28,11 +28,6 @@ find_package(ZLIB REQUIRED)
 find_package(CURL REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
-#include(FindPkgConfig)
-#pkg_search_module(CURL REQUIRED curl)
-#message(FATAL_ERROR ${CURL_STATIC_LDFLAGS})
-#message(FATAL_ERROR ${CURL_STATIC_LIBRARIES})
-
 # sources
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.c*)
 
