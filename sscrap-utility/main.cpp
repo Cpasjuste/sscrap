@@ -253,8 +253,6 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                     if (useParentMedia) {
                         for (int i = 0; i < gameInfo.game.medias.size(); i++) {
                             if (gameInfo.game.medias.at(i).type == mediaType.nameShort) {
-                                printf("%s => %s\n", gameInfo.game.medias.at(i).type.c_str(),
-                                       mediaType.nameShort.c_str());
                                 std::string ext = gameInfo.game.medias.at(i).format;
                                 gameInfo.game.medias.at(i).url =
                                         "media/" + mediaType.nameShort + "/"
@@ -280,14 +278,16 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                     }
 
                     std::string path = mediaPath + media.type + "/";
-                    if (!Io::exist(path) && !useParentMedia) {
+                    if (!Io::exist(path)) {
                         Io::makedir(path);
                     }
+
                     // skip if media already exists
                     if (Io::exist(path + mediaName)) {
                         SS_PRINT("MDL: SKIP: %s\n", (path + mediaName).c_str());
                         continue;
                     }
+
                     // dc: skip if ".roq" converted video exists
                     if (sid == SYSTEM_ID_DREAMCAST || sid == SYSTEM_ID_ATOMISWAVE) {
                         if (media.format == "mp4" && Io::exist(path + mediaNameRoq)) {
@@ -295,6 +295,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                             continue;
                         }
                     }
+
                     media.download(path + mediaName);
                 }
             }
