@@ -12,19 +12,27 @@ using namespace ss_api;
 static Scrap *scrap;
 static int retryDelay = 10;
 
-static void fixFbnClone(Game *game, const GameList &list) {
+static void fixFbnGame(Game *game, const GameList &list) {
 
     // mame/fbneo: search fbn list for zip name (path), as game name may differ
     const std::string zipName = game->path;
     auto fbaGame = std::find_if(list.games.begin(), list.games.end(), [zipName](const Game &g) {
         return zipName == g.path && g.isClone();
     });
+
     // screenscraper game not found in fbneo dat, or is not a clone continue...
     if (fbaGame == list.games.end()) {
         return;
     }
-    // fix screenscrapecloneof !
+
+    // fix screenscraper "cloneof"
     game->cloneOf = (*fbaGame).cloneOf + ".zip";
+
+    // replace screenscraper names by fbneo name
+    size_t count = game->names.size();
+    for (int i = 0; i < count; i++) {
+        game->names.at(i).text = (*fbaGame).names.at(0).text;
+    }
 }
 
 // if a custom sscrap custom id is set (fbneo console games),
@@ -141,8 +149,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
     // now try with zip name
     if (gameInfo.http_error != 0) {
-        std::string name = (isFbNeoSid && sid != 75)
-                           ? fbnGame.getName().text + ".zip" : searchName;
+        std::string name = (isFbNeoSid && sid != 75) ? fbnGame.getName().text + ".zip" : searchName;
         gameInfo = GameInfo("", "", "", std::to_string(sid), "rom", name,
                             "", "", usr, pwd, retryDelay);
         if (gameInfo.http_error == 0) {
@@ -199,7 +206,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
     }
 
     if (isFbNeoSid) {
-        fixFbnClone(&gameInfo.game, fbnGameList);
+        fixFbnGame(&gameInfo.game, fbnGameList);
     }
 
     if (gameInfo.http_error == 0) {
