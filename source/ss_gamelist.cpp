@@ -166,9 +166,9 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     return true;
 }
 
-void GameList::sortAlpha(bool byPath, bool gamesOnly) {
+void GameList::sortAlpha(bool byZipName, bool gamesOnly) {
     // sort games
-    if (byPath) {
+    if (byZipName) {
         std::sort(games.begin(), games.end(), Api::sortGameByPath);
     } else {
         std::sort(games.begin(), games.end(), Api::sortGameByName);
