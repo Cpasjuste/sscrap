@@ -26,7 +26,7 @@ static void fixFbnGame(Game *game, const GameList &list) {
     }
 
     // fix screenscraper "cloneof"
-    if (game->isClone()) {
+    if ((*fbaGame).isClone()) {
         game->cloneOf = (*fbaGame).cloneOf + ".zip";
     }
 
@@ -214,7 +214,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
     if (gameInfo.http_error == 0) {
         // process medias download
         bool processMedia = args.exist("-dlm");
-        bool useParentMedia = false;
+        bool useParentMedia;
         if (processMedia) {
             // if rom media was already scrapped for a same "screenscraper game", skip it
             // this is useful for non arcade roms for which clone notion doesn't exist
@@ -358,9 +358,14 @@ static void *scrap_thread(void *ptr) {
 
     int tid = *((int *) ptr);
 
-    while (!scrap->filesList.empty()) {
+    while (true) {
 
         pthread_mutex_lock(&scrap->mutex);
+        if (scrap->filesList.empty()) {
+            pthread_mutex_unlock(&scrap->mutex);
+            break;
+        }
+
         Io::File file = scrap->filesList.at(0);
         scrap->filesList.erase(scrap->filesList.begin());
         int remainingFiles = (int) scrap->filesList.size();
@@ -493,10 +498,7 @@ void Scrap::run() {
         int maxThreads = user.getMaxThreads();
 
         for (int i = 0; i < maxThreads; i++) {
-            // yes, there's a minor memory leak here...
-            int *tid = (int *) malloc(sizeof(*tid));
-            *tid = i;
-            pthread_create(&threads[i], nullptr, scrap_thread, (void *) tid);
+            pthread_create(&threads[i], nullptr, scrap_thread, &i);
         }
 
         for (int i = 0; i < maxThreads; i++) {
