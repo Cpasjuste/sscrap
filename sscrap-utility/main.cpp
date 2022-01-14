@@ -43,7 +43,7 @@ static void fixFbnGame(Game *game, const GameList &list) {
 void Scrap::parseSid(int sid) {
 
     systemId = systemIdFbNeo = sid;
-    if (sid == 75 || (sid >= 750 && sid <= 761)) {
+    if (sid == 75 || (sid >= 750 && sid <= 763)) {
         isFbNeoSid = true;
         if (sid == 75) {
             // mame/fbneo
@@ -96,6 +96,14 @@ void Scrap::parseSid(int sid) {
             // nes
             systemId = SYSTEM_ID_NES_FDS;
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, FDS Games only).dat");
+        } else if (sid == 762) {
+            // nes
+            systemId = SYSTEM_ID_CHANNELF;
+            fbnGameList.append("FinalBurn Neo (ClrMame Pro XML, Fairchild Channel F Games only).dat");
+        } else if (sid == 763) {
+            // nes
+            systemId = SYSTEM_ID_NGP;
+            fbnGameList.append("FinalBurn Neo (ClrMame Pro XML, NeoGeo Pocket Games only).dat");
         }
     }
 }
@@ -615,6 +623,8 @@ void Scrap::run() {
         printf("\t\t759: ZX Spectrum\n");
         printf("\t\t760: Nintendo NES\n");
         printf("\t\t761: Nintendo NES FDS\n");
+        printf("\t\t762: Fairchild Channel F\n");
+        printf("\t\t763: NeoGeo Pocket\n");
         printf("\n");
         printf("examples:\n\n");
         printf("\tscrap mame/fbneo system, download \'mixrbv2\' for \'image\', \'box-3D\' for \'thumbnail\' and \'video\' for \'video\':\n");
