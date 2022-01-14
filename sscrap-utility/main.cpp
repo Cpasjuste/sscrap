@@ -99,11 +99,11 @@ void Scrap::parseSid(int sid) {
         } else if (sid == 762) {
             // nes
             systemId = SYSTEM_ID_CHANNELF;
-            fbnGameList.append("FinalBurn Neo (ClrMame Pro XML, Fairchild Channel F Games only).dat");
+            fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, Fairchild Channel F Games only).dat");
         } else if (sid == 763) {
             // nes
             systemId = SYSTEM_ID_NGP;
-            fbnGameList.append("FinalBurn Neo (ClrMame Pro XML, NeoGeo Pocket Games only).dat");
+            fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, NeoGeo Pocket Games only).dat");
         }
     }
 }
