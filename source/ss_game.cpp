@@ -252,9 +252,9 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
             Game::Media media{};
             media.parent = Api::getXmlAttrStr(node->ToElement(), "parent");
             media.type = Api::getXmlAttrStr(node->ToElement(), "type");
-            media.crc = Api::getXmlAttrStr(node->ToElement(), "crc");
-            media.md5 = Api::getXmlAttrStr(node->ToElement(), "md5");
-            media.sha1 = Api::getXmlAttrStr(node->ToElement(), "sha1");
+            //media.crc = Api::getXmlAttrStr(node->ToElement(), "crc");
+            //media.md5 = Api::getXmlAttrStr(node->ToElement(), "md5");
+            //media.sha1 = Api::getXmlAttrStr(node->ToElement(), "sha1");
             media.format = Api::getXmlAttrStr(node->ToElement(), "format");
             media.support = Api::getXmlAttrStr(node->ToElement(), "support");
             media.url = Api::getXmlTextStr(node->ToElement());

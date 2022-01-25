@@ -319,9 +319,9 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
                         n->SetAttribute("parent", media.parent.c_str());
                         n->SetAttribute("type", media.type.c_str());
                         n->SetAttribute("region", Api::toString(media.country).c_str());
-                        n->SetAttribute("crc", media.crc.c_str());
-                        n->SetAttribute("md5", media.md5.c_str());
-                        n->SetAttribute("sha1", media.sha1.c_str());
+                        //n->SetAttribute("crc", media.crc.c_str());
+                        //n->SetAttribute("md5", media.md5.c_str());
+                        //n->SetAttribute("sha1", media.sha1.c_str());
                         n->SetAttribute("format", media.format.c_str());
                         n->SetAttribute("support", media.support.c_str());
                         if (media.url.rfind("http", 0) == 0) {
@@ -339,10 +339,11 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
 
             if (!game.dates.empty()) {
                 tinyxml2::XMLElement *_dates = doc.NewElement("dates");
-                for (const auto &date: game.dates) {
+                Game::Date d = game.getDate();
+                if (!d.text.empty()) {
                     tinyxml2::XMLElement *n = doc.NewElement("date");
-                    n->SetAttribute("region", Api::toString(date.country).c_str());
-                    n->SetText(date.text.c_str());
+                    n->SetAttribute("region", Api::toString(d.country).c_str());
+                    n->SetText(d.text.c_str());
                     _dates->InsertEndChild(n);
                 }
                 gameElement->InsertEndChild(_dates);
@@ -363,20 +364,18 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             }
 
             if (!game.genres.empty()) {
-                tinyxml2::XMLElement *_genres = doc.NewElement("genres");
-                for (const auto &genre: game.genres) {
-                    if (genre.language != language) {
-                        continue;
-                    }
+                tinyxml2::XMLElement *genresElement = doc.NewElement("genres");
+                Game::Genre g = game.getGenre(language);
+                if (!g.text.empty()) {
                     tinyxml2::XMLElement *n = doc.NewElement("genre");
-                    n->SetAttribute("id", genre.id);
-                    n->SetAttribute("principale", genre.mainId);
-                    n->SetAttribute("parentid", genre.parentId);
-                    n->SetAttribute("langue", Api::toString(genre.language).c_str());
-                    n->SetText(genre.text.c_str());
-                    _genres->InsertEndChild(n);
+                    n->SetAttribute("id", g.id);
+                    n->SetAttribute("principale", g.mainId);
+                    n->SetAttribute("parentid", g.parentId);
+                    n->SetAttribute("langue", Api::toString(g.language).c_str());
+                    n->SetText(g.text.c_str());
+                    genresElement->InsertEndChild(n);
                 }
-                gameElement->InsertEndChild(_genres);
+                gameElement->InsertEndChild(genresElement);
             }
 
             Api::addXmlElement(&doc, gameElement, "joueurs", game.players);

@@ -43,6 +43,10 @@ public:
 
     void parseSid(int sid);
 
+    bool isFbnClone(const ss_api::Io::File &file);
+
+    ss_api::Game *getGameByParent(const ss_api::Io::File &file);
+
     ArgumentParser args;
     std::string usr;
     std::string pwd;
@@ -52,6 +56,7 @@ public:
     ss_api::GameList gameList;
     ss_api::GameList fbnGameList;
     std::vector<ss_api::Io::File> filesList;
+    std::vector<ss_api::Io::File> cloneList;
     std::vector<std::string> namesList;
     std::vector<MissFile> missList;
     int systemId;

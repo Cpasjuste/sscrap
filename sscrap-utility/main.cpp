@@ -12,36 +12,65 @@ using namespace ss_api;
 static Scrap *scrap;
 static int retryDelay = 10;
 
-static void fixFbnGame(Game *game, const GameList &list) {
-
-    // mame/fbneo: search fbn list for zip name (path), as game name may differ
-    const std::string zipName = game->path;
-    auto fbaGame = std::find_if(list.games.begin(), list.games.end(), [zipName](const Game &g) {
-        return zipName == g.path;
-    });
-
-    // screenscraper game not found in fbneo dat, continue...
-    if (fbaGame == list.games.end()) {
+static void fixFbnGame(Game *ssGame, Game *fbnGame) {
+    // game not found in fbneo dat, continue...
+    if (fbnGame->path.empty()) {
         return;
     }
 
     // fix screenscraper "cloneof"
-    if ((*fbaGame).isClone()) {
-        game->cloneOf = (*fbaGame).cloneOf + ".zip";
+    if (fbnGame->isClone()) {
+        ssGame->cloneOf = fbnGame->cloneOf + ".zip";
     }
 
     // replace screenscraper names by fbneo name
-    size_t count = game->names.size();
-    for (int i = 0; i < count; i++) {
-        game->names.at(i).text = (*fbaGame).names.at(0).text;
+    ssGame->names.clear();
+    ssGame->names.emplace_back(Game::Country::SS, fbnGame->names.at(0).text);
+}
+
+ss_api::Game *Scrap::getGameByParent(const Io::File &file) {
+    const std::string name = file.name;
+    auto clone = std::find_if(fbnGameList.games.begin(), fbnGameList.games.end(), [name](const Game &g) {
+        return name == g.path;
+    });
+
+    if (clone == fbnGameList.games.end() || !clone->isClone()) {
+        SS_PRINT("getGameByParent: clone game not found (%s)\n", file.name.c_str());
+        return nullptr;
     }
+
+    const std::string parentPath = clone->cloneOf + ".zip";
+    auto parent = std::find_if(gameList.games.begin(), gameList.games.end(), [parentPath](const Game &g) {
+        return parentPath == g.path;
+    });
+
+    if (parent == gameList.games.end()) {
+        SS_PRINT("getGameByParent: parent game not found for %s (%s)\n", file.name.c_str(), clone->cloneOf.c_str());
+        return nullptr;
+    }
+
+    Game *g = new Game(*parent);
+    g->path = clone->path;
+    g->cloneOf = parentPath;
+    g->names.at(0).text = clone->names.at(0).text;
+    g->medias.clear();
+
+    return g;
+}
+
+bool Scrap::isFbnClone(const Io::File &file) {
+    const std::string name = file.name;
+    auto game = std::find_if(fbnGameList.games.begin(), fbnGameList.games.end(), [name](const Game &g) {
+        return name == g.path;
+    });
+
+    return game != gameList.games.end() && game->isClone();
 }
 
 // if a custom sscrap custom id is set (fbneo console games),
 // we need to use "FinalBurn Neo" databases "description" as rom name
 // and map to correct screenscraper systemid
 void Scrap::parseSid(int sid) {
-
     systemId = systemIdFbNeo = sid;
     if (sid == 75 || (sid >= 750 && sid <= 763)) {
         isFbNeoSid = true;
@@ -114,16 +143,24 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
     Game game = {};
     Game fbnGame = {};
     GameInfo gameInfo = {};
-    std::string searchType = "None";
-    std::string zipCrc, romCrc;
+    std::string searchType = "none";
+    std::string fileCrc, romCrc, romType;
+    bool isZip = Io::endsWith(fileName, ".zip", false);
+    bool isIso = Io::endsWith(fileName, ".iso", false);
+
+    if (isZip) {
+        romType = "rom";
+    } else if (isIso) {
+        romType = "iso";
+    }
 
     // first, search by zip crc
-    zipCrc = Utility::getFileCrc(filePath);
-    if (!zipCrc.empty()) {
-        gameInfo = GameInfo(zipCrc, "", "", std::to_string(sid), "", searchName,
-                            "", "", usr, pwd, retryDelay);
+    fileCrc = Utility::getFileCrc(filePath);
+    if (!fileCrc.empty()) {
+        gameInfo = GameInfo(fileCrc, "", "", std::to_string(sid), romType,
+                            fileName, "", "", usr, pwd, retryDelay);
         if (gameInfo.http_error == 0) {
-            searchType = "game_info";
+            searchType = "file_crc";
         } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
             Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
                                  "See https://www.screenscraper.fr if you want to support "
@@ -131,16 +168,16 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             return game;
         }
     }
-    SS_PRINT("zip crc: %s (%s), res = %i\n", searchName.c_str(), zipCrc.c_str(), gameInfo.http_error);
+    SS_PRINT("game_info (file_crc): %s (%s), res = %i\n", searchName.c_str(), fileCrc.c_str(), gameInfo.http_error);
 
-    // next, try by rom crc if not mame / fbneo arcade (multiple roms in zip...)
-    if (gameInfo.http_error != 0 && sid != 75) {
+    // next, try by rom crc if not mame/fbneo (multiple roms in zip...)
+    if (gameInfo.http_error != 0 && isZip && sid != 75) {
         romCrc = Utility::getRomCrc(filePath);
         if (!romCrc.empty()) {
-            gameInfo = GameInfo(romCrc, "", "", std::to_string(sid), "", searchName,
-                                "", "", usr, pwd, retryDelay);
+            gameInfo = GameInfo(romCrc, "", "", std::to_string(sid), romType,
+                                fileName, "", "", usr, pwd, retryDelay);
             if (gameInfo.http_error == 0) {
-                searchType = "game_info (rom_crc)";
+                searchType = "rom_crc";
             } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
                 Api::printc(COLOR_O, "NOK: thread[%i] => Quota reached for today... "
                                      "See https://www.screenscraper.fr if you want to support "
@@ -148,78 +185,47 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                 return game;
             }
         }
-        SS_PRINT("rom crc: %s (%s), res = %i\n", searchName.c_str(), romCrc.c_str(), gameInfo.http_error);
+        SS_PRINT("game_info (rom_crc): %s (%s), res = %i\n", searchName.c_str(), romCrc.c_str(), gameInfo.http_error);
     }
 
     // fbneo consoles zip names doesn't match standard consoles zip names
     // this will also help fbneo arcade games if not found by zip name
     if (isFbNeoSid) {
-        fbnGame = fbnGameList.findByPath(searchName);
-    }
-
-    // now try with zip name
-    if (gameInfo.http_error != 0) {
-        std::string name = (isFbNeoSid && sid != 75) ? fbnGame.getName().text + ".zip" : searchName;
-        gameInfo = GameInfo("", "", "", std::to_string(sid), "rom", name,
-                            "", "", usr, pwd, retryDelay);
-        if (gameInfo.http_error == 0) {
-            searchType = "zip_name";
-        }
-        if (isFbNeoSid && sid != 75) {
-            gameInfo.game.path = searchName;
-        }
-        SS_PRINT("zip name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
+        fbnGame = fbnGameList.findByPath(fileName);
     }
 
     // finally, try a game search (jeuRecherche)
     if (gameInfo.http_error != 0) {
         // the rom is not know by screenscraper, try to find the game with a game search (jeuRecherche)
-        std::string name = Utility::removeExt(isFbNeoSid ? fbnGame.getName().text : searchName);
+        std::string name = isFbNeoSid ? fbnGame.getName().text : Utility::removeExt(searchName);
+        // remove "(xxx)"
+        size_t pos = name.find_first_of('(');
+        if (pos != std::string::npos && pos > 2) {
+            name = name.substr(0, pos - 1);
+        }
         GameSearch search = GameSearch(name, std::to_string(sid), usr, pwd, retryDelay);
-        SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
+        SS_PRINT("game_search: %s, res = %i\n", name.c_str(), gameInfo.http_error);
         if (!search.games.empty()) {
             int id = sid;
-            auto g = std::find_if(search.games.begin(), search.games.end(), [id](const Game &g) {
-                return g.system.id == id || g.system.parentId == id;
+            auto g = std::find_if(search.games.begin(), search.games.end(), [id, name](const Game &g) {
+                return (g.system.id == id || g.system.parentId == id)
+                       && g.getName().text.find(name) != std::string::npos;
             });
             if (g != search.games.end()) {
-                gameInfo = GameInfo("", "", "", "", "", searchName,
-                                    "", std::to_string((*g).id), usr, pwd, retryDelay);
-                if (gameInfo.http_error == 0) {
-                    searchType = "search";
-                }
-                SS_PRINT("search name (romid): %s, res = %i\n", name.c_str(), gameInfo.http_error);
-            }
-        } else {
-            // last try, remove "(xxx)"
-            size_t pos = name.find_first_of('(');
-            if (pos != std::string::npos) {
-                name = name.substr(0, pos - 1);
-                search = GameSearch(name, std::to_string(sid), usr, pwd, retryDelay);
-                SS_PRINT("search name: %s, res = %i\n", name.c_str(), gameInfo.http_error);
-                if (!search.games.empty()) {
-                    int id = sid;
-                    auto g = std::find_if(search.games.begin(), search.games.end(), [id](const Game &g) {
-                        return g.system.id == id || g.system.parentId == id;
-                    });
-                    if (g != search.games.end()) {
-                        gameInfo = GameInfo("", "", "", "", "", searchName,
-                                            "", std::to_string((*g).id), usr, pwd, retryDelay);
-                        if (gameInfo.http_error == 0) {
-                            searchType = "search";
-                        }
-                        SS_PRINT("search name (romid): %s, res = %i\n", name.c_str(), gameInfo.http_error);
-                    }
-                }
+                searchType = "game_search";
+                gameInfo.http_error = 0;
+                gameInfo.game = *g;
+                gameInfo.game.path = fileName;
             }
         }
     }
 
     if (isFbNeoSid) {
-        fixFbnGame(&gameInfo.game, fbnGameList);
+        fixFbnGame(&gameInfo.game, &fbnGame);
     }
 
-    if (gameInfo.http_error == 0) {
+    if (gameInfo.http_error == 0 && gameInfo.game.id > 0) {
+        // TODO: clones are not scrapped anymore, remove parent/clone stuff
         // process medias download
         bool processMedia = args.exist("-dlm");
         bool useParentMedia;
@@ -316,10 +322,11 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             gameInfo.game.system.text = "PC Engine TurboGrafx";
         }
 
-        Api::printc(COLOR_G, "[%i/%i] OK: %s => %s (%s) (try %i: %s)\n",
+        const char *color = searchType == "game_search" ? COLOR_Y : COLOR_G;
+        Api::printc(color, "[%i/%i] OK: %s => %s (%s) (%s)\n",
                     filesCount - remainingFiles, filesCount,
                     fileName.c_str(), gameInfo.game.getName().text.c_str(),
-                    gameInfo.game.system.text.c_str(), tryCount, searchType.c_str());
+                    gameInfo.game.system.text.c_str(), searchType.c_str());
 
         return gameInfo.game;
     } else {
@@ -339,21 +346,21 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
         }
 
         if (isFbNeoSid) {
-            Api::printc(COLOR_R, "[%i/%i] NOK: %s (%s) (%i) (retry: %i)\n",
+            Api::printc(COLOR_R, "[%i/%i] NOK: %s (%s) (%i)\n",
                         filesCount - remainingFiles, filesCount,
-                        searchName.c_str(), fbnGame.getName().text.c_str(), gameInfo.http_error, tryCount);
+                        searchName.c_str(), fbnGame.getName().text.c_str(), gameInfo.http_error);
             pthread_mutex_lock(&mutex);
-            missList.emplace_back(game.getName().text, game.path, zipCrc, romCrc);
+            missList.emplace_back(game.getName().text, game.path, fileCrc, romCrc);
             pthread_mutex_unlock(&mutex);
         } else {
             if (sid == SYSTEM_ID_DREAMCAST && tryCount < 3) {
                 // wait for 2nd and 3nd try
             } else {
-                Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i) (retry: %i)\n",
-                            filesCount - remainingFiles, filesCount, searchName.c_str(),
-                            gameInfo.http_error, tryCount);
+                Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i)\n",
+                            filesCount - remainingFiles, filesCount,
+                            searchName.c_str(), gameInfo.http_error);
                 pthread_mutex_lock(&mutex);
-                missList.emplace_back(game.getName().text, game.path, zipCrc, romCrc);
+                missList.emplace_back(game.getName().text, game.path, fileCrc, romCrc);
                 pthread_mutex_unlock(&mutex);
             }
         }
@@ -381,6 +388,7 @@ static void *scrap_thread(void *ptr) {
 
         Game game = {};
         int try_count = 1;
+        // dc scrapping is "special"
         if (scrap->systemId == SYSTEM_ID_DREAMCAST) {
             game = scrap->scrapGame(tid, try_count, scrap->systemId,
                                     remainingFiles, file.name, file.path, file.dc_header_title);
@@ -393,13 +401,13 @@ static void *scrap_thread(void *ptr) {
             try_count++;
         }
 
-        // try atomiswave system
+        // // dc scrapping is "special", try atomiswave system
         if (game.id == 0 && scrap->systemId == SYSTEM_ID_DREAMCAST) {
             game = scrap->scrapGame(tid, try_count, SYSTEM_ID_ATOMISWAVE,
                                     remainingFiles, file.name, file.path, file.dc_header_title);
         }
 
-        // add the game to game list in any case
+        // add the game to game list
         if (!game.names.empty()) {
             pthread_mutex_lock(&scrap->mutex);
             scrap->gameList.games.emplace_back(game);
@@ -502,6 +510,17 @@ void Scrap::run() {
         SystemList::System system = systemList.findById(std::to_string(systemId));
         Api::printc(COLOR_G, "Scrapping system '%s', let's go!\n\n", system.names.eu.c_str());
 
+        // if fbneo/mame system filter clones to process them later with parent game
+        Api::printc(COLOR_G, "\nSkipping clones, will use parent games...\n");
+        if (isFbNeoSid) {
+            for (int i = filesCount - 1; i > -1; i--) {
+                if (isFbnClone(filesList.at(i))) {
+                    cloneList.push_back(filesList.at(i));
+                    filesList.erase(filesList.begin() + i);
+                }
+            }
+        }
+
         pthread_mutex_init(&mutex, nullptr);
         int maxThreads = user.getMaxThreads();
 
@@ -514,6 +533,18 @@ void Scrap::run() {
         }
 
         pthread_mutex_destroy(&mutex);
+
+        // if fbneo/mame system process clones now based on parent game
+        if (isFbNeoSid) {
+            Api::printc(COLOR_G, "\nPlease wait, processing clones...\n");
+            for (auto &i: cloneList) {
+                Game *game = getGameByParent(i);
+                // should always be found as we found it before...
+                if (game) {
+                    gameList.games.emplace_back(*game);
+                }
+            }
+        }
 
         if (!gameList.games.empty()) {
             Game::Language lang = Game::Language::EN;
@@ -555,7 +586,7 @@ void Scrap::run() {
             }
             for (const auto &miss: missList) {
                 std::string missInfo = Utility::getZipInfoStr(romPath + "/", miss.path);
-                Api::printc(COLOR_R, "%s\n", missInfo.c_str());
+                Api::printc(COLOR_R, "%s (%s)\n", missInfo.c_str(), miss.name.c_str());
                 if (f) {
                     fprintf(f, "%s\n", missInfo.c_str());
                 }
