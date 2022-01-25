@@ -30,9 +30,9 @@ public:
 
     static std::string getFileCrc(const std::string &path);
 
-    static std::string getFileMd5(const std::string &path);
+    //static std::string getFileMd5(const std::string &path);
 
-    static std::string getFileSha1(const std::string &path);
+    //static std::string getFileSha1(const std::string &path);
 
     static std::string getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList = {});
 
@@ -40,9 +40,9 @@ public:
 
     static std::string getZipInfoStr(const std::string &path, const std::string &file);
 
-    static void replace(std::string &str, const std::string &from, const std::string &to);
+    //static void replace(std::string &str, const std::string &from, const std::string &to);
 
-    static void printGame(const ss_api::Game &game);
+    //static void printGame(const ss_api::Game &game);
 };
 
 #endif //SSCRAP_UTILITY_H

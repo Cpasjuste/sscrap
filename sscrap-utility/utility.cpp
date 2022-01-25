@@ -66,7 +66,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     unzFile zip = unzOpen(zipPath.c_str());
     if (zip == nullptr) {
         SS_PRINT("could not open zip file for crc check (%s)\n", zipPath.c_str());
-        return std::string(buffer);
+        return buffer;
     }
 
     if (unzGoToFirstFile(zip) == UNZ_OK) {
@@ -89,7 +89,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
                         free(zipFileName);
                         unzClose(zip);
                         snprintf(buffer, 16, "%08lx", crc);
-                        return std::string(buffer);
+                        return buffer;
                     }
                     free(zipFileName);
                 }
@@ -100,7 +100,7 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
 
     unzClose(zip);
 #endif
-    return std::string(buffer);
+    return buffer;
 }
 
 std::string Utility::getFileCrc(const std::string &zipPath) {
@@ -119,7 +119,7 @@ std::string Utility::getFileCrc(const std::string &zipPath) {
     pFile = fopen(zipPath.c_str(), "rb");
 #endif
     if (pFile == nullptr) {
-        return std::string(hex);
+        return hex;
     }
 
     uLong crc = crc32(0L, Z_NULL, 0);
@@ -130,9 +130,10 @@ std::string Utility::getFileCrc(const std::string &zipPath) {
 
     fclose(pFile);
 #endif
-    return std::string(hex);
+    return hex;
 }
 
+#if 0
 std::string Utility::getFileMd5(const std::string &path) {
     if (!md5Wrapper) {
         md5Wrapper = new md5wrapper();
@@ -148,6 +149,7 @@ std::string Utility::getFileSha1(const std::string &path) {
     }
     return sha1Wrapper->getHashFromFile(path);
 }
+#endif
 
 Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string &file) {
 
@@ -184,6 +186,7 @@ std::string Utility::getZipInfoStr(const std::string &path, const std::string &f
     return info.name + "|" + info.size + "|" + info.serial + "|" + info.crc + "|" + info.md5 + "|" + info.sha1;
 }
 
+#if 0
 void Utility::replace(std::string &str, const std::string &from, const std::string &to) {
     size_t start_pos = str.find(from);
     while (start_pos != std::string::npos) {
@@ -224,4 +227,4 @@ void Utility::printGame(const Game &game) {
     media = game.getMedia("mixrbv2", Game::Country::WOR);
     printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
 }
-
+#endif
