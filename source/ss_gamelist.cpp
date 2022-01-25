@@ -383,8 +383,8 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             Api::addXmlElement(&doc, gameElement, "note", std::to_string(game.rating));
             Api::addXmlElement(&doc, gameElement, "rotation", std::to_string(game.rotation));
             Api::addXmlElement(&doc, gameElement, "resolution", game.resolution);
-            Api::addXmlElement(&doc, gameElement, "controles", game.inputs);
-            Api::addXmlElement(&doc, gameElement, "couleurs", game.colors);
+            //Api::addXmlElement(&doc, gameElement, "controles", game.inputs);
+            //Api::addXmlElement(&doc, gameElement, "couleurs", game.colors);
 
             // add game element
             pGames->InsertEndChild(gameElement);

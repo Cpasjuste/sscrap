@@ -196,8 +196,8 @@ namespace ss_api {
         std::string cloneOf;
         std::string players;
         std::string resolution;
-        std::string inputs;
-        std::string colors;
+        //std::string inputs;
+        //std::string colors;
         System system;
         Editor editor;
         Developer developer;

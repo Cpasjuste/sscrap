@@ -339,9 +339,9 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     // screenscraper
     game->resolution = Api::getXmlTextStr(gameNode->FirstChildElement("resolution"));
     // screenscraper
-    game->inputs = Api::getXmlTextStr(gameNode->FirstChildElement("controles"));
+    //game->inputs = Api::getXmlTextStr(gameNode->FirstChildElement("controles"));
     // screenscraper
-    game->colors = Api::getXmlTextStr(gameNode->FirstChildElement("couleurs"));
+    //game->colors = Api::getXmlTextStr(gameNode->FirstChildElement("couleurs"));
 
     return true;
 }

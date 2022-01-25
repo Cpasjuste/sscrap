@@ -213,8 +213,8 @@ void Utility::printGame(const Game &game) {
     printf("topstaff: %s\n", game.topStaff ? "1" : 0);
     printf("rotation: %s\n", std::to_string(game.rotation).c_str());
     printf("resolution: %s\n", game.resolution.c_str());
-    printf("inputs: %s\n", game.inputs.c_str());
-    printf("colors: %s\n", game.colors.c_str());
+    //printf("inputs: %s\n", game.inputs.c_str());
+    //printf("colors: %s\n", game.colors.c_str());
     Game::Synopsis synopsis = game.getSynopsis(Game::Language::EN);
     printf("synopsis (%s): %s\n", Api::toString(synopsis.language).c_str(), synopsis.text.c_str());
     Game::Date date = game.getDate(Game::Country::WOR);
