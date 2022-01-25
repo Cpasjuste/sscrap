@@ -200,9 +200,6 @@ void Utility::printGame(const Game &game) {
            (int) game.names.size() - 1);
     printf("available: %i\n", (int) game.available);
     printf("path: %s\n", game.path.c_str());
-    for (auto &country : game.countries) {
-        printf("country: %s\n", Api::toString(country).c_str());
-    }
     printf("id: %s\n", std::to_string(game.id).c_str());
     printf("cloneof: %s\n", game.cloneOf.c_str());
     printf("system: %s (id: %s)\n", game.system.text.c_str(), std::to_string(game.system.id).c_str());
@@ -210,11 +207,9 @@ void Utility::printGame(const Game &game) {
     printf("developer: %s (id: %s)\n", game.developer.text.c_str(), std::to_string(game.developer.id).c_str());
     printf("players: %s\n", game.players.c_str());
     printf("rating: %s\n", std::to_string(game.rating).c_str());
-    printf("topstaff: %s\n", game.topStaff ? "1" : 0);
+    printf("topstaff: %s\n", game.topStaff ? "true" : "false");
     printf("rotation: %s\n", std::to_string(game.rotation).c_str());
     printf("resolution: %s\n", game.resolution.c_str());
-    //printf("inputs: %s\n", game.inputs.c_str());
-    //printf("colors: %s\n", game.colors.c_str());
     Game::Synopsis synopsis = game.getSynopsis(Game::Language::EN);
     printf("synopsis (%s): %s\n", Api::toString(synopsis.language).c_str(), synopsis.text.c_str());
     Game::Date date = game.getDate(Game::Country::WOR);

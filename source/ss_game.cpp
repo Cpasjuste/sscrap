@@ -212,6 +212,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         game->names.emplace_back(Country::WOR,
                                  Api::getXmlTextStr(gameNode->FirstChildElement("name")));
     }
+#if 0
     // screenscraper
     element = gameNode->FirstChildElement("regions");
     if (element != nullptr) {
@@ -221,6 +222,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
             node = node->NextSibling();
         }
     }
+#endif
     // screenscraper
     game->cloneOf = Api::getXmlTextStr(gameNode->FirstChildElement("cloneof"));
     // screenscraper

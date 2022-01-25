@@ -202,9 +202,9 @@ namespace ss_api {
         Editor editor;
         Developer developer;
         std::vector<Name> names;
-        std::vector<Country> countries;
+        //std::vector<Country> countries;
         std::vector<Synopsis> synopses;
-        std::vector<Classification> classifications;
+        //std::vector<Classification> classifications;
         std::vector<Date> dates;
         std::vector<Genre> genres;
         std::vector<Family> families;

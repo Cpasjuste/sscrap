@@ -275,6 +275,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             }
             gameElement->InsertEndChild(names);
 
+#if 0
             if (!game.countries.empty()) {
                 tinyxml2::XMLElement *countries = doc.NewElement("regions");
                 for (const auto &country: game.countries) {
@@ -284,7 +285,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
                 }
                 gameElement->InsertEndChild(countries);
             }
-
+#endif
             Api::addXmlElement(&doc, gameElement, "cloneof", game.cloneOf);
 
             elem = doc.NewElement("systeme");
