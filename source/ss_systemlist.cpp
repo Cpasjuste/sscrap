@@ -100,5 +100,5 @@ SystemList::System SystemList::findById(const std::string &id) {
         return *it;
     }
 
-    return System();
+    return {};
 }

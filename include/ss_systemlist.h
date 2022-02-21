@@ -60,6 +60,10 @@ namespace ss_api {
             std::string enddate;
             std::string romtype;
             std::string supporttype;
+
+            int getId() {
+                return std::stoi(id);
+            }
         };
 
         SystemList() = default;

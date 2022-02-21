@@ -59,8 +59,7 @@ public:
     std::vector<ss_api::Io::File> cloneList;
     std::vector<std::string> namesList;
     std::vector<MissFile> missList;
-    int systemId;
-    int systemIdFbNeo;
+    ss_api::SystemList::System system;
     bool isFbNeoSid = false;
     ss_api::User user;
     int filesCount = 0;
