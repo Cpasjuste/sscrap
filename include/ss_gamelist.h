@@ -44,15 +44,15 @@ namespace ss_api {
 
         std::vector<Game> findByName(const Game &game);
 
-        Game findByRomId(int romId);
+        Game findByRomId(long romId);
 
         Game findByPath(const std::string &path);
 
         Game findByPathAndSystem(const std::string &path, int systemId);
 
-        bool exist(int romId);
+        bool exist(long romId);
 
-        bool remove(int romId);
+        bool remove(long romId);
 
         int getAvailableCount();
 

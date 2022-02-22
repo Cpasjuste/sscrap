@@ -465,7 +465,7 @@ std::vector<Game> GameList::findByName(const Game &game) {
     return matches;
 }
 
-Game GameList::findByRomId(int romId) {
+Game GameList::findByRomId(long romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
         return game.romId == romId;
@@ -504,7 +504,7 @@ Game GameList::findByPathAndSystem(const std::string &path, int systemId) {
     return Game();
 }
 
-bool GameList::exist(int romId) {
+bool GameList::exist(long romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
         return game.romId == romId;
@@ -513,7 +513,7 @@ bool GameList::exist(int romId) {
     return it != games.end();
 }
 
-bool GameList::remove(int romId) {
+bool GameList::remove(long romId) {
 
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
         return game.romId == romId;

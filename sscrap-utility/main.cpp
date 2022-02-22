@@ -335,7 +335,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
         // game not found, but add it to the list with default values
         if (isFbNeoSid) {
             game = fbnGame;
-            game.id = game.romId = std::stoi(fileCrc, nullptr, 16);
+            game.id = game.romId = std::stol(fileCrc, nullptr, 16);
             game.system.id = sid;
             game.system.text = system.names.eu;
             // pFBN custom id
@@ -346,7 +346,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             }
         } else {
             game.names.emplace_back(Game::Country::WOR, searchName);
-            game.id = game.romId = std::stoi(fileCrc, nullptr, 16);
+            game.id = game.romId = std::stol(fileCrc, nullptr, 16);
             game.system.id = sid;
             game.system.text = system.names.eu;
             game.path = searchName;
