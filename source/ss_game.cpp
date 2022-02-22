@@ -186,9 +186,9 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     }
 
     // screenscraper / emulationstation compat
-    game->id = Api::getXmlAttrInt(gameNode->ToElement(), "id");
+    game->id = Api::getXmlAttrLong(gameNode->ToElement(), "id");
     // screenscraper
-    game->romId = Api::getXmlAttrInt(gameNode->ToElement(), "romid");
+    game->romId = Api::getXmlAttrLong(gameNode->ToElement(), "romid");
     // screenscraper
     game->notGame = Api::getXmlAttrBool(gameNode->ToElement(), "notgame");
     // emulationstation compat

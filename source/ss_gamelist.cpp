@@ -527,8 +527,7 @@ bool GameList::remove(long romId) {
     return false;
 }
 
-int GameList::getAvailableCount() {
-
+size_t GameList::getAvailableCount() {
     return std::count_if(games.begin(), games.end(), [](const Game &game) {
         return game.available;
     });

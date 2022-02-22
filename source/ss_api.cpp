@@ -27,6 +27,12 @@ int Api::getXmlAttrInt(tinyxml2::XMLElement *element, const std::string &name) {
     return parseInt(attr);
 }
 
+long Api::getXmlAttrLong(tinyxml2::XMLElement *element, const std::string &name) {
+
+    std::string attr = getXmlAttrStr(element, name);
+    return parseLong(attr);
+}
+
 bool Api::getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name) {
 
     std::string attr = getXmlAttrStr(element, name);
@@ -284,6 +290,15 @@ bool Api::sortGameByPath(const Game &g1, const Game &g2) {
 }
 
 int Api::parseInt(const std::string &str, int defValue) {
+    char *end = nullptr;
+    long i = strtol(str.c_str(), &end, 10);
+    if (end != nullptr) {
+        return (int) i;
+    }
+    return defValue;
+}
+
+long Api::parseLong(const std::string &str, long defValue) {
     char *end = nullptr;
     long i = strtol(str.c_str(), &end, 10);
     if (end != nullptr) {

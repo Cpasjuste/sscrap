@@ -54,7 +54,7 @@ namespace ss_api {
 
         bool remove(long romId);
 
-        int getAvailableCount();
+        size_t getAvailableCount();
 
         std::string xml;
         Format format = EmulationStation;
