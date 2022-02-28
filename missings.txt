@@ -101,9 +101,60 @@ found 93/93 games
 
 fbneo - sms
 ===========
-found 587/594 games
-7 was not found:
-alesteiigg2sms.zip, baraburu10.zip, lambo.zip, darc10.zip, fpigarus.zip, sdmilhao.zip, WaimanuSMS.zip
+found 647/697 games
+
+50 game(s) not found:
+pyramidwex.zip|20676||e8fefcb0|4075144f444e78c8e47a71aa71ad75cb|ac2d77833052a2cadad3e0441979d0a84e607c55 (Pyramid Warp Enhanced (HB))
+benosqr.zip|149718||d7885aa7|3cf814b805275e9da59b9851dddc74fe|88a27c622e7c73b632dda131b3a9fe43ad827a6c (Be No Sqr (HB, Tech-Demo))
+novdmvdp.zip|3461247||b699d684|94ca0e0aa17e38678c73d0f545ec77bb|3696c8c8f649e12132939d67c5bde6541b65ab00 (New Order vs Depeche Mode vs Daft Punk - (HB, Demo))
+skbn.zip|78698||7efb9da0|378b5ea7ca54014a6602ec32c4caf55f|207c226798ffa407be31702ea824d4871c29cd31 (SKBN (HB, v1.3))
+WaimanuSMS.zip|62145||179fb22f|454d13386a2ca10017d141d59539c624|251cc0ad369fe6410277a256706af019e898a09a (Waimanu: Scary Monsters Saga (HB))
+gemitas.zip|25008||b8a00aa9|35609c4c0c08ad1d9da73a359e725c7f|ed8b36856aeb2034a30982384e90790b31fdc979 (Gemitas (HB))
+draconic.zip|24874||4ec56a2b|7ba4bd4ab3df0e0da79d05c7d3dd8214|be680413bf031ccd3820fb81befc8ff983e60c75 (Draconic Throne (HB))
+fpigarus.zip|80200||1ea4f4f7|43a1f5fa9bc9611de72f64cd61d2710e|45aeac67d26a04a725dc61f12f8e50cdfce58856 (Flight of Pigarus (HB, v1.0))
+luckypeng.zip|27712||f95de284|b177a59bb01e7d6584c667e905dd7458|ed4e3c16891633677ad4858e4f9e0711cf1353ab (Lucky Penguin (HB, v1.1))
+badapple.zip|2708260||bf74a1d4|cf96fa01df2adfc3a2dd821d898d6e6b|504fdbb0a21865411bc8b9827c01a38d2989194d (Bad Apple (HB, Tech-Demo))
+gotrisfv.zip|127811||07126d9a|83c6e8e88a30550400815f2d4a5ed09f|ce85228e25e1e0ba0e80f2bb38d378914191d162 (Gotris (HB, v1.2p))
+papicom.zip|120380||f6a0a8f5|f63dbe2e37ab440f0aa0c54701a94d99|45bd9c4a4a29e3ceccb30a2798f784b6ab6adfbd (Papi Commando in CPP Land (HB, Hack v1.01))
+msolitaire.zip|18575||8ecec801|4fd41f6cb17ee785b2d1ae48b6344d4e|53413bebffd339c2db9fb5b2890f490dcc6f1d99 (Mahjong Solitaire (HB))
+minimsx.zip|34904||c063176b|d9af77cb8c0a067632754f15df0ad466|c43eb19881a071f400b56553e1cd60f76d8c2f90 (MiniMSX (HB))
+dnukem.zip|159519||7f845cf9|40978a5d1d5c90486302651625cdc52e|0c8461c5f06f4b2bfca38d667572c0bebd363e8c (Duke Nukem (HB, Hack v0.93))
+arnodash.zip|18625||fd21f7d6|90df2eb4e0e20f5155d12ff4d65b5471|5d1b7f81431630e7e1e4650f8805a1ecc8038128 (Arno Dash (HB, v1.03))
+gravbeam.zip|21102||eff42d4c|ff9915bf26c9b13e10c94211da7ce339|7c02b2d74fc9f303577f326f1342c1b16cf57610 (Gravity Beam: Master Gaiden (HB))
+gboogers.zip|105366||089e17d1|587d0c1c83685192e4c097f373edd03b|c6b3734b4c8bc7fca88d37301e373aa2157556dd (Galactic Boogers (HB))
+acreflux.zip|7714||be3967e0|4478f80f6d911ed2eb270a91edcfbf09|a4314f7259336dafbd6fbf103ecf4ca0d4496bf6 (Acid Reflux (HB, v1.1))
+gaudream.zip|26282||939e9208|25a3c741754edbdb1bf93b0652eb3305|ff4532db52bc2cd3f995ca84fd429be27142eae6 (Gaudream (HB, v0.04))
+alesteiigg2sms.zip|150439||db478d51|2569297294fab41e81ffbca94f6379c4|a19d28b69c829d7a3f700989d9bb224871185d3e (Aleste II GG (SMS Conversion))
+moggym100.zip|23424||f54e0209|a37c654522a5f98112018ff6f419dd95|b0749a0816447f38ed33e4040892e70809459288 (Moggy Master (HB, v1.00))
+had.zip|53819||73b0cd38|134d298530b87cc842c703e3cf78d46f|be97c9049ec7570dccd63523922129178c54955c (Heroes Against Demons (HB, v1.03))
+pitman.zip|20029||ab4c092b|dd4d82d83f3130b67130ece96acc8579|54ef6306e4e3d3e302967bf717385af10950279b (Pitman (HB))
+vexed.zip|14491||3b9c4346|03e3ce8372edcd5a4f7b40245ba79b73|edf6715d06de72b479ace2a7a29514bd2ad160b2 (Vexed (HB, v1.03))
+sydhunt.zip|46793||7e477cf4|4232bf0982253d82623f3de89139490a|0225c9801d18f5d3df183e5c3fd2382d8b22225d (Sydney Hunter and the Sacred Tribe (HB))
+baraburu10.zip|49711||eb426fb0|e36cee6294b641a29e5b8f43c6c3a653|e90518eafaa9d0bd9be036588e768fa0b5231319 (Bara Buruu (HB, v1.0))
+grimez80.zip|3564||b8dc1e7a|3d0f360018455689f4076a384cc12d3c|f25b87b48cd931ebf3fc746533278d5f47e9cfd5 (Grime Z80 (HB))
+toseasy.zip|134437||1cdfdfa2|5f7b5be7bfbc84606ef40f60051e216f|bc3c97ae214bee294d7412f1c7eb18cb235e672f (Tower of Sorrow - Easy (HB, v1.5))
+subrescue.zip|10442||ba36ad71|59fac8fd9bf42496de210c3fd2aca00c|7163c0bc0be9a68c532cbd813e336b16f3085353 (Sub Rescue (HB, v0.3))
+candykid.zip|39310||886affca|2a04dbf3f340755d1e663b1adee2cef7|e171f5f37d7706ba113e75ce83bf5ca5ac0dca2e (CandyKid (HB, v3.0))
+sdmilhao.zip|53984||90e9fa75|d971ada420ebe806815c4b2f1a9032ce|49fcd61fa0a4c2faaab32517464070b1850ffbec (Show do Milhao (Bra, Prototype))
+alexkidd2.zip|252253||fef4cf60|59e2fd945fcaab0062ee5f91842b85d1|06913875ca16aca0b8c552af38ecd736c24c0e9d (Alex Kidd in Miracle World 2 (HB, Hack))
+pegged.zip|10837||4d3f1d71|4de5f19a9eed65cf99f39ef291727a3a|5d44ad7c911186d488d15a4e9426b877dcd68564 (Pegged (HB, v1.02))
+punpun.zip|30062||ec7ab131|1e01c127aacd365f32434309be8ed852|32e8eff20c8eace4e6b31db9cf78327cd9c041ae (Geki Oko PunPun Maru ((HB, v20151031b))
+soultrials.zip|6197||62ac441e|b1c8080c1e88c887a20927f8e8c8bb96|b9ebed34987dd9b74679a6f8884734403be24206 (Soul Trials (HB))
+snake.zip|12013||aa1283d7|ae61a1e4feaeed7ab85936bce74a85c9|6db1af3ee39ca3f80d991ab91035e5881ffa6b87 (Snake (HB, v1.04))
+moncrunch.zip|23728||43553016|7a52101f056d2d587a016ea9b77aeffc|2dd5f56a36377801e22d99dbf27fa49dfde51dd0 (Monster Crunch (HB, v1.00))
+voyage.zip|168325||25a03852|8c94926206362f971edf5c1522c6316f|4bc8389cf71657a9a76c94cf7d0b6da67f9fafe2 (Voyage - A Sorceress Vacation (HB, v1.05))
+ksolitaire.zip|22656||a61caeb9|561888d058ad97a07944569b5623029a|e19407ec7934828ee32dbec436c289e8d1406d5c (Klondike Solitaire (HB))
+lostraider101.zip|42934||4863c2f9|ca384095c1b907142522ddb88e682d70|6a163d3b0f0c9c703adcb8c7f4231f4f8f5510ba (Lost Raider (HB, v1.01))
+iceforce.zip|31588||4be116f7|525b3f08ea49bedb69de65eebe26bb69|e9d81e5b0181a06214f7f4573dc969967469d324 (Ice Force (HB))
+wekainvaders10.zip|185525||8f500001|ae9d7cf1d50663547812f31bff6c245e|1325b211b846085800c8c518d915dc4a725a4136 (Weka Invaders (HB, v1.0))
+kunkun2.zip|16953||a1725aa4|edd6ffce5674c752bb32bbeacc6d460a|e613cd06561cd781bc59cc4a30d8c71ca318976a (KunKun & KokoKun 2 (HB))
+lambo.zip|67862||a0c56c96|6f6e7598bc550209c144f9d8582fc864|e2c7801e95834e79f9043e9d29291715d7f2bf9c (Lambo (HB, Demo))
+datastorm10.zip|11431||1c83d01f|d6c4bdee2700739865f1d5287e7d9d4e|9eb553010e68cf275756d19e1fac8849af6d684a (Data Storm (HB, v1.0))
+darc10.zip|44655||8292c917|dbac611bf8a05c38cd60120f8261bdfb|45cbbcbea579684a16bdd9f3b41c6ed6e319c2cc (DARC (HB, v1.0))
+arnodash2.zip|18337||3f84180a|e95a8bd0b4a5da3586f560be8c990e12|54cb9647b9c7052a05baba23b71434cef6a25a7d (Arno Dash 2 (HB, v1.03))
+zeloliv.zip|126686||5357f2a2|ddf31aaf379b04c20506bb04a8cd6e88|d7e5d19be81286aa691cafb84375159835fc89e1 (Ze Legende of Oliv (HB))
+balbalok.zip|11371||b475a05a|8130c9af8c82a7832303c418180c8f65|95452a29864af36792b51fd7468ac0e05a7217e8 (Baluba Balok (HB))
+
 
 fbneo - zx3
 ==============
@@ -438,6 +489,28 @@ lupinsan.zip|103751||2aade21e|17b684928257a7d672a7dec0c19beff7|52b40cc0d7d0d9df0
 sinkingfeeling.zip|18621||daa844b0|281087f8219b94698a122e9dfcfb2bae|5c5eec1cb7b4cc052c115823f0bfd715b75f549c (Sinking Feeling (HB))
 dushlan.zip|16473||9548f032|28a159b45ae0058319a9731f1a2f3f24|3947abfe3e579854b989db20285a721b3df96fa3 (Dushlan (HB))
 armedbat.zip|52175||894541d1|f03ca57457a1740d08c10c8118bad820|e26a7a159c2ae9d3e535426c735b4861cb85f480 (Armed for Battle (HB))
+
+fbneo - nes fds
+================
+found 148/164 games
+
+16 game(s) not found:
+konekmon.zip|36574||a2dd54ed|c92963e3cb0abf6ac94714da76e84f56|117799597a1b41e92078b775e8c73d1836d1f7af (Koneko Monogatari - The Adventures of Chatran (Japan))
+tamafri.zip|43299||ff3b7ff0|7bb48c40ff6fe79482f81389ba341f37|8dac1f7a2526f9d1ac94aacca546c4eec71d38cb (Tama & Friends - 3 Choume Daibouken (Japan))
+supermarbro2.zip|40199||ec713425|d10cccbb3281afec21a6728ca87408e7|c260098f2967a3a15d91d9ae146ce249946269dd (Super Mario Brothers 2 (Japan))
+akitsunofusnoka.zip|32283||94d13a39|898f0890c613ba7b7e738810696f472f|28b88ba8eb2aa6ff22d63018e7b3ff137a67ac31 (Aki to Tsukasa no Fushigi no Kabe (Japan))
+haokunnofusnata.zip|69663||0a1ce040|a72048172a31e5527375c5cd5b9defe5|5aadf6c5e3bd75775eb727f1f4e85a2daeb9154d (Hao-kun no Fushigi na Tabi (Japan))
+famicgrapriii.zip|59926||0b02c5ad|ace95996af224728c82c62a366eb2d76|148ac0217a2c80146639feed0b389cef637b19cb (Famicom Grand Prix II - 3D Hot Rally (Japan))
+mystemurcas.zip|56175||011158fc|f5cc819b781d4a936c6e92499966049c|f078d897cf6c9eb5d6d03db53f6e4b19a6ca340e (Mysterious Murasame Castle (T-Eng))
+seikepsy.zip|70593||f5eb2931|e33098ab579bf55df71d4e334a345af6|ad36eb2f32808ab37e7a84e8d4fd487663307316 (Seiken Psychocalibur - Majuu no Mori Densetsu (T-Eng))
+fairypin.zip|62139||b60292b6|70683f9f0738f82eee9eee1ebb47791f|1fff9a82fffe86cd23d777bbb238487853b22b25 (Fairy Pinball - Yousei Tachi no Pinball (Japan))
+kikikai.zip|59399||542b14b4|64733c1dc138ab9579d4c9bae2ef3697|fd90a40faf81c8bcba878e1e9e3c6a801420ca36 (Kiki Kaikai - Dotou Hen (Japan))
+fdsirqtest.zip|2155||eba1ced1|318e0dfcee85e152d483510727617d95|fc517d82b6904f7031b6d5db04c383d0850c2ef6 (FDS IRQ Test (Sour, v7))
+montyonrun.zip|54422||bc0bc90e|a12e6a1e056dc706f8d64df425631f4e|db54d1fe1dc8311f2f51b15beb85b974e4ce8e86 (Monty on the Run - Monty no Doki Doki Dai Dassou (T-Eng))
+kickcha.zip|67157||6a4a6e6a|85fa1c901fc3f020eaac2717f2bbcdeb|dd0459765fac38f22475adc43b2216c1a57a2f29 (Kick Challenger - Air Foot (Japan))
+silvi.zip|53251||01f5d68a|24a52ebf15279f984af3effca2221970|d518e541f69902a0918ef662bc0f4a1eab04864c (Silviana - Ai Ippai no Little Angel (T-Eng))
+kaettmarbro.zip|59449||850e8297|b518f424d333c1384eaaffa44a3700c4|f6464680f836aa485823347133679b0c7261fee2 (Kaettekita Mario Brothers (Japan))
+dandy.zip|39222||2f21dbcf|a30048d86ea4046e411c216f5ae7780a|0f1ce6ece7c5bb4e276141ec252b3b96f7918b09 (Dandy - Zeuon no Fukkatsu (T-Eng))
 
 fbneo - gamegear
 ================

@@ -60,6 +60,7 @@ public:
     std::vector<std::string> namesList;
     std::vector<MissFile> missList;
     ss_api::SystemList::System system;
+    int sscrapSystemId = 0;
     bool isFbNeoSid = false;
     ss_api::User user;
     int filesCount = 0;

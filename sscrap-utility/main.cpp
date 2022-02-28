@@ -71,7 +71,7 @@ bool Scrap::isFbnClone(const Io::File &file) {
 // we need to use "FinalBurn Neo" databases "description" as rom name
 // and map to correct screenscraper systemid
 void Scrap::parseSid(int sid) {
-    int screenScraperSystemId = sid;
+    int screenScraperSystemId = sscrapSystemId = sid;
 
     if (sid == 75 || (sid >= 750 && sid <= 763)) {
         isFbNeoSid = true;
@@ -112,7 +112,7 @@ void Scrap::parseSid(int sid) {
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, SuprGrafx only).dat");
         } else if (sid == 758) {
             // turbo grafx
-            screenScraperSystemId = SYSTEM_ID_PCE;
+            screenScraperSystemId = SYSTEM_ID_PCE; // screenscraper doesn't have a turbo grafx section
             fbnGameList.append("databases/FinalBurn Neo (ClrMame Pro XML, TurboGrafx16 only).dat");
         } else if (sid == 759) {
             // zx spectrum
@@ -317,8 +317,8 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             }
         }
 
-        // pFBN custom id
-        if (system.getId() == SYSTEM_ID_TG16) {
+        // fix missing tg16 system in screenscraper (for fbneo)
+        if (sscrapSystemId == SYSTEM_ID_TG16) {
             gameInfo.game.system.id = SYSTEM_ID_TG16;
             gameInfo.game.system.parentId = SYSTEM_ID_PCE;
             gameInfo.game.system.text = "PC Engine TurboGrafx";
@@ -338,8 +338,8 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             game.id = game.romId = std::stol(fileCrc, nullptr, 16);
             game.system.id = sid;
             game.system.text = system.names.eu;
-            // pFBN custom id
-            if (system.getId() == SYSTEM_ID_TG16) {
+            // fix missing tg16 system in screenscraper (for fbneo)
+            if (sscrapSystemId == SYSTEM_ID_TG16) {
                 game.system.id = SYSTEM_ID_TG16;
                 game.system.parentId = SYSTEM_ID_PCE;
                 game.system.text = "PC Engine TurboGrafx";
