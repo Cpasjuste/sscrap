@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "ss_api.h"
+#include "ss_gamelist.h"
 
 using namespace ss_api;
 
@@ -14,7 +15,6 @@ GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool so
 }
 
 bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort, bool addUnknownFiles) {
-
     tinyxml2::XMLDocument doc;
     std::vector<Io::File> files;
 
@@ -81,69 +81,84 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             game.available = true;
             files.erase(it);
         }
+
         // add stuff for later filtering
-        std::string system = game.system.text.empty() ? "Unknown" : game.system.text;
-        auto it2 = std::find(systems.begin(), systems.end(), system);
-        if (it2 == systems.end()) {
-            systems.emplace_back(system);
+        Game::System sys = game.system.text.empty() ? Game::System{99999, 0, "UNKNOWN"} : game.system;
+        auto itSys = std::find_if(systems.begin(), systems.end(), [sys](const Game::System &s) {
+            return sys.id == s.id || sys.text == s.text;;
+        });
+        if (itSys == systems.end()) {
+            systems.emplace_back(sys);
         }
-        std::string editor = game.editor.text.empty() ? "Unknown" : game.editor.text;
-        it2 = std::find(editors.begin(), editors.end(), editor);
-        if (it2 == editors.end()) {
-            editors.emplace_back(editor);
+
+        Game::Editor ed = game.editor.text.empty() ? Game::Editor{99999, "UNKNOWN"} : game.editor;
+        auto itEd = std::find_if(editors.begin(), editors.end(), [ed](const Game::Editor &e) {
+            return ed.id == e.id || ed.text == e.text;
+        });
+        if (itEd == editors.end()) {
+            editors.emplace_back(ed);
         }
-        std::string developer = game.developer.text.empty() ? "Unknown" : game.developer.text;
-        it2 = std::find(developers.begin(), developers.end(), developer);
-        if (it2 == developers.end()) {
-            developers.emplace_back(developer);
+
+        Game::Developer dev = game.developer.text.empty() ? Game::Developer{99999, "UNKNOWN"} : game.developer;
+        auto itDev = std::find_if(developers.begin(), developers.end(), [dev](const Game::Developer &d) {
+            return dev.id == d.id || dev.text == d.text;
+        });
+        if (itDev == developers.end()) {
+            developers.emplace_back(dev);
         }
-        std::string _players = game.players.empty() ? "Unknown" : game.players;
-        it2 = std::find(players.begin(), players.end(), _players);
-        if (it2 == players.end()) {
-            players.emplace_back(_players);
+
+        auto itPlayers = std::find(players.begin(), players.end(), game.playersInt);
+        if (itPlayers == players.end()) {
+            players.emplace_back(game.playersInt);
         }
-        std::string rating = std::to_string(game.rating);
-        it2 = std::find(ratings.begin(), ratings.end(), rating);
-        if (it2 == ratings.end()) {
-            ratings.emplace_back(rating);
+
+        auto itRat = std::find(ratings.begin(), ratings.end(), game.rating);
+        if (itRat == ratings.end()) {
+            ratings.emplace_back(game.rating);
         }
+
         std::string topStaff = std::to_string((int) game.topStaff);
-        it2 = std::find(topStaffs.begin(), topStaffs.end(), topStaff);
+        auto it2 = std::find(topStaffs.begin(), topStaffs.end(), topStaff);
         if (it2 == topStaffs.end()) {
             topStaffs.emplace_back(topStaff);
         }
-        std::string rotation = std::to_string(game.rotation);
-        it2 = std::find(rotations.begin(), rotations.end(), rotation);
-        if (it2 == rotations.end()) {
-            rotations.emplace_back(rotation);
+
+        auto itRot = std::find(rotations.begin(), rotations.end(), game.rotation);
+        if (itRot == rotations.end()) {
+            rotations.emplace_back(game.rotation);
         }
-        std::string resolution = game.resolution.empty() ? "Unknown" : game.resolution;
+
+        std::string resolution = game.resolution.empty() ? "UNKNOWN" : game.resolution;
         it2 = std::find(resolutions.begin(), resolutions.end(), resolution);
         if (it2 == resolutions.end()) {
             resolutions.emplace_back(resolution);
         }
+
         if (!game.dates.empty()) {
             std::string date = game.getDate(Game::Country::WOR).text;
             if (date.empty()) {
-                date = "Unknown";
+                date = "UNKNOWN";
             }
             it2 = std::find(dates.begin(), dates.end(), date);
             if (it2 == dates.end()) {
                 dates.emplace_back(date);
             }
         }
+
         if (!game.genres.empty()) {
             std::string genre = game.getGenre(Game::Language::EN).text;
             if (genre.empty()) {
-                genre = "Unknown";
+                genre = "UNKNOWN";
             }
             it2 = std::find(genres.begin(), genres.end(), genre);
             if (it2 == genres.end()) {
                 genres.emplace_back(genre);
             }
         }
+
         // add game to game list
         games.emplace_back(game);
+
         // move to next node (game)
         gameNode = gameNode->NextSibling();
     }
@@ -176,13 +191,13 @@ void GameList::sortAlpha(bool byZipName, bool gamesOnly) {
 
     // sort lists
     if (!gamesOnly) {
-        std::sort(systems.begin(), systems.end(), Api::sortByName);
-        std::sort(editors.begin(), editors.end(), Api::sortByName);
-        std::sort(developers.begin(), developers.end(), Api::sortByName);
-        std::sort(players.begin(), players.end(), Api::sortByName);
-        std::sort(ratings.begin(), ratings.end(), Api::sortByName);
+        std::sort(systems.begin(), systems.end(), Api::sortSystemByName);
+        std::sort(editors.begin(), editors.end(), Api::sortEditorByName);
+        std::sort(developers.begin(), developers.end(), Api::sortDeveloperByName);
+        std::sort(players.begin(), players.end(), Api::sortInteger);
+        std::sort(ratings.begin(), ratings.end(), Api::sortInteger);
         std::sort(topStaffs.begin(), topStaffs.end(), Api::sortByName);
-        std::sort(rotations.begin(), rotations.end(), Api::sortByName);
+        std::sort(rotations.begin(), rotations.end(), Api::sortInteger);
         std::sort(resolutions.begin(), resolutions.end(), Api::sortByName);
         std::sort(dates.begin(), dates.end(), Api::sortByName);
         std::sort(genres.begin(), genres.end(), Api::sortByName);
@@ -191,7 +206,6 @@ void GameList::sortAlpha(bool byZipName, bool gamesOnly) {
 
 bool GameList::save(const std::string &dstPath, const Game::Language &language,
                     const Format &fmt, const std::vector<std::string> &mediaList) {
-
     tinyxml2::XMLDocument doc;
 
     tinyxml2::XMLDeclaration *dec = doc.NewDeclaration();
@@ -407,7 +421,6 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
                           const std::string &developer, const std::string &player, const std::string &rating,
                           const std::string &topstaff, const std::string &rotation,
                           const std::string &resolution, const std::string &date, const std::string &genre) {
-
     GameList gameList;
     gameList.xml = xml;
     gameList.romPaths = romPaths;
@@ -443,8 +456,46 @@ GameList GameList::filter(bool available, bool clones, const std::string &system
     return gameList;
 }
 
-std::vector<Game> GameList::findByName(const std::string &name) {
+GameList GameList::filter(bool available, bool clones, int system, int editor,
+                          int developer, int player, int rating, int topstaff,
+                          int rotation,
+                          const std::string &resolution, const std::string &date, const std::string &genre) {
+    GameList gameList;
+    gameList.xml = xml;
+    gameList.romPaths = romPaths;
+    gameList.systems = systems;
+    gameList.editors = editors;
+    gameList.developers = developers;
+    gameList.players = players;
+    gameList.ratings = ratings;
+    gameList.topStaffs = topStaffs;
+    gameList.rotations = rotations;
+    gameList.resolutions = resolutions;
+    gameList.dates = dates;
+    gameList.genres = genres;
 
+    std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
+                 [available, clones, system, editor, developer, player, rating,
+                         topstaff, rotation, resolution, date, genre](const Game &game) {
+                     // TODO: use integer for rating, resolution and date
+                     return (!available || (available && game.available))
+                            && (clones || !game.isClone())
+                            && (system == -1 || game.system.id == system)
+                            && (editor == -1 || game.editor.id == editor)
+                            && (developer == -1 || game.developer.id == developer)
+                            && (player == -1 || game.playersInt == player)
+                            && (rating == -1 || game.rating == rating)
+                            && (topstaff == -1 || game.topStaff == topstaff)
+                            && (rotation == -1 || game.rotation == rotation)
+                            && (resolution == "ALL" || game.resolution == resolution)
+                            && (date == "ALL" || game.getDate(Game::Country::WOR).text == date)
+                            && (genre == "ALL" || game.getGenre(Game::Language::EN).text == genre);
+                 });
+
+    return gameList;
+}
+
+std::vector<Game> GameList::findGamesByName(const std::string &name) {
     std::vector<Game> matches;
 
     auto it = std::copy_if(games.begin(), games.end(), std::back_inserter(matches), [name](const Game &game) {
@@ -454,8 +505,7 @@ std::vector<Game> GameList::findByName(const std::string &name) {
     return matches;
 }
 
-std::vector<Game> GameList::findByName(const Game &game) {
-
+std::vector<Game> GameList::findGamesByName(const Game &game) {
     std::vector<Game> matches;
 
     auto it = std::copy_if(games.begin(), games.end(), std::back_inserter(matches), [game](const Game &g) {
@@ -465,8 +515,7 @@ std::vector<Game> GameList::findByName(const Game &game) {
     return matches;
 }
 
-Game GameList::findByRomId(long romId) {
-
+Game GameList::findGameByRomId(long romId) {
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
         return game.romId == romId;
     });
@@ -475,11 +524,10 @@ Game GameList::findByRomId(long romId) {
         return *it;
     }
 
-    return Game();
+    return {};
 }
 
-Game GameList::findByPath(const std::string &path) {
-
+Game GameList::findGameByPath(const std::string &path) {
     auto it = std::find_if(games.begin(), games.end(), [path](const Game &game) {
         return game.path == path;
     });
@@ -488,11 +536,10 @@ Game GameList::findByPath(const std::string &path) {
         return *it;
     }
 
-    return Game();
+    return {};
 }
 
-Game GameList::findByPathAndSystem(const std::string &path, int systemId) {
-
+Game GameList::findGameByPathAndSystem(const std::string &path, int systemId) {
     auto it = std::find_if(games.begin(), games.end(), [path, systemId](const Game &game) {
         return game.system.id == systemId && game.path == path;
     });
@@ -501,11 +548,100 @@ Game GameList::findByPathAndSystem(const std::string &path, int systemId) {
         return *it;
     }
 
-    return Game();
+    return {};
+}
+
+Game::System GameList::findSystemByName(const std::string &name) {
+    auto it = std::find_if(systems.begin(), systems.end(), [name](const Game::System &sys) {
+        return sys.text == name;
+    });
+
+    if (it != systems.end()) {
+        return *it;
+    }
+
+    return {};
+}
+
+std::vector<std::string> GameList::getSystemNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &sys: systems) {
+        list.emplace_back(sys.text);
+    }
+    return list;
+}
+
+Game::Editor GameList::findEditorByName(const std::string &name) {
+    auto it = std::find_if(editors.begin(), editors.end(), [name](const Game::Editor &ed) {
+        return ed.text == name;
+    });
+
+    if (it != editors.end()) {
+        return *it;
+    }
+
+    return {};
+}
+
+std::vector<std::string> GameList::getEditorNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &ed: editors) {
+        list.emplace_back(ed.text);
+    }
+    return list;
+}
+
+Game::Developer GameList::findDeveloperByName(const std::string &name) {
+    auto it = std::find_if(developers.begin(), developers.end(), [name](const Game::Developer &dev) {
+        return dev.text == name;
+    });
+
+    if (it != developers.end()) {
+        return *it;
+    }
+
+    return {};
+}
+
+std::vector<std::string> GameList::getDeveloperNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &dev: developers) {
+        list.emplace_back(dev.text);
+    }
+    return list;
+}
+
+std::vector<std::string> GameList::getRatingNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &i: ratings) {
+        list.emplace_back(std::to_string(i));
+    }
+    return list;
+}
+
+std::vector<std::string> GameList::getRotationNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &i: rotations) {
+        list.emplace_back(std::to_string(i));
+    }
+    return list;
+}
+
+std::vector<std::string> GameList::getPlayersNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &i: players) {
+        list.emplace_back(std::to_string(i));
+    }
+    return list;
 }
 
 bool GameList::exist(long romId) {
-
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
         return game.romId == romId;
     });
@@ -514,7 +650,6 @@ bool GameList::exist(long romId) {
 }
 
 bool GameList::remove(long romId) {
-
     auto it = std::find_if(games.begin(), games.end(), [romId](const Game &game) {
         return game.romId == romId;
     });

@@ -7,6 +7,45 @@
 
 using namespace ss_api;
 
+static int parsePlayerString(const std::string &players) {
+    if (players == "1") {
+        return 1;
+    } else if (players == "1-10") {
+        return 10;
+    } else if (players == "1-16") {
+        return 16;
+    } else if (players == "1-2") {
+        return 2;
+    } else if (players == "1-3") {
+        return 3;
+    } else if (players == "1-4") {
+        return 4;
+    } else if (players == "1-5") {
+        return 5;
+    } else if (players == "1-6") {
+        return 6;
+    } else if (players == "1-8") {
+        return 8;
+    } else if (players == "2") {
+        return 2;
+    } else if (players == "2-4") {
+        return 4;
+    } else if (players == "4") {
+        return 4;
+    } else if (players == "4+") {
+        return 4;
+    } else if (players == "6") {
+        return 6;
+    } else if (players == "8") {
+        return 8;
+    } else if (players == "8+") {
+        return 8;
+    }
+
+    // UNKNOWN
+    return 0;
+}
+
 Game::Name Game::getName(const Game::Country &country) const {
 
     std::vector<Game::Name> list;
@@ -334,6 +373,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         // emulationstation compat (use emulationstation format)
         game->players = Api::getXmlTextStr(gameNode->FirstChildElement("players"));
     }
+    game->playersInt = parsePlayerString(game->players);
     // screenscraper
     game->topStaff = Api::getXmlTextBool(gameNode->FirstChildElement("topstaff"));
     // screenscraper

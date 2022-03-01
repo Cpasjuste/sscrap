@@ -195,6 +195,7 @@ namespace ss_api {
         bool available = false;
         std::string cloneOf;
         std::string players;
+        int playersInt = 0;
         std::string resolution;
         //std::string inputs;
         //std::string colors;

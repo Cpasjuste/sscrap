@@ -267,6 +267,10 @@ bool Api::sortByName(const std::string &g1, const std::string &g2) {
 #endif
 }
 
+bool Api::sortInteger(int i1, int i2) {
+    return i1 < i2;
+}
+
 bool Api::sortGameByName(const Game &g1, const Game &g2) {
     const std::string lhs = g1.getName().text;
     const std::string rhs = g2.getName().text;
@@ -281,6 +285,39 @@ bool Api::sortGameByName(const Game &g1, const Game &g2) {
 bool Api::sortGameByPath(const Game &g1, const Game &g2) {
     const std::string lhs = g1.path;
     const std::string rhs = g2.path;
+    const auto result = mismatch(
+            lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto &lhs, const auto &rhs) {
+                return tolower(lhs) == tolower(rhs);
+            });
+    return result.second != rhs.cend() &&
+           (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
+}
+
+bool Api::sortSystemByName(const Game::System &s1, const Game::System &s2) {
+    const std::string lhs = s1.text;
+    const std::string rhs = s2.text;
+    const auto result = mismatch(
+            lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto &lhs, const auto &rhs) {
+                return tolower(lhs) == tolower(rhs);
+            });
+    return result.second != rhs.cend() &&
+           (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
+}
+
+bool Api::sortEditorByName(const Game::Editor &e1, const Game::Editor &e2) {
+    const std::string lhs = e1.text;
+    const std::string rhs = e2.text;
+    const auto result = mismatch(
+            lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto &lhs, const auto &rhs) {
+                return tolower(lhs) == tolower(rhs);
+            });
+    return result.second != rhs.cend() &&
+           (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
+}
+
+bool Api::sortDeveloperByName(const Game::Developer &d1, const Game::Developer &d2) {
+    const std::string lhs = d1.text;
+    const std::string rhs = d2.text;
     const auto result = mismatch(
             lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto &lhs, const auto &rhs) {
                 return tolower(lhs) == tolower(rhs);
@@ -308,8 +345,7 @@ long Api::parseLong(const std::string &str, long defValue) {
 }
 
 bool Api::parseBool(const std::string &str, bool defValue) {
-    if (str.empty() || str != "true" || str != "false"
-        || str != "0" || str != "1") {
+    if (str.empty() || str != "true" || str != "false" || str != "0" || str != "1") {
         return defValue;
     }
 

@@ -52,11 +52,19 @@ namespace ss_api {
         static bool parseBool(const std::string &str, bool defValue = false);
 
         // internal
+        static bool sortInteger(int i1, int i2);
+
         static bool sortByName(const std::string &g1, const std::string &g2);
 
         static bool sortGameByName(const Game &g1, const Game &g2);
 
         static bool sortGameByPath(const Game &g1, const Game &g2);
+
+        static bool sortSystemByName(const Game::System &s1, const Game::System &s2);
+
+        static bool sortEditorByName(const Game::Editor &e1, const Game::Editor &e2);
+
+        static bool sortDeveloperByName(const Game::Developer &d1, const Game::Developer &d2);
 
         // get attributes
         static std::string getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name);
@@ -89,8 +97,11 @@ namespace ss_api {
 #ifdef __WINDOWS__
         static void printc(int color, const char* format, ...);
 #else
+
         static void printc(const char *color, const char *format, ...);
+
 #endif
+
         static void printe(int code, int delay);
 
         static std::string ss_devid;
