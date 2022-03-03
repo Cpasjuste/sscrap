@@ -10,7 +10,7 @@ option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
 option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
 option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
-#include(Toolchain.cmake)
+include(Toolchain.cmake)
 ####################
 # TARGET PLATFORM
 ####################
@@ -44,7 +44,6 @@ set(LDFLAGS
         ${TinyXML2_LIBRARIES}
         ${ZLIB_LIBRARIES})
 
-
 set(CMAKE_CXX_STANDARD 14)
 
 #####################
@@ -54,6 +53,7 @@ if (PLATFORM_SWITCH)
     #####################
     # SWITCH PLATORM
     #####################
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     list(APPEND CFLAGS -D__SWITCH__)
     list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 nx)
 elseif (PLATFORM_VITA)
