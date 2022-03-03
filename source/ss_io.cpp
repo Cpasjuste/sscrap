@@ -83,7 +83,6 @@ static std::string dcGetIpHeaderTitle(const std::string &path) {
 
 std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                                      const std::vector<std::string> &filters) {
-
     std::vector<Io::File> files;
     struct stat st{};
     struct dirent *ent;
@@ -92,22 +91,29 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
     if (!path.empty()) {
         if ((dir = opendir(path.c_str())) != nullptr) {
             while ((ent = readdir(dir)) != nullptr) {
-
                 // skip "hidden" files
                 if (ent->d_name[0] == '.') {
                     continue;
                 }
-
+#ifdef __SWITCH__
+                // stat is too slow on switch
+                File file = {ent->d_name, path + "/" + ent->d_name};
+                if (file.name.length() > 3 && file.name[file.name.length() - 4] == '.') {
+                    file.isFile = true;
+                } else {
+                    file.isFile = false;
+                }
+#else
                 File file = {ent->d_name, path + "/" + ent->d_name};
                 if (stat(file.path.c_str(), &st) == 0) {
                     file.size = (size_t) st.st_size;
                     file.isFile = S_ISDIR(st.st_mode) ? false : true;
                 }
-
+#endif
                 if (!file.isFile) {
                     if (recursive) {
                         std::vector<Io::File> subFiles = getDirList(file.path, true, filters);
-                        for (const auto &x : subFiles) {
+                        for (const auto &x: subFiles) {
                             files.push_back(x);
                         }
                     }
@@ -137,7 +143,7 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                 }
 
                 if (!filters.empty()) {
-                    for (const auto &filter : filters) {
+                    for (const auto &filter: filters) {
                         if (file.name.find(filter) != std::string::npos) {
                             files.push_back(file);
                             break;
