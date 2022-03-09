@@ -228,7 +228,7 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
         if (fmt == Format::EmulationStation) {
             tinyxml2::XMLElement *gameElement = doc.NewElement("game");
             if (game.id > 0) {
-                gameElement->SetAttribute("id", game.id);
+                gameElement->SetAttribute("id", (int64_t) game.id);
             }
             if (!game.source.empty()) {
                 gameElement->SetAttribute("source", game.source.c_str());
@@ -270,10 +270,10 @@ bool GameList::save(const std::string &dstPath, const Game::Language &language,
             tinyxml2::XMLElement *elem;
             tinyxml2::XMLElement *gameElement = doc.NewElement("jeu");
             if (game.id > 0) {
-                gameElement->SetAttribute("id", game.id);
+                gameElement->SetAttribute("id", (int64_t) game.id);
             }
             if (game.romId > 0) {
-                gameElement->SetAttribute("romid", game.romId);
+                gameElement->SetAttribute("romid", (int64_t) game.romId);
             }
             if (game.notGame) {
                 gameElement->SetAttribute("notgame", game.notGame);
