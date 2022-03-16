@@ -193,7 +193,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
     // fbneo consoles zip names doesn't match standard consoles zip names
     // this will also help fbneo arcade games if not found by zip name
     if (isFbNeoSid) {
-        fbnGame = fbnGameList.findByPath(fileName);
+        fbnGame = fbnGameList.findGameByPath(fileName);
     }
 
     // finally, try a game search (jeuRecherche)
