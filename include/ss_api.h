@@ -60,6 +60,8 @@ namespace ss_api {
 
         static bool sortDeveloperByName(const Game::Developer &d1, const Game::Developer &d2);
 
+        static bool sortGenreByName(const Game::Genre &g1, const Game::Genre &g2);
+
         // get attributes
         static std::string getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name);
 

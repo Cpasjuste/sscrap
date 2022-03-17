@@ -92,6 +92,14 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             developers.emplace_back(dev);
         }
 
+        Game::Genre genre = game.genre.name.empty() ? Game::Genre{0, "UNKNOWN"} : game.genre;
+        auto itGenre = std::find_if(genres.begin(), genres.end(), [genre](const Game::Genre &g) {
+            return genre.id == g.id || genre.name == g.name;
+        });
+        if (itGenre == genres.end()) {
+            genres.emplace_back(genre);
+        }
+
         auto itPlayers = std::find(players.begin(), players.end(), game.playersInt);
         if (itPlayers == players.end()) {
             players.emplace_back(game.playersInt);
@@ -116,11 +124,6 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         it2 = std::find(dates.begin(), dates.end(), game.date);
         if (it2 == dates.end()) {
             dates.emplace_back(game.date);
-        }
-
-        it2 = std::find(genres.begin(), genres.end(), game.genre.name);
-        if (it2 == genres.end()) {
-            genres.emplace_back(game.genre.name);
         }
 
         // add game to game list
@@ -161,12 +164,12 @@ void GameList::sortAlpha(bool byZipName, bool gamesOnly) {
         std::sort(systemList.systems.begin(), systemList.systems.end(), Api::sortSystemByName);
         std::sort(editors.begin(), editors.end(), Api::sortEditorByName);
         std::sort(developers.begin(), developers.end(), Api::sortDeveloperByName);
+        std::sort(genres.begin(), genres.end(), Api::sortGenreByName);
         std::sort(players.begin(), players.end(), Api::sortInteger);
         std::sort(ratings.begin(), ratings.end(), Api::sortInteger);
         std::sort(rotations.begin(), rotations.end(), Api::sortInteger);
         std::sort(resolutions.begin(), resolutions.end(), Api::sortByName);
         std::sort(dates.begin(), dates.end(), Api::sortByName);
-        std::sort(genres.begin(), genres.end(), Api::sortByName);
     }
 }
 
@@ -212,7 +215,9 @@ bool GameList::save(const std::string &dstPath, const std::vector<std::string> &
         elem = Api::addXmlElement(&doc, gameElement, "system", game.system.name);
         elem->SetAttribute("id", game.system.id);
         elem->SetAttribute("parentId", game.system.parentId);
-        Api::addXmlElement(&doc, gameElement, "rotation", std::to_string(game.rotation));
+        if (game.rotation != 0) {
+            Api::addXmlElement(&doc, gameElement, "rotation", std::to_string(game.rotation));
+        }
         Api::addXmlElement(&doc, gameElement, "resolution", game.resolution);
         // pemu
 
@@ -248,46 +253,9 @@ bool GameList::save(const std::string &dstPath, const std::vector<std::string> &
     return true;
 }
 
-GameList GameList::filter(bool available, bool clones, const std::string &system, const std::string &editor,
-                          const std::string &developer, const std::string &player, const std::string &rating,
-                          const std::string &rotation, const std::string &resolution,
-                          const std::string &date, const std::string &genre) {
-    GameList gameList;
-    gameList.xml = xml;
-    gameList.romPaths = romPaths;
-    gameList.systemList = systemList;
-    gameList.editors = editors;
-    gameList.developers = developers;
-    gameList.players = players;
-    gameList.ratings = ratings;
-    gameList.rotations = rotations;
-    gameList.resolutions = resolutions;
-    gameList.dates = dates;
-    gameList.genres = genres;
-
-    std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
-                 [available, clones, system, editor, developer, player, rating,
-                         rotation, resolution, date, genre](const Game &game) {
-                     // TODO: use integer for rating, resolution and date
-                     return (!available || (available && game.available))
-                            && (clones || !game.isClone())
-                            && (system == "ALL" || game.system.name == system)
-                            && (editor == "ALL" || game.editor.name == editor)
-                            && (developer == "ALL" || game.developer.name == developer)
-                            && (player == "ALL" || game.players == player)
-                            && (rating == "ALL" || game.rating == Api::parseInt(rating))
-                            && (rotation == "ALL" || game.rotation == Api::parseInt(rotation))
-                            && (resolution == "ALL" || game.resolution == resolution)
-                            && (date == "ALL" || game.date == date)
-                            && (genre == "ALL" || game.name == genre);
-                 });
-
-    return gameList;
-}
-
 GameList GameList::filter(bool available, bool clones, int system, int editor,
-                          int developer, int player, int rating, int rotation,
-                          const std::string &resolution, const std::string &date, const std::string &genre) {
+                          int developer, int player, int rating, int rotation, int genre,
+                          const std::string &resolution, const std::string &date) {
     GameList gameList;
     gameList.xml = xml;
     gameList.romPaths = romPaths;
@@ -303,8 +271,7 @@ GameList GameList::filter(bool available, bool clones, int system, int editor,
 
     std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
                  [available, clones, system, editor, developer, player, rating,
-                         rotation, resolution, date, genre](const Game &game) {
-                     // TODO: use integer for rating, resolution and date
+                         rotation, genre, resolution, date](const Game &game) {
                      return (!available || (available && game.available))
                             && (clones || !game.isClone())
                             && (system == -1 || game.system.id == system)
@@ -313,9 +280,9 @@ GameList GameList::filter(bool available, bool clones, int system, int editor,
                             && (player == -1 || game.playersInt == player)
                             && (rating == -1 || game.rating == rating)
                             && (rotation == -1 || game.rotation == rotation)
+                            && (genre == -1 || game.genre.id == genre)
                             && (resolution == "ALL" || game.resolution == resolution)
-                            && (date == "ALL" || game.date == date)
-                            && (genre == "ALL" || game.name == genre);
+                            && (date == "ALL" || game.date == date);
                  });
 
     return gameList;
@@ -410,11 +377,32 @@ Game::Developer GameList::findDeveloperByName(const std::string &name) {
     return {};
 }
 
+Game::Genre GameList::findGenreByName(const std::string &name) {
+    auto it = std::find_if(genres.begin(), genres.end(), [name](const Game::Genre &genre) {
+        return genre.name == name;
+    });
+
+    if (it != genres.end()) {
+        return *it;
+    }
+
+    return {};
+}
+
 std::vector<std::string> GameList::getDeveloperNames() {
     std::vector<std::string> list;
     list.emplace_back("ALL");
     for (const auto &dev: developers) {
         list.emplace_back(dev.name);
+    }
+    return list;
+}
+
+std::vector<std::string> GameList::getGenreNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &genre: genres) {
+        list.emplace_back(genre.name);
     }
     return list;
 }

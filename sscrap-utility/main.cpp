@@ -342,8 +342,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
         if (isFbNeoSid) {
             game = fbnGame;
             game.id = std::stol(fileCrc, nullptr, 16);
-            game.system.id = sid;
-            game.system.name = system.name;
+            game.system = system;
             // fix missing tg16 system in screenscraper (for fbneo)
             if (sscrapSystemId == SYSTEM_ID_TG16) {
                 game.system.id = SYSTEM_ID_TG16;
@@ -353,8 +352,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
         } else {
             game.name = searchName;
             game.id = std::stol(fileCrc, nullptr, 16);
-            game.system.id = sid;
-            game.system.name = system.name;
+            game.system = system;
             game.path = searchName;
         }
 

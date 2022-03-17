@@ -32,17 +32,9 @@ namespace ss_api {
         void sortAlpha(bool byZipName = false, bool gamesOnly = true);
 
         GameList filter(bool available = false, bool clones = false,
-                        const std::string &system = "ALL", const std::string &editor = "ALL",
-                        const std::string &developer = "ALL", const std::string &player = "ALL",
-                        const std::string &rating = "ALL", const std::string &rotation = "ALL",
-                        const std::string &resolution = "ALL", const std::string &date = "ALL",
-                        const std::string &genre = "ALL");
-
-        GameList filter(bool available = false, bool clones = false,
                         int system = -1, int editor = -1, int developer = -1,
-                        int players = -1, int rating = -1, int rotation = -1,
-                        const std::string &resolution = "All", const std::string &date = "All",
-                        const std::string &genre = "All");
+                        int players = -1, int rating = -1, int rotation = -1, int genre = -1,
+                        const std::string &resolution = "ALL", const std::string &date = "ALL");
 
         bool save(const std::string &dstPath, const std::vector<std::string> &mediaList = {});
 
@@ -62,7 +54,11 @@ namespace ss_api {
 
         Game::Developer findDeveloperByName(const std::string &name);
 
+        Game::Genre findGenreByName(const std::string &name);
+
         std::vector<std::string> getDeveloperNames();
+
+        std::vector<std::string> getGenreNames();
 
         std::vector<std::string> getRatingNames();
 
@@ -83,12 +79,12 @@ namespace ss_api {
         std::vector<Game> games;
         std::vector<Game::Editor> editors;
         std::vector<Game::Developer> developers;
+        std::vector<Game::Genre> genres;
         std::vector<int> players;
         std::vector<int> ratings;
         std::vector<int> rotations;
         std::vector<std::string> resolutions;
         std::vector<std::string> dates;
-        std::vector<std::string> genres;
     };
 }
 

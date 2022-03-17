@@ -141,6 +141,17 @@ bool Api::sortDeveloperByName(const Game::Developer &d1, const Game::Developer &
            (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
 }
 
+bool Api::sortGenreByName(const Game::Genre &g1, const Game::Genre &g2) {
+    const std::string lhs = g1.name;
+    const std::string rhs = g2.name;
+    const auto result = mismatch(
+            lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto &lhs, const auto &rhs) {
+                return tolower(lhs) == tolower(rhs);
+            });
+    return result.second != rhs.cend() &&
+           (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
+}
+
 int Api::parseInt(const std::string &str, int defValue) {
     char *end = nullptr;
     long i = strtol(str.c_str(), &end, 10);
