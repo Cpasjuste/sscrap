@@ -338,75 +338,47 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
         return gameInfo.game;
     } else {
-// game not found, but add it to the list with default values
+        // game not found, but add it to the list with default values
         if (isFbNeoSid) {
             game = fbnGame;
-            game.
-                    id = std::stol(fileCrc, nullptr, 16);
-            game.system.
-                    id = sid;
-            game.system.
-                    name = system.name;
-// fix missing tg16 system in screenscraper (for fbneo)
+            game.id = std::stol(fileCrc, nullptr, 16);
+            game.system.id = sid;
+            game.system.name = system.name;
+            // fix missing tg16 system in screenscraper (for fbneo)
             if (sscrapSystemId == SYSTEM_ID_TG16) {
-                game.system.
-                        id = SYSTEM_ID_TG16;
-                game.system.
-                        parentId = SYSTEM_ID_PCE;
-                game.system.
-                        name = "PC Engine TurboGrafx";
+                game.system.id = SYSTEM_ID_TG16;
+                game.system.parentId = SYSTEM_ID_PCE;
+                game.system.name = "PC Engine TurboGrafx";
             }
         } else {
-            game.
-                    name = searchName;
-            game.
-                    id = std::stol(fileCrc, nullptr, 16);
-            game.system.
-                    id = sid;
-            game.system.
-                    name = system.name;
-            game.
-                    path = searchName;
+            game.name = searchName;
+            game.id = std::stol(fileCrc, nullptr, 16);
+            game.system.id = sid;
+            game.system.name = system.name;
+            game.path = searchName;
         }
 
         if (isFbNeoSid) {
             Api::printc(COLOR_R, "[%i/%i] NOK: %s (%s) (%i)\n",
                         filesCount - remainingFiles, filesCount,
-                        searchName.
-
-                                c_str(), fbnGame
-
-                                .name.
-
-                            c_str(), gameInfo
-
-                                .http_error);
+                        searchName.c_str(), fbnGame.name.c_str(), gameInfo.http_error);
             pthread_mutex_lock(&mutex);
-            missList.
-                    emplace_back(game
-                                         .name, game.path, fileCrc, romCrc);
+            missList.emplace_back(game.name, game.path, fileCrc, romCrc);
             pthread_mutex_unlock(&mutex);
         } else {
             if (sid == SYSTEM_ID_DREAMCAST && tryCount < 3) {
-// wait for 2nd and 3nd try
+                // wait for 2nd and 3nd try
             } else {
                 Api::printc(COLOR_R, "[%i/%i] NOK: %s (%i)\n",
                             filesCount - remainingFiles, filesCount,
-                            searchName.
-
-                                    c_str(), gameInfo
-
-                                    .http_error);
+                            searchName.c_str(), gameInfo.http_error);
                 pthread_mutex_lock(&mutex);
-                missList.
-                        emplace_back(game
-                                             .name, game.path, fileCrc, romCrc);
+                missList.emplace_back(game.name, game.path, fileCrc, romCrc);
                 pthread_mutex_unlock(&mutex);
             }
         }
 
-        return
-                game;
+        return game;
     }
 }
 
