@@ -203,12 +203,18 @@ bool GameList::save(const std::string &dstPath, const std::vector<std::string> &
         if (!game.date.empty()) {
             Api::addXmlElement(&doc, gameElement, "releasedate", game.date + "0101T000000");
         }
-        elem = Api::addXmlElement(&doc, gameElement, "developer", game.developer.name);
-        elem->SetAttribute("id", game.developer.id);
-        elem = Api::addXmlElement(&doc, gameElement, "publisher", game.editor.name);
-        elem->SetAttribute("id", game.editor.id);
-        Api::addXmlElement(&doc, gameElement, "genre", game.genre.name);
-        Api::addXmlElement(&doc, gameElement, "genreid", std::to_string(game.genre.id));
+        if (game.developer.id > 0) {
+            elem = Api::addXmlElement(&doc, gameElement, "developer", game.developer.name);
+            elem->SetAttribute("id", game.developer.id);
+        }
+        if (game.editor.id > 0) {
+            elem = Api::addXmlElement(&doc, gameElement, "publisher", game.editor.name);
+            elem->SetAttribute("id", game.editor.id);
+        }
+        if (game.genre.id > 0) {
+            Api::addXmlElement(&doc, gameElement, "genre", game.genre.name);
+            Api::addXmlElement(&doc, gameElement, "genreid", std::to_string(game.genre.id));
+        }
         Api::addXmlElement(&doc, gameElement, "players", game.players);
         // pemu
         Api::addXmlElement(&doc, gameElement, "cloneof", game.cloneOf);
