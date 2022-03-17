@@ -193,7 +193,7 @@ bool GameList::save(const std::string &dstPath, const std::vector<std::string> &
         if (game.id > 0) {
             gameElement->SetAttribute("id", (int64_t) game.id);
         }
-        Api::addXmlElement(&doc, gameElement, "path", "./" + game.path);
+        Api::addXmlElement(&doc, gameElement, "path", game.path);
         Api::addXmlElement(&doc, gameElement, "name", game.name);
         Api::addXmlElement(&doc, gameElement, "desc", game.synopsis);
         if (game.rating > 0) {
@@ -236,7 +236,7 @@ bool GameList::save(const std::string &dstPath, const std::vector<std::string> &
             if (!media.url.empty()) {
                 std::string mediaPath = media.url;
                 if (mediaPath.rfind("http", 0) == 0) {
-                    mediaPath = "./media/" + mediaList.at(i) + "/"
+                    mediaPath = "media/" + mediaList.at(i) + "/"
                                 + game.path.substr(0, game.path.find_last_of('.') + 1)
                                 + media.format;
                 }
