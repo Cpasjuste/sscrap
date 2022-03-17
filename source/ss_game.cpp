@@ -105,6 +105,9 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
             game->path += ".zip";
         }
         game->date = Api::getXmlTextStr(gameNode->FirstChildElement("year"));
+        if (game->date.empty()) {
+            game->date = "UNKNOWN";
+        }
         game->developer.name = Api::getXmlTextStr(gameNode->FirstChildElement("manufacturer"));
         game->editor.name = game->developer.name;
         game->cloneOf = Api::getXmlAttrStr(gameNode->ToElement(), "cloneof");
@@ -236,6 +239,8 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     }
     if (game->date.size() >= 4) {
         game->date = game->date.substr(0, 4);
+    } else if (game->date.empty()) {
+        game->date = "UNKNOWN";
     }
 
     // game developer

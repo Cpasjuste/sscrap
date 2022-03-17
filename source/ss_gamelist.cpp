@@ -200,7 +200,7 @@ bool GameList::save(const std::string &dstPath, const std::vector<std::string> &
             std::string rating = std::to_string((float) game.rating / 20.0f);
             Api::addXmlElement(&doc, gameElement, "rating", rating.substr(0, rating.find('.') + 3));
         }
-        if (!game.date.empty()) {
+        if (!game.date.empty() && game.date != "UNKNOWN") {
             Api::addXmlElement(&doc, gameElement, "releasedate", game.date + "0101T000000");
         }
         if (game.developer.id > 0) {
@@ -287,7 +287,8 @@ GameList GameList::filter(bool available, bool clones, int system, int editor,
                             && (rating == -1 || game.rating == rating)
                             && (rotation == -1 || game.rotation == rotation)
                             && (genre == -1 || game.genre.id == genre)
-                            && (resolution == "ALL" || game.resolution == resolution)
+                            && (resolution == "ALL" || game.resolution == resolution
+                                || game.resolution.empty() && resolution == "UNKNOWN")
                             && (date == "ALL" || game.date == date);
                  });
 
