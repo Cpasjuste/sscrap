@@ -8,7 +8,6 @@
 using namespace ss_api;
 
 SystemList::SystemList(const std::string &ssid, const std::string &sspassword, int retryDelay) {
-
     long code = 0;
     Curl ss_curl;
     std::string soft = ss_curl.escape(Api::ss_softname);
@@ -62,36 +61,22 @@ SystemList::SystemList(const std::string &ssid, const std::string &sspassword, i
     doc.Clear();
 }
 
-bool SystemList::parseSystem(struct ss_api::SystemList::System *system, tinyxml2::XMLNode *systemNode) {
-
-    if (system == nullptr || systemNode == nullptr) {
+bool SystemList::parseSystem(struct ss_api::System *system, tinyxml2::XMLNode *systemNode) {
+    if (!system || !systemNode) {
         return false;
     }
 
-    system->id = Api::getXmlTextStr(systemNode->FirstChildElement("id"));
-    system->parentid = Api::getXmlTextStr(systemNode->FirstChildElement("parentid"));
-    system->extensions = Api::getXmlTextStr(systemNode->FirstChildElement("extensions"));
-    system->company = Api::getXmlTextStr(systemNode->FirstChildElement("compagnie"));
-    system->type = Api::getXmlTextStr(systemNode->FirstChildElement("type"));
-    system->startdate = Api::getXmlTextStr(systemNode->FirstChildElement("datedebut"));
-    system->enddate = Api::getXmlTextStr(systemNode->FirstChildElement("datefin"));
-    system->romtype = Api::getXmlTextStr(systemNode->FirstChildElement("romtype"));
-    system->supporttype = Api::getXmlTextStr(systemNode->FirstChildElement("supporttype"));
+    system->id = Api::getXmlTextInt(systemNode->FirstChildElement("id"));
+    system->parentId = Api::getXmlTextInt(systemNode->FirstChildElement("parentid"));
     tinyxml2::XMLNode *element = systemNode->FirstChildElement("noms");
     if (element != nullptr) {
-        system->names.eu = Api::getXmlTextStr(element->FirstChildElement("nom_eu"));
-        system->names.recalbox = Api::getXmlTextStr(element->FirstChildElement("nom_recalbox"));
-        system->names.retropie = Api::getXmlTextStr(element->FirstChildElement("nom_retropie"));
-        system->names.launchbox = Api::getXmlTextStr(element->FirstChildElement("nom_launchbox"));
-        system->names.hyperspin = Api::getXmlTextStr(element->FirstChildElement("nom_hyperspin"));
-        system->names.common = Api::getXmlTextStr(element->FirstChildElement("noms_commun"));
+        system->name = Api::getXmlTextStr(element->FirstChildElement("nom_eu"));
     }
 
     return true;
 }
 
-SystemList::System SystemList::findById(const std::string &id) {
-
+System SystemList::findById(int id) {
     auto it = std::find_if(systems.begin(), systems.end(), [id](const System &system) {
         return system.id == id;
     });
@@ -101,4 +86,27 @@ SystemList::System SystemList::findById(const std::string &id) {
     }
 
     return {};
+}
+
+System SystemList::findByName(const std::string &name) {
+    auto it = std::find_if(systems.begin(), systems.end(), [name](const System &system) {
+        return system.name == name;
+    });
+
+    if (it != systems.end()) {
+        return *it;
+    }
+
+    return {};
+}
+
+std::vector<std::string> SystemList::getNames() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+
+    for (const auto &sys: systems) {
+        list.emplace_back(sys.name);
+    }
+
+    return list;
 }

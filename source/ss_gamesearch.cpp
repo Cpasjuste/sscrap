@@ -68,7 +68,7 @@ GameSearch::GameSearch(const std::string &recherche, const std::string &systemei
         while (gameNode != nullptr) {
             // add game to game list
             Game game;
-            Game::parseGame(&game, gameNode, "");
+            Game::parseGame(&game, gameNode, "", GameList::Format::ScreenScraper);
             games.emplace_back(game);
             // move to next node (game)
             gameNode = gameNode->NextSibling();

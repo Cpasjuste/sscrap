@@ -37,17 +37,11 @@ namespace ss_api {
 
     public:
 
-        static std::string toString(const Game::Country &country);
-
-        static std::string toString(const Game::Language &language);
-
-        static Game::Country toCountry(const std::string &country);
-
-        static Game::Language toLanguage(const std::string &language);
-
         static int parseInt(const std::string &str, int defValue = 0);
 
         static long parseLong(const std::string &str, long defValue = 0);
+
+        static float parseFloat(const std::string &str, float defValue = 0);
 
         static bool parseBool(const std::string &str, bool defValue = false);
 
@@ -60,7 +54,7 @@ namespace ss_api {
 
         static bool sortGameByPath(const Game &g1, const Game &g2);
 
-        static bool sortSystemByName(const Game::System &s1, const Game::System &s2);
+        static bool sortSystemByName(const System &s1, const System &s2);
 
         static bool sortEditorByName(const Game::Editor &e1, const Game::Editor &e2);
 
@@ -75,20 +69,14 @@ namespace ss_api {
 
         static bool getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name);
 
-        static Game::Country getXmlAttrCountry(tinyxml2::XMLElement *element, const std::string &name);
-
-        static Game::Language getXmlAttrLang(tinyxml2::XMLElement *element, const std::string &name);
-
         // get text
         static std::string getXmlTextStr(tinyxml2::XMLElement *element);
 
         static int getXmlTextInt(tinyxml2::XMLElement *element);
 
+        static float getXmlTextFloat(tinyxml2::XMLElement *element);
+
         static bool getXmlTextBool(tinyxml2::XMLElement *element);
-
-        static Game::Country getXmlTextCountry(tinyxml2::XMLElement *element);
-
-        static Game::Language getXmlTextLang(tinyxml2::XMLElement *element);
 
         // add
         static tinyxml2::XMLElement *addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,

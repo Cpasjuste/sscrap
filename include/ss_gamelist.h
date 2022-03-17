@@ -7,16 +7,18 @@
 
 #include <string>
 
+#include "ss_systemlist.h"
+
 namespace ss_api {
 
     class GameList {
     public:
 
         enum Format {
-            ScreenScrapper = 0,
-            EmulationStation = 1,
-            FbNeo = 2,
-            Unknown = 3
+            ScreenScraper,
+            EmulationStation,
+            FbNeoDat,
+            Unknown
         };
 
         GameList() = default;
@@ -32,33 +34,27 @@ namespace ss_api {
         GameList filter(bool available = false, bool clones = false,
                         const std::string &system = "ALL", const std::string &editor = "ALL",
                         const std::string &developer = "ALL", const std::string &player = "ALL",
-                        const std::string &rating = "ALL", const std::string &topstaff = "ALL",
-                        const std::string &rotation = "ALL", const std::string &resolution = "ALL",
-                        const std::string &date = "ALL", const std::string &genre = "ALL");
+                        const std::string &rating = "ALL", const std::string &rotation = "ALL",
+                        const std::string &resolution = "ALL", const std::string &date = "ALL",
+                        const std::string &genre = "ALL");
 
         GameList filter(bool available = false, bool clones = false,
                         int system = -1, int editor = -1, int developer = -1,
-                        int players = -1, int rating = -1, int topstaff = -1,
-                        int rotation = -1, const std::string &resolution = "All",
-                        const std::string &date = "All", const std::string &genre = "All");
+                        int players = -1, int rating = -1, int rotation = -1,
+                        const std::string &resolution = "All", const std::string &date = "All",
+                        const std::string &genre = "All");
 
-        bool save(const std::string &dstPath,
-                  const Game::Language &language = Game::Language::EN,
-                  const Format &format = ScreenScrapper, const std::vector<std::string> &mediaList = {});
+        bool save(const std::string &dstPath, const std::vector<std::string> &mediaList = {});
 
         std::vector<Game> findGamesByName(const std::string &name);
 
         std::vector<Game> findGamesByName(const Game &game);
 
-        Game findGameByRomId(long romId);
+        Game findGameById(long romId);
 
         Game findGameByPath(const std::string &path);
 
         Game findGameByPathAndSystem(const std::string &path, int systemId);
-
-        Game::System findSystemByName(const std::string &name);
-
-        std::vector<std::string> getSystemNames();
 
         Game::Editor findEditorByName(const std::string &name);
 
@@ -82,14 +78,13 @@ namespace ss_api {
 
         std::string xml;
         Format format = EmulationStation;
+        SystemList systemList;
         std::vector<std::string> romPaths;
         std::vector<Game> games;
-        std::vector<Game::System> systems;
         std::vector<Game::Editor> editors;
         std::vector<Game::Developer> developers;
         std::vector<int> players;
         std::vector<int> ratings;
-        std::vector<std::string> topStaffs;
         std::vector<int> rotations;
         std::vector<std::string> resolutions;
         std::vector<std::string> dates;

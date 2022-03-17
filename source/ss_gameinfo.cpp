@@ -72,7 +72,7 @@ ss_api::GameInfo::GameInfo(const std::string &crc, const std::string &md5, const
     if (gameNode == nullptr) {
         SS_PRINT("GameInfo: wrong xml format: \'jeu\' tag not found\n");
     } else {
-        Game::parseGame(&game, gameNode, romnom);
+        Game::parseGame(&game, gameNode, romnom, GameList::Format::ScreenScraper);
     }
 
     doc.Clear();

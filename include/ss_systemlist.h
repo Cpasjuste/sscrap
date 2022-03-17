@@ -9,6 +9,8 @@
 #include <vector>
 #include <tinyxml2.h>
 
+#include "ss_sytem.h"
+
 #define SYSTEM_ID_COLECO 48
 #define SYSTEM_ID_GAMEGEAR 21
 #define SYSTEM_ID_SMS 2
@@ -34,47 +36,20 @@ namespace ss_api {
 
     class SystemList {
     public:
-
-        struct System {
-            System() = default;
-
-            struct Names {
-                Names() = default;
-
-                std::string eu;
-                std::string nom_us;
-                std::string recalbox;
-                std::string retropie;
-                std::string launchbox;
-                std::string hyperspin;
-                std::string common;
-            };
-
-            std::string id;
-            std::string parentid;
-            Names names;
-            std::string extensions;
-            std::string company;
-            std::string type;
-            std::string startdate;
-            std::string enddate;
-            std::string romtype;
-            std::string supporttype;
-
-            int getId() {
-                return std::stoi(id);
-            }
-        };
-
         SystemList() = default;
 
         SystemList(const std::string &ssid, const std::string &sspassword, int retryDelay = 10);
 
-        System findById(const std::string &id);
+        System findById(int id);
+
+        System findByName(const std::string &name);
+
+        std::vector<std::string> getNames();
+
+        std::vector<System> systems;
 
         static bool parseSystem(System *system, tinyxml2::XMLNode *systemNode);
 
-        std::vector<System> systems;
         int http_error = 0;
     };
 }
