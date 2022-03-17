@@ -243,6 +243,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         game->developer.id = Api::getXmlAttrInt(gameNode->FirstChildElement("developpeur"), "id");
         game->developer.name = Api::getXmlTextStr(gameNode->FirstChildElement("developpeur"));
     } else {
+        game->developer.id = Api::getXmlAttrInt(gameNode->FirstChildElement("developer"), "id");
         game->developer.name = Api::getXmlTextStr(gameNode->FirstChildElement("developer"));
     }
 
@@ -251,6 +252,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
         game->editor.id = Api::getXmlAttrInt(gameNode->FirstChildElement("editeur"), "id");
         game->editor.name = Api::getXmlTextStr(gameNode->FirstChildElement("editeur"));
     } else {
+        game->editor.id = Api::getXmlAttrInt(gameNode->FirstChildElement("publisher"), "id");
         game->editor.name = Api::getXmlTextStr(gameNode->FirstChildElement("publisher"));
     }
 

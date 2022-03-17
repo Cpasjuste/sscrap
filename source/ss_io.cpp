@@ -95,7 +95,7 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                 if (ent->d_name[0] == '.') {
                     continue;
                 }
-#if defined(__SWITCH__) || defined(__VITA__)
+#if defined(__SWITCH__) || defined(__VITA__) || defined(__PS4__)
                 // stat is too slow on switch
                 File file = {ent->d_name, path + "/" + ent->d_name};
                 if (file.name.length() > 3 && file.name[file.name.length() - 4] == '.') {
