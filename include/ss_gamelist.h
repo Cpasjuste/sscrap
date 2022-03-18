@@ -36,8 +36,8 @@ namespace ss_api {
                         int players = -1, int rating = -1, int rotation = -1, int genre = -1,
                         const std::string &resolution = "ALL", const std::string &date = "ALL");
 
-        bool save(const std::string &dstPath, const std::string &imageMedia,
-                  const std::string &thumbnailMedia, const std::string &videoMedia);
+        bool save(const std::string &dstPath, const std::string &imageType,
+                  const std::string &thumbnailType, const std::string &videoType);
 
         std::vector<Game> findGamesByName(const std::string &name);
 

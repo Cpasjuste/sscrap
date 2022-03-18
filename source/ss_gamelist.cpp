@@ -173,8 +173,8 @@ void GameList::sortAlpha(bool byZipName, bool gamesOnly) {
     }
 }
 
-bool GameList::save(const std::string &dstPath, const std::string &imageMedia,
-                    const std::string &thumbnailMedia, const std::string &videoMedia) {
+bool GameList::save(const std::string &dstPath, const std::string &imageType,
+                    const std::string &thumbnailType, const std::string &videoType) {
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLElement *elem;
 
@@ -229,7 +229,7 @@ bool GameList::save(const std::string &dstPath, const std::string &imageMedia,
         // pemu
 
         const std::vector<std::string> es_names = {"image", "thumbnail", "video"};
-        const std::vector<std::string> ss_names = {imageMedia, thumbnailMedia, videoMedia};
+        const std::vector<std::string> ss_names = {imageType, thumbnailType, videoType};
         for (size_t i = 0; i < 3; i++) {
             Game::Media media = game.getMedia(ss_names.at(i));
             if (!media.url.empty()) {
@@ -244,7 +244,6 @@ bool GameList::save(const std::string &dstPath, const std::string &imageMedia,
                 }
             }
         }
-
         pGames->InsertEndChild(gameElement);
     }
 
