@@ -173,7 +173,8 @@ void GameList::sortAlpha(bool byZipName, bool gamesOnly) {
     }
 }
 
-bool GameList::save(const std::string &dstPath, const std::vector<std::string> &mediaList) {
+bool GameList::save(const std::string &dstPath, const std::string &imageMedia,
+                    const std::string &thumbnailMedia, const std::string &videoMedia) {
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLElement *elem;
 
@@ -227,20 +228,20 @@ bool GameList::save(const std::string &dstPath, const std::vector<std::string> &
         Api::addXmlElement(&doc, gameElement, "resolution", game.resolution);
         // pemu
 
-        const std::vector<std::string> names = {"image", "thumbnail", "video"};
-        for (size_t i = 0; i < names.size(); i++) {
-            if (mediaList.size() > names.size()) {
-                break;
-            }
-            Game::Media media = game.getMedia(mediaList.at(i));
+        const std::vector<std::string> es_names = {"image", "thumbnail", "video"};
+        const std::vector<std::string> ss_names = {imageMedia, thumbnailMedia, videoMedia};
+        for (size_t i = 0; i < 3; i++) {
+            Game::Media media = game.getMedia(ss_names.at(i));
             if (!media.url.empty()) {
                 std::string mediaPath = media.url;
                 if (mediaPath.rfind("http", 0) == 0) {
-                    mediaPath = "media/" + mediaList.at(i) + "/"
-                                + game.path.substr(0, game.path.find_last_of('.') + 1)
-                                + media.format;
+                    mediaPath = "media/" + ss_names.at(i) + "/"
+                                + game.path.substr(0, game.path.find_last_of('.') + 1) + media.format;
                 }
-                Api::addXmlElement(&doc, gameElement, names.at(i), mediaPath);
+                elem = Api::addXmlElement(&doc, gameElement, es_names.at(i), mediaPath);
+                if (elem) {
+                    elem->SetAttribute("type", media.type.c_str());
+                }
             }
         }
 

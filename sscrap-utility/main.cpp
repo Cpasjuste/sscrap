@@ -555,12 +555,8 @@ void Scrap::run() {
         }
 
         if (!gameList.games.empty()) {
-            // save gamelist.xml (emulationstation format)
-            std::vector<std::string> mediaList;
-            mediaList.emplace_back(args.get("-i"));
-            mediaList.emplace_back(args.get("-t"));
-            mediaList.emplace_back(args.get("-v"));
-            gameList.save(romPath + "/gamelist.xml", mediaList);
+            // save gamelist.xml
+            gameList.save(romPath + "/gamelist.xml", args.get("-i"), args.get("-t"), args.get("-v"));
         }
 
         // print results

@@ -201,9 +201,12 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
             }
         }
     } else {
-        game->medias.push_back({Api::getXmlTextStr(gameNode->FirstChildElement("image")), "sstitle", "png"});
-        game->medias.push_back({Api::getXmlTextStr(gameNode->FirstChildElement("thumbnail")), "ss", "png"});
-        game->medias.push_back({Api::getXmlTextStr(gameNode->FirstChildElement("video")), "video", "mp4"});
+        element = gameNode->FirstChildElement("image");
+        game->medias.push_back({Api::getXmlTextStr(element), Api::getXmlAttrStr(element, "type"), "png"});
+        element = gameNode->FirstChildElement("thumbnail");
+        game->medias.push_back({Api::getXmlTextStr(element), Api::getXmlAttrStr(element, "type"), "png"});
+        element = gameNode->FirstChildElement("video");
+        game->medias.push_back({Api::getXmlTextStr(element), Api::getXmlAttrStr(element, "type"), "mp4"});
     }
 
     // game rating
