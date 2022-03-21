@@ -221,7 +221,7 @@ bool GameList::save(const std::string &dstPath, const std::string &imageType,
         Api::addXmlElement(&doc, gameElement, "cloneof", game.cloneOf);
         elem = Api::addXmlElement(&doc, gameElement, "system", game.system.name);
         elem->SetAttribute("id", game.system.id);
-        elem->SetAttribute("parentId", game.system.parentId);
+        elem->SetAttribute("parentid", game.system.parentId);
         if (game.rotation != 0) {
             Api::addXmlElement(&doc, gameElement, "rotation", std::to_string(game.rotation));
         }
@@ -259,8 +259,8 @@ bool GameList::save(const std::string &dstPath, const std::string &imageType,
     return true;
 }
 
-GameList GameList::filter(bool available, bool clones, int system, int editor,
-                          int developer, int player, int rating, int rotation, int genre,
+GameList GameList::filter(bool available, bool clones, int system, int parent_system,
+                          int editor, int developer, int player, int rating, int rotation, int genre,
                           const std::string &resolution, const std::string &date) {
     GameList gameList;
     gameList.xml = xml;
@@ -276,11 +276,12 @@ GameList GameList::filter(bool available, bool clones, int system, int editor,
     gameList.genres = genres;
 
     std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
-                 [available, clones, system, editor, developer, player, rating,
+                 [available, clones, system, parent_system, editor, developer, player, rating,
                          rotation, genre, resolution, date](const Game &game) {
                      return (!available || (available && game.available))
                             && (clones || !game.isClone())
                             && (system == -1 || game.system.id == system)
+                            && (parent_system == -1 || game.system.parentId == parent_system)
                             && (editor == -1 || game.editor.id == editor)
                             && (developer == -1 || game.developer.id == developer)
                             && (player == -1 || game.playersInt == player)

@@ -32,7 +32,7 @@ namespace ss_api {
         void sortAlpha(bool byZipName = false, bool gamesOnly = true);
 
         GameList filter(bool available = false, bool clones = false,
-                        int system = -1, int editor = -1, int developer = -1,
+                        int system = -1, int parent_system = -1, int editor = -1, int developer = -1,
                         int players = -1, int rating = -1, int rotation = -1, int genre = -1,
                         const std::string &resolution = "ALL", const std::string &date = "ALL");
 
