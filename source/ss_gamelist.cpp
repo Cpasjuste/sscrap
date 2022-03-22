@@ -10,11 +10,13 @@
 
 using namespace ss_api;
 
-GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool sort, bool addUnknownFiles) {
-    append(xmlPath, rPath, sort, addUnknownFiles);
+GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool sort,
+                   const std::vector<std::string> &filters) {
+    append(xmlPath, rPath, sort, filters);
 }
 
-bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort, bool addUnknownFiles) {
+bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort,
+                      const std::vector<std::string> &filters) {
     tinyxml2::XMLDocument doc;
     std::vector<Io::File> files;
 
@@ -44,11 +46,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
 
     if (!rPath.empty()) {
         romPaths.emplace_back(rPath);
-        if (addUnknownFiles) {
-            files = Io::getDirList(rPath, false, {});
-        } else {
-            files = Io::getDirList(rPath, false);
-        }
+        files = Io::getDirList(rPath, false, filters);
     }
 
     while (gameNode) {
@@ -133,15 +131,14 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         gameNode = gameNode->NextSibling();
     }
 
-    if (addUnknownFiles) {
-        for (const auto &file: files) {
-            Game game;
-            game.path = file.name;
-            game.romsPath = rPath;
-            game.name = file.name;
-            game.available = true;
-            games.emplace_back(game);
-        }
+    // add "unknown" files (not in database)
+    for (const auto &file: files) {
+        Game game;
+        game.path = file.name;
+        game.romsPath = rPath;
+        game.name = file.name;
+        game.available = true;
+        games.emplace_back(game);
     }
 
     if (sort) {

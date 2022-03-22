@@ -24,10 +24,10 @@ namespace ss_api {
         GameList() = default;
 
         explicit GameList(const std::string &xmlPath, const std::string &romPath = "",
-                          bool sort = true, bool addUnknownFiles = false);
+                          bool sort = true, const std::vector<std::string> &filters = {".zip"});
 
         bool append(const std::string &xmlPath, const std::string &romPath = "",
-                    bool sort = true, bool addUnknownFiles = false);
+                    bool sort = true, const std::vector<std::string> &filters = {".zip"});
 
         void sortAlpha(bool byZipName = false, bool gamesOnly = true);
 
