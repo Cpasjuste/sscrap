@@ -204,11 +204,11 @@ bool GameList::save(const std::string &dstPath, const std::string &imageType,
         }
         if (game.developer.id > 0) {
             elem = Api::addXmlElement(&doc, gameElement, "developer", game.developer.name);
-            elem->SetAttribute("id", game.developer.id);
+            if (elem) elem->SetAttribute("id", game.developer.id);
         }
         if (game.editor.id > 0) {
             elem = Api::addXmlElement(&doc, gameElement, "publisher", game.editor.name);
-            elem->SetAttribute("id", game.editor.id);
+            if (elem) elem->SetAttribute("id", game.editor.id);
         }
         if (game.genre.id > 0) {
             Api::addXmlElement(&doc, gameElement, "genre", game.genre.name);
@@ -218,8 +218,10 @@ bool GameList::save(const std::string &dstPath, const std::string &imageType,
         // pemu
         Api::addXmlElement(&doc, gameElement, "cloneof", game.cloneOf);
         elem = Api::addXmlElement(&doc, gameElement, "system", game.system.name);
-        elem->SetAttribute("id", game.system.id);
-        elem->SetAttribute("parentid", game.system.parentId);
+        if (elem) {
+            elem->SetAttribute("id", game.system.id);
+            elem->SetAttribute("parentid", game.system.parentId);
+        }
         if (game.rotation != 0) {
             Api::addXmlElement(&doc, gameElement, "rotation", std::to_string(game.rotation));
         }
@@ -237,9 +239,7 @@ bool GameList::save(const std::string &dstPath, const std::string &imageType,
                                 + game.path.substr(0, game.path.find_last_of('.') + 1) + media.format;
                 }
                 elem = Api::addXmlElement(&doc, gameElement, es_names.at(i), mediaPath);
-                if (elem) {
-                    elem->SetAttribute("type", media.type.c_str());
-                }
+                if (elem) elem->SetAttribute("type", media.type.c_str());
             }
         }
         pGames->InsertEndChild(gameElement);
