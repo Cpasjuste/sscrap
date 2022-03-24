@@ -28,12 +28,6 @@ public:
 
     static std::string getExt(const std::string &file);
 
-    static std::string getFileCrc(const std::string &path);
-
-    //static std::string getFileMd5(const std::string &path);
-
-    //static std::string getFileSha1(const std::string &path);
-
     static std::string getRomCrc(const std::string &zipPath, std::vector<std::string> whiteList = {});
 
     static ZipInfo getZipInfo(const std::string &path, const std::string &file);

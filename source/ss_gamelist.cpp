@@ -134,6 +134,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     // add "unknown" files (not in database)
     for (const auto &file: files) {
         Game game;
+        game.id = std::stol(Api::getFileCrc(rPath + "/" + file.name), nullptr, 16);
         game.path = file.name;
         game.romsPath = rPath;
         game.name = file.name;

@@ -158,7 +158,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
     }
 
     // first, search by zip crc
-    fileCrc = Utility::getFileCrc(filePath);
+    fileCrc = Api::getFileCrc(filePath);
     if (!fileCrc.empty()) {
         gameInfo = GameInfo(fileCrc, "", "", std::to_string(sid), romType,
                             fileName, "", "", usr, pwd, retryDelay);

@@ -103,54 +103,6 @@ std::string Utility::getRomCrc(const std::string &zipPath, std::vector<std::stri
     return buffer;
 }
 
-std::string Utility::getFileCrc(const std::string &zipPath) {
-
-    unsigned char buffer[BUFSIZ];
-    char hex[16];
-    size_t size;
-    FILE *pFile;
-
-    memset(hex, 0, 16);
-
-#ifndef __VITA__
-#ifdef _MSC_VER
-    fopen_s(&pFile, zipPath.c_str(), "rb");
-#else
-    pFile = fopen(zipPath.c_str(), "rb");
-#endif
-    if (pFile == nullptr) {
-        return hex;
-    }
-
-    uLong crc = crc32(0L, Z_NULL, 0);
-    while ((size = fread(buffer, 1, BUFSIZ, pFile)) != 0) {
-        crc = crc32(crc, buffer, size);
-    }
-    snprintf(hex, 16, "%08lx", crc);
-
-    fclose(pFile);
-#endif
-    return hex;
-}
-
-#if 0
-std::string Utility::getFileMd5(const std::string &path) {
-    if (!md5Wrapper) {
-        md5Wrapper = new md5wrapper();
-        sha1Wrapper = new sha1wrapper();
-    }
-    return md5Wrapper->getHashFromFile(path);
-}
-
-std::string Utility::getFileSha1(const std::string &path) {
-    if (!md5Wrapper) {
-        md5Wrapper = new md5wrapper();
-        sha1Wrapper = new sha1wrapper();
-    }
-    return sha1Wrapper->getHashFromFile(path);
-}
-#endif
-
 Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string &file) {
 
     ZipInfo info;
@@ -168,7 +120,7 @@ Utility::ZipInfo Utility::getZipInfo(const std::string &path, const std::string 
 
     info.name = file;
     info.size = std::to_string(Io::getSize(fullPath));
-    info.crc = getFileCrc(fullPath);
+    info.crc = Api::getFileCrc(fullPath);
     info.md5 = md5Wrapper->getHashFromFile(fullPath);
     info.sha1 = sha1Wrapper->getHashFromFile(fullPath);
 
@@ -185,46 +137,3 @@ std::string Utility::getZipInfoStr(const std::string &path, const std::string &f
     ZipInfo info = getZipInfo(path, file);
     return info.name + "|" + info.size + "|" + info.serial + "|" + info.crc + "|" + info.md5 + "|" + info.sha1;
 }
-
-#if 0
-void Utility::replace(std::string &str, const std::string &from, const std::string &to) {
-    size_t start_pos = str.find(from);
-    while (start_pos != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos = str.find(from);
-    }
-}
-
-void Utility::printGame(const Game &game) {
-
-    printf("\n===================================\n");
-    Game::Name name = game.getName(Game::Country::SS);
-    printf("nom (%s): %s (alternatives: %i)\n", Api::toString(name.country).c_str(), name.text.c_str(),
-           (int) game.names.size() - 1);
-    printf("available: %i\n", (int) game.available);
-    printf("path: %s\n", game.path.c_str());
-    printf("id: %s\n", std::to_string(game.id).c_str());
-    printf("cloneof: %s\n", game.cloneOf.c_str());
-    printf("system: %s (id: %s)\n", game.system.text.c_str(), std::to_string(game.system.id).c_str());
-    printf("editor: %s (id: %s)\n", game.editor.text.c_str(), std::to_string(game.editor.id).c_str());
-    printf("developer: %s (id: %s)\n", game.developer.text.c_str(), std::to_string(game.developer.id).c_str());
-    printf("players: %s\n", game.players.c_str());
-    printf("rating: %s\n", std::to_string(game.rating).c_str());
-    printf("topstaff: %s\n", game.topStaff ? "true" : "false");
-    printf("rotation: %s\n", std::to_string(game.rotation).c_str());
-    printf("resolution: %s\n", game.resolution.c_str());
-    Game::Synopsis synopsis = game.getSynopsis(Game::Language::EN);
-    printf("synopsis (%s): %s\n", Api::toString(synopsis.language).c_str(), synopsis.text.c_str());
-    Game::Date date = game.getDate(Game::Country::WOR);
-    printf("date (%s): %s\n", Api::toString(date.country).c_str(), date.text.c_str());
-    Game::Genre genre = game.getGenre(Game::Language::EN);
-    printf("genre (%s): %s\n", Api::toString(genre.language).c_str(), genre.text.c_str());
-    // print some medias
-    Game::Media media = game.getMedia("sstitle", Game::Country::WOR);
-    printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-    media = game.getMedia("ss", Game::Country::WOR);
-    printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-    media = game.getMedia("mixrbv2", Game::Country::WOR);
-    printf("media (%s): %s\n", media.type.c_str(), media.url.c_str());
-}
-#endif

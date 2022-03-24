@@ -84,6 +84,8 @@ namespace ss_api {
         static tinyxml2::XMLElement *addXmlElement(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement *parent,
                                                    const std::string &name, const std::string &value);
 
+        static std::string getFileCrc(const std::string &path);
+
 #ifdef __WINDOWS__
         static void printc(int color, const char* format, ...);
 #else

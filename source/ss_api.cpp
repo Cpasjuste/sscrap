@@ -3,6 +3,7 @@
 //
 
 #include <cstdarg>
+#include <zlib.h>
 #include "ss_api.h"
 
 using namespace ss_api;
@@ -185,6 +186,34 @@ bool Api::parseBool(const std::string &str, bool defValue) {
     }
 
     return str == "true" || str == "1";
+}
+
+std::string Api::getFileCrc(const std::string &zipPath) {
+    unsigned char buffer[BUFSIZ];
+    char hex[16];
+    size_t size;
+    FILE *pFile;
+
+    memset(hex, 0, 16);
+
+#ifdef _MSC_VER
+    fopen_s(&pFile, zipPath.c_str(), "rb");
+#else
+    pFile = fopen(zipPath.c_str(), "rb");
+#endif
+    if (!pFile) {
+        return hex;
+    }
+
+    uLong crc = crc32(0L, Z_NULL, 0);
+    while ((size = fread(buffer, 1, BUFSIZ, pFile)) != 0) {
+        crc = crc32(crc, buffer, size);
+    }
+    snprintf(hex, 16, "%08lx", crc);
+
+    fclose(pFile);
+
+    return hex;
 }
 
 #ifdef __WINDOWS__
