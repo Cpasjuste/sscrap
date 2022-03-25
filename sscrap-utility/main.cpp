@@ -228,13 +228,13 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
     }
 
     if (gameInfo.http_error == 0 && gameInfo.game.id > 0) {
-        // TODO: clones are not scrapped anymore, remove parent/clone stuff
         // process medias download
         bool processMedia = args.exist("-i") || args.exist("-t") || args.exist("-v");
         bool useParentMedia;
         if (processMedia) {
             // if rom media was already scrapped for a same "screenscraper game", skip it
             // this is useful for non arcade roms for which clone notion doesn't exist
+            // TODO: set "clone" media paths to parent media paths
             if (!args.exist("-c")) {
                 const std::string name = gameInfo.game.name;
                 auto it = std::find_if(namesList.begin(), namesList.end(),
@@ -246,9 +246,6 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                 }
             }
 
-            // now check for clones (replace medias path with parent medias path)
-            useParentMedia = !args.exist("-c") && gameInfo.game.isClone();
-
             // push game name to list
             pthread_mutex_lock(&mutex);
             namesList.emplace_back(gameInfo.game.name);
@@ -256,6 +253,9 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
             // process...
             if (processMedia) {
+                // now check for clones (replace medias path with parent medias path)
+                useParentMedia = !args.exist("-c") && gameInfo.game.isClone();
+
                 std::string mediaPath = romPath + "/media/";
                 if (!Io::exist(mediaPath) && !useParentMedia) {
                     Io::makedir(mediaPath);
