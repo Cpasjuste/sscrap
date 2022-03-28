@@ -232,24 +232,25 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
         bool processMedia = args.exist("-i") || args.exist("-t") || args.exist("-v");
         bool useParentMedia;
         if (processMedia) {
-            // if rom media was already scrapped for a same "screenscraper game", skip it
+            // if rom media was already scrapped for a same "screenscraper game", use it
             // this is useful for non arcade roms for which clone notion doesn't exist
-            // TODO: set "clone" media paths to parent media paths
             if (!args.exist("-c")) {
-                const std::string name = gameInfo.game.name;
-                auto it = std::find_if(namesList.begin(), namesList.end(),
-                                       [name](const std::string &n) {
-                                           return n == name;
-                                       });
-                if (it != namesList.end()) {
-                    processMedia = false;
+                std::vector<Game> clones = gameList.findGamesByName(gameInfo.game.name);
+                for (const auto &clone: clones) {
+                    if (!clone.medias.empty()) {
+                        gameInfo.game.medias = clone.medias;
+                        for (int i = 0; i < gameInfo.game.medias.size(); i++) {
+                            // use parent media path
+                            gameInfo.game.medias.at(i).url =
+                                    "media/" + gameInfo.game.medias.at(i).type + "/"
+                                    + clone.path.substr(0, clone.path.find_last_of('.') + 1)
+                                    + gameInfo.game.medias.at(i).format;
+                        }
+                        processMedia = false;
+                        break;
+                    }
                 }
             }
-
-            // push game name to list
-            pthread_mutex_lock(&mutex);
-            namesList.emplace_back(gameInfo.game.name);
-            pthread_mutex_unlock(&mutex);
 
             // process...
             if (processMedia) {

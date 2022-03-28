@@ -57,7 +57,6 @@ public:
     ss_api::GameList fbnGameList;
     std::vector<ss_api::Io::File> filesList;
     std::vector<ss_api::Io::File> cloneList;
-    std::vector<std::string> namesList;
     std::vector<MissFile> missList;
     ss_api::System system;
     int sscrapSystemId = 0;
