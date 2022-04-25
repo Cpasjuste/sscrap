@@ -61,13 +61,6 @@ ss_api::GameInfo::GameInfo(const std::string &crc, const std::string &md5, const
         return;
     }
 
-    tinyxml2::XMLNode *userNode = pRoot->FirstChildElement("ssuser");
-    if (userNode == nullptr) {
-        SS_PRINT("GameInfo: wrong xml format: \'ssuser\' tag not found\n");
-    } else {
-        User::parseUser(&user, userNode);
-    }
-
     tinyxml2::XMLNode *gameNode = pRoot->FirstChildElement("jeu");
     if (gameNode == nullptr) {
         SS_PRINT("GameInfo: wrong xml format: \'jeu\' tag not found\n");
