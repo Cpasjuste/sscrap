@@ -149,7 +149,6 @@ void Scrap::parseSid(int sid) {
 
 ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles, const std::string &fileName,
                               const std::string &filePath, const std::string &searchName) {
-    Game game = {};
     Game fbnGame = {};
     GameInfo gameInfo = {};
     std::string searchType = "none";
@@ -165,17 +164,15 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
     // first, search by zip crc
     fileCrc = Api::getFileCrc(filePath);
-    if (!fileCrc.empty()) {
-        gameInfo = GameInfo(fileCrc, "", "", std::to_string(sid), romType,
-                            fileName, "", "", usr, pwd, retryDelay);
-        if (gameInfo.http_error == 0) {
-            searchType = "file_crc";
-        } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
-            Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
-                                 "See https://www.screenscraper.fr if you want to support "
-                                 "screenscraper and maximize your quota!\n", tid);
-            return game;
-        }
+    gameInfo = GameInfo(fileCrc, "", "", std::to_string(sid), romType,
+                        fileName, "", "", usr, pwd, retryDelay);
+    if (gameInfo.http_error == 0) {
+        searchType = "file_crc";
+    } else if (gameInfo.http_error == 430 || gameInfo.http_error == 431 || gameInfo.http_error == 500) {
+        Api::printc(COLOR_R, "NOK: thread[%i] => Quota reached for today... "
+                             "See https://www.screenscraper.fr if you want to support "
+                             "screenscraper and maximize your quota!\n", tid);
+        return {};
     }
     SS_PRINT("game_info (file_crc): %s (%s), res = %i\n", searchName.c_str(), fileCrc.c_str(), gameInfo.http_error);
 
@@ -191,7 +188,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
                 Api::printc(COLOR_O, "NOK: thread[%i] => Quota reached for today... "
                                      "See https://www.screenscraper.fr if you want to support "
                                      "screenscraper and maximize your quota!\n", tid);
-                return game;
+                return {};
             }
         }
         SS_PRINT("game_info (rom_crc): %s (%s), res = %i\n", searchName.c_str(), romCrc.c_str(), gameInfo.http_error);
@@ -233,7 +230,10 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
         fixFbnGame(&gameInfo.game, &fbnGame);
     }
 
-    if (gameInfo.http_error == 0 && gameInfo.game.id > 0) {
+    if (gameInfo.http_error == 0) {
+        // screenscraper share the same "game id" for clones, we want a unique id here
+        gameInfo.game.id = std::stol(fileCrc, nullptr, 16);
+
         // process medias download
         bool processMedia = args.exist("-i") || args.exist("-t") || args.exist("-v");
         bool useParentMedia;
@@ -345,6 +345,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
         return gameInfo.game;
     } else {
+        Game game;
         // game not found, but add it to the list with default values
         if (isFbNeoSid) {
             game = fbnGame;

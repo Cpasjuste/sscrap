@@ -115,9 +115,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     }
 
     // game id (rom id)
-    game->id = format == GameList::Format::ScreenScraper ?
-               Api::getXmlAttrLong(gameNode->ToElement(), "romid") :
-               Api::getXmlAttrLong(gameNode->ToElement(), "id");
+    game->id = Api::getXmlAttrLong(gameNode->ToElement(), "id");
 
     // game path
     game->path = Api::getXmlTextStr(gameNode->FirstChildElement("path"));
