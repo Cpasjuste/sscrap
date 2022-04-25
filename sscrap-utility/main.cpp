@@ -534,7 +534,7 @@ void Scrap::run() {
                     filesList.erase(filesList.begin() + i);
                 }
             }
-            Api::printc(COLOR_G, "\nSkipped %i clones, will use parent information...\n\n", cloneList.size());
+            Api::printc(COLOR_G, "Skipped %i clones, will use parent information...\n\n", cloneList.size());
         }
 
         pthread_mutex_init(&mutex, nullptr);
