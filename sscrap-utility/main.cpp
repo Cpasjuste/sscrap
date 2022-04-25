@@ -553,11 +553,15 @@ void Scrap::run() {
         // if fbneo/mame system process clones now based on parent game
         if (isFbNeoSid) {
             Api::printc(COLOR_G, "\nPlease wait, processing clones...\n");
-            for (auto &i: cloneList) {
-                Game *game = getGameByParent(i);
-                // should always be found as we found it before...
+            for (auto &clone: cloneList) {
+                Game *game = getGameByParent(clone);
                 if (game) {
                     gameList.games.emplace_back(*game);
+                } else {
+                    // game was not found, parent was probably not scrapped...
+                    // TODO:
+                    Api::printc(COLOR_Y, "\t%s: parent rom not scrapped/available, skipping...\n",
+                                clone.name.c_str());
                 }
             }
         }
