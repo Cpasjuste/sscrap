@@ -51,10 +51,16 @@ ss_api::Game *Scrap::getGameByParent(const Io::File &file) {
     }
 
     Game *g = new Game(*parent);
+    g->id = std::stol(Api::getFileCrc(file.path), nullptr, 16);
+    g->name = clone->name;
     g->path = clone->path;
     g->cloneOf = parentPath;
-    g->name = clone->name;
-    g->medias.clear();
+    // set parent medias
+    for (auto &media: g->medias) {
+        media.url = "media/" + media.type + "/"
+                    + parent->path.substr(0, parent->path.find_last_of('.') + 1)
+                    + media.format;
+    }
 
     return g;
 }
@@ -520,7 +526,6 @@ void Scrap::run() {
         Api::printc(COLOR_G, "Scrapping system '%s', let's go!\n\n", system.name.c_str());
 
         // if fbneo/mame system filter clones to process them later with parent game
-        Api::printc(COLOR_G, "\nSkipping clones, will use parent games...\n");
         if (isFbNeoSid) {
             for (int i = filesCount - 1; i > -1; i--) {
                 if (isFbnClone(filesList.at(i))) {
@@ -528,6 +533,7 @@ void Scrap::run() {
                     filesList.erase(filesList.begin() + i);
                 }
             }
+            Api::printc(COLOR_G, "\nSkipped %i clones, will use parent information...\n\n", cloneList.size());
         }
 
         pthread_mutex_init(&mutex, nullptr);
