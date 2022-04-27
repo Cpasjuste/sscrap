@@ -81,15 +81,13 @@ elseif (PLATFORM_LINUX)
     if (PLATFORM_WINDOWS)
         # TODO: try to fix nghttp2 static linking...
         # https://github.com/google/brotli/issues/795
-        #list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
-        #list(APPEND LDFLAGS -static)
-        #[[
-        set(LDFLAGS curl.a ssh2.a
+        list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
+        set(LDFLAGS
+                curl.a ssh2.a zstd.a
                 tinyxml2.a nghttp2 idn2.a psl.a ssl.a
-                crypto.a crypt32.a unistring brotlidec-static.a
-                brotlicommon-static.a intl.a iconv.a wldap32.a ws2_32.a
+                crypto.a crypt32.a unistring brotlidec.a
+                brotlicommon.a intl.a iconv.a wldap32.a ws2_32.a
                 -static -static-libgcc -static-libstdc++)
-       ]]
     endif ()
 endif ()
 
