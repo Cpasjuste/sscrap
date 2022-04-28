@@ -10,7 +10,7 @@ option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
 option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
 option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
-include(Toolchain.cmake)
+#include(Toolchain.cmake)
 ####################
 # TARGET PLATFORM
 ####################
@@ -51,44 +51,43 @@ set(CMAKE_CXX_STANDARD 14)
 #####################
 if (PLATFORM_SWITCH)
     #####################
-    # SWITCH PLATORM
+    # SWITCH PLATFORM
     #####################
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     list(APPEND CFLAGS -D__SWITCH__)
     list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 nx)
 elseif (PLATFORM_VITA)
     #####################
-    # VITA PLATORM
+    # VITA PLATFORM
     #####################
     list(APPEND CFLAGS -D__VITA__)
     list(APPEND LDFLAGS ssl crypto)
 elseif (PLATFORM_PS4)
     #####################
-    # PS4 PLATORM
+    # PS4 PLATFORM
     #####################
     list(APPEND CFLAGS)
     list(APPEND LDFLAGS tinyxml2 mbedtls mbedcrypto mbedx509 SceNet)
 elseif (PLATFORM_3DS)
     #####################
-    # 3DS PLATORM
+    # 3DS PLATFORM
     #####################
     list(APPEND CFLAGS -D__3DS__)
     list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 ctru)
-elseif (PLATFORM_LINUX)
+elseif (PLATFORM_WINDOWS)
     #####################
-    # LINUX PLATORM
+    # WINDOWS PLATFORM
     #####################
-    if (PLATFORM_WINDOWS)
-        # TODO: try to fix nghttp2 static linking...
-        # https://github.com/google/brotli/issues/795
-        list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
-        set(LDFLAGS
-                curl.a ssh2.a zstd.a
-                tinyxml2.a nghttp2 idn2.a psl.a ssl.a
-                crypto.a crypt32.a unistring brotlidec.a
-                brotlicommon.a intl.a iconv.a wldap32.a ws2_32.a
-                -static -static-libgcc -static-libstdc++)
-    endif ()
+    # TODO: try to fix nghttp2 static linking...
+    # https://github.com/google/brotli/issues/795
+    list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
+    set(LDFLAGS
+            curl.a ssh2.a zstd.a
+            tinyxml2.a nghttp2 idn2.a psl.a ssl.a
+            crypto.a crypt32.a unistring
+            brotlidec.a brotlicommon.a
+            intl.a iconv.a wldap32.a ws2_32.a
+            -static -static-libgcc -static-libstdc++)
 endif ()
 
 #####################
