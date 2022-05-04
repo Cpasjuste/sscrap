@@ -10,6 +10,8 @@ option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
 option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
 option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
+option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
+option(PLATFORM_ANDROID "Android platform target (aarch64)" OFF)
 #include(Toolchain.cmake)
 ####################
 # TARGET PLATFORM
@@ -88,6 +90,8 @@ elseif (PLATFORM_WINDOWS)
             brotlidec.a brotlicommon.a
             intl.a iconv.a wldap32.a ws2_32.a
             -static -static-libgcc -static-libstdc++)
+elseif (PLATFORM_ANDROID)
+    list(APPEND LDFLAGS -ltinyxml2 -lssl -lcrypto)
 endif ()
 
 #####################
