@@ -70,7 +70,7 @@ namespace ss_api {
         static bool parseGame(Game *game, tinyxml2::XMLNode *gameNode,
                               const std::string &romName, int format);
 
-        long id = 0;
+        unsigned long id = 0;
         int rating = 0;
         int rotation = 0;
         bool available = false;
