@@ -51,7 +51,7 @@ ss_api::Game *Scrap::getGameByParent(const Io::File &file) {
     }
 
     Game *g = new Game(*parent);
-    g->id = std::stol(Api::getFileCrc(file.path), nullptr, 16);
+    g->id = std::stoll(Api::getFileCrc(file.path), nullptr, 16);
     g->name = clone->name;
     g->path = clone->path;
     g->cloneOf = parentPath;
@@ -232,7 +232,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
 
     if (gameInfo.http_error == 0) {
         // screenscraper share the same "game id" for clones, we want a unique id here
-        gameInfo.game.id = std::stol(fileCrc, nullptr, 16);
+        gameInfo.game.id = std::stoll(fileCrc, nullptr, 16);
 
         // process medias download
         bool processMedia = args.exist("-i") || args.exist("-t") || args.exist("-v");
@@ -349,7 +349,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
         // game not found, but add it to the list with default values
         if (isFbNeoSid) {
             game = fbnGame;
-            game.id = std::stol(fileCrc, nullptr, 16);
+            game.id = std::stoll(fileCrc, nullptr, 16);
             game.system = system;
             // fix missing tg16 system in screenscraper (for fbneo)
             if (sscrapSystemId == SYSTEM_ID_TG16) {
@@ -359,7 +359,7 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             }
         } else {
             game.name = searchName;
-            game.id = std::stol(fileCrc, nullptr, 16);
+            game.id = std::stoll(fileCrc, nullptr, 16);
             game.system = system;
             game.path = searchName;
         }
