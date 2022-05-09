@@ -11,12 +11,12 @@
 using namespace ss_api;
 
 GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool sort,
-                   const std::vector<std::string> &filters) {
-    append(xmlPath, rPath, sort, filters);
+                   const std::vector<std::string> &filters, const System &system) {
+    append(xmlPath, rPath, sort, filters, system);
 }
 
 bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort,
-                      const std::vector<std::string> &filters) {
+                      const std::vector<std::string> &filters, const System &system) {
     tinyxml2::XMLDocument doc;
     std::vector<Io::File> files;
 
@@ -138,6 +138,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         game.path = file.name;
         game.romsPath = rPath;
         game.name = file.name;
+        game.system = system;
         game.available = true;
         games.emplace_back(game);
     }
