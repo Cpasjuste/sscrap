@@ -43,7 +43,7 @@ namespace ss_api {
 
         std::vector<Game> findGamesByName(const Game &game);
 
-        Game findGameById(long romId);
+        Game findGameById(unsigned long romId);
 
         Game findGameByPath(const std::string &path);
 
@@ -67,9 +67,9 @@ namespace ss_api {
 
         std::vector<std::string> getRotationNames();
 
-        bool exist(long romId);
+        bool exist(unsigned long romId);
 
-        bool remove(long romId);
+        bool remove(unsigned long romId);
 
         size_t getAvailableCount();
 

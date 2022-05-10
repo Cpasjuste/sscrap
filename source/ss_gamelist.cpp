@@ -315,7 +315,7 @@ std::vector<Game> GameList::findGamesByName(const Game &game) {
     return matches;
 }
 
-Game GameList::findGameById(long id) {
+Game GameList::findGameById(unsigned long id) {
     auto it = std::find_if(games.begin(), games.end(), [id](const Game &game) {
         return game.id == id;
     });
@@ -441,7 +441,7 @@ std::vector<std::string> GameList::getPlayersNames() {
     return list;
 }
 
-bool GameList::exist(long id) {
+bool GameList::exist(unsigned long id) {
     auto it = std::find_if(games.begin(), games.end(), [id](const Game &game) {
         return game.id == id;
     });
@@ -449,7 +449,7 @@ bool GameList::exist(long id) {
     return it != games.end();
 }
 
-bool GameList::remove(long id) {
+bool GameList::remove(unsigned long id) {
     auto it = std::find_if(games.begin(), games.end(), [id](const Game &game) {
         return game.id == id;
     });
