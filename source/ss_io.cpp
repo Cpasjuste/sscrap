@@ -16,8 +16,10 @@
 
 #define mkdir(x, y) mkdir(x)
 #elif __VITA__
+
 #include <psp2/kernel/threadmgr.h>
 #include <psp2/io/stat.h>
+
 #define mkdir(x, y) sceIoMkdir(x, 06)
 #endif
 
@@ -98,7 +100,8 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
 #if defined(__SWITCH__) || defined(__VITA__) || defined(__PS4__)
                 // stat is too slow on switch
                 File file = {ent->d_name, path + "/" + ent->d_name};
-                if (file.name.length() > 3 && file.name[file.name.length() - 4] == '.') {
+                size_t len = file.name.length();
+                if (len > 3 && (file.name[len - 4] == '.' || file.name[len - 3] == '.')) {
                     file.isFile = true;
                 } else {
                     file.isFile = false;
@@ -133,7 +136,8 @@ std::vector<Io::File> Io::getDirList(const std::string &path, bool recursive,
                         std::string lowerName = toLower(file.name);
                         if (lowerName == "disc.gdi" || lowerName == "disc_optimized.gdi") {
                             std::string newGdiName = toLower(file.dc_header_title) + ".gdi";
-                            std::string newPath = path + "/" + newGdiName;
+                            std::string newPath = path + "/";
+                            newPath += newGdiName;
                             if (!rename(file.path.c_str(), newPath.c_str())) {
                                 file.name = newGdiName;
                                 file.path = newPath;
