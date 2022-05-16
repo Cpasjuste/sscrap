@@ -10,7 +10,7 @@ option(PLATFORM_RPI3 "RIP3 platform target" OFF)
 option(PLATFORM_SWITCH "Nintendo Switch platform target" OFF)
 option(PLATFORM_3DS "Nintendo 3DS platform target" OFF)
 option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
-option(PLATFORM_VITA "Sony PS Vita platform target" OFF)
+option(PLATFORM_PS4 "Sony PS4 platform target" OFF)
 option(PLATFORM_ANDROID "Android platform target (aarch64)" OFF)
 #include(Toolchain.cmake)
 ####################
@@ -76,6 +76,13 @@ elseif (PLATFORM_3DS)
     #####################
     list(APPEND CFLAGS -D__3DS__)
     list(APPEND LDFLAGS mbedtls mbedcrypto mbedx509 ctru)
+elseif (PLATFORM_LINUX)
+    #####################
+    # LINIX PLATFORM
+    #####################
+    # ubuntu does not come with a static tinyxml2 build...
+    list(REMOVE_ITEM LDFLAGS ${TinyXML2_LIBRARIES})
+    list(APPEND SOURCES external/tinyxml2/tinyxml2.cpp)
 elseif (PLATFORM_WINDOWS)
     #####################
     # WINDOWS PLATFORM
