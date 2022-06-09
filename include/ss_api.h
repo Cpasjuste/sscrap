@@ -41,6 +41,8 @@ namespace ss_api {
 
         static long parseLong(const std::string &str, long defValue = 0);
 
+        static unsigned long parseULong(const std::string &str, unsigned long defValue = 0);
+
         static float parseFloat(const std::string &str, float defValue = 0);
 
         static bool parseBool(const std::string &str, bool defValue = false);
@@ -68,6 +70,8 @@ namespace ss_api {
         static int getXmlAttrInt(tinyxml2::XMLElement *element, const std::string &name);
 
         static long getXmlAttrLong(tinyxml2::XMLElement *element, const std::string &name);
+
+        static unsigned long getXmlAttrULong(tinyxml2::XMLElement *element, const std::string &name);
 
         static bool getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name);
 

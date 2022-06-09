@@ -31,6 +31,11 @@ long Api::getXmlAttrLong(tinyxml2::XMLElement *element, const std::string &name)
     return parseLong(attr);
 }
 
+unsigned long Api::getXmlAttrULong(tinyxml2::XMLElement *element, const std::string &name) {
+    std::string attr = getXmlAttrStr(element, name);
+    return parseULong(attr);
+}
+
 bool Api::getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name) {
     std::string attr = getXmlAttrStr(element, name);
     return parseBool(attr);
@@ -171,6 +176,15 @@ long Api::parseLong(const std::string &str, long defValue) {
     return defValue;
 }
 
+unsigned long Api::parseULong(const std::string &str, unsigned long defValue) {
+    char *end = nullptr;
+    unsigned long i = strtoll(str.c_str(), &end, 10);
+    if (end != nullptr && end != str.c_str()) {
+        return i;
+    }
+    return defValue;
+}
+
 float Api::parseFloat(const std::string &str, float defValue) {
     char *end = nullptr;
     float f = strtof(str.c_str(), &end);
@@ -217,9 +231,9 @@ std::string Api::getFileCrc(const std::string &zipPath) {
 }
 
 #ifdef __WINDOWS__
-void Api::printc(int color, const char* format, ...) {
-#else
 
+void Api::printc(int color, const char *format, ...) {
+#else
 void Api::printc(const char *color, const char *format, ...) {
 #endif
 
