@@ -131,6 +131,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         gameNode = gameNode->NextSibling();
     }
 
+    doc.Clear();
+
     // add "unknown" files (not in database)
     for (const auto &file: files) {
         Game game;
