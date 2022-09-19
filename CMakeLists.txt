@@ -89,13 +89,13 @@ elseif (PLATFORM_WINDOWS)
     #####################
     # TODO: try to fix nghttp2 static linking...
     # https://github.com/google/brotli/issues/795
-    list(APPEND CFLAGS -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
+    list(APPEND CFLAGS -D__WINDOWS__ -DCURL_STATICLIB -DNGHTTP2_STATICLIB)
     set(LDFLAGS
             curl.a ssh2.a zstd.a
             tinyxml2.a nghttp2 idn2.a psl.a ssl.a
-            crypto.a crypt32.a unistring
+            crypto.a crypt32.a bcrypt.a unistring
             brotlidec.a brotlicommon.a
-            intl.a iconv.a wldap32.a ws2_32.a
+            intl.a iconv.a wldap32.a ws2_32.a z.a
             -static -static-libgcc -static-libstdc++)
 elseif (PLATFORM_ANDROID)
     list(APPEND LDFLAGS -ltinyxml2 -lssl -lcrypto)

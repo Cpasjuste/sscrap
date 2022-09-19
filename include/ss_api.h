@@ -93,9 +93,7 @@ namespace ss_api {
 #ifdef __WINDOWS__
         static void printc(int color, const char* format, ...);
 #else
-
         static void printc(const char *color, const char *format, ...);
-
 #endif
 
         static void printe(int code, int delay);
