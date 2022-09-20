@@ -20,118 +20,115 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
     tinyxml2::XMLDocument doc;
     std::vector<Io::File> files;
 
-    xml = xmlPath;
-    tinyxml2::XMLError e = doc.LoadFile(xmlPath.c_str());
-    if (e != tinyxml2::XML_SUCCESS) {
-        SS_PRINT("GameList: %s\n", doc.ErrorName());
-        doc.Clear();
-        return false;
-    }
-
-    tinyxml2::XMLNode *pRoot = doc.FirstChildElement("gameList");
-    if (!pRoot) {
-        pRoot = doc.FirstChildElement("datafile");
-        if (!pRoot) {
-            SS_PRINT("GameList: wrong xml format: \'Data\', \'gameList\' or \'datafile\' tag not found\n");
-            format = Format::Unknown;
-            doc.Clear();
-            return false;
-        }
-        format = Format::FbNeoDat;
-    } else {
-        format = Format::EmulationStation;
-    }
-
-    tinyxml2::XMLNode *gameNode = pRoot->FirstChildElement("game");
-
+    // add all files first
     if (!rPath.empty()) {
         romPaths.emplace_back(rPath);
         files = Io::getDirList(rPath, false, filters);
     }
 
-    while (gameNode) {
-        Game game;
-        Game::parseGame(&game, gameNode, "", format);
-        // set game "real path", minus filename (for pFBN)
-        game.romsPath = rPath;
-        // is rom available?
-        //auto p = std::find(files.begin(), files.end(), game.path);
-        const std::string n = game.path;
-        auto it = std::find_if(files.begin(), files.end(), [n](const Io::File &f) {
-            return f.name == n;
-        });
-        if (it != files.end()) {
-            game.available = true;
-            files.erase(it);
+    xml = xmlPath;
+    tinyxml2::XMLError e = doc.LoadFile(xmlPath.c_str());
+    if (e == tinyxml2::XML_SUCCESS) {
+        tinyxml2::XMLNode *pRoot = doc.FirstChildElement("gameList");
+        if (!pRoot) {
+            pRoot = doc.FirstChildElement("datafile");
+            if (!pRoot) {
+                SS_PRINT("GameList: wrong xml format: \'Data\', \'gameList\' or \'datafile\' tag not found\n");
+                format = Format::Unknown;
+                doc.Clear();
+                return false;
+            }
+            format = Format::FbNeoDat;
+        } else {
+            format = Format::EmulationStation;
         }
 
-        // add stuff for later filtering
-        System sys1 = game.system.name.empty() ? System{0, 0, "UNKNOWN"} : game.system;
-        auto itSys = std::find_if(systemList.systems.begin(), systemList.systems.end(), [sys1](const System &sys2) {
-            return sys1.id == sys2.id || sys1.name == sys2.name;;
-        });
-        if (itSys == systemList.systems.end()) {
-            systemList.systems.emplace_back(sys1);
+        tinyxml2::XMLNode *gameNode = pRoot->FirstChildElement("game");
+        while (gameNode) {
+            Game game;
+            Game::parseGame(&game, gameNode, "", format);
+            // set game "real path", minus filename (for pFBN)
+            game.romsPath = rPath;
+            // is rom available?
+            //auto p = std::find(files.begin(), files.end(), game.path);
+            const std::string n = game.path;
+            auto it = std::find_if(files.begin(), files.end(), [n](const Io::File &f) {
+                return f.name == n;
+            });
+            if (it != files.end()) {
+                game.available = true;
+                files.erase(it);
+            }
+
+            // add stuff for later filtering
+            System sys1 = game.system.name.empty() ? System{0, 0, "UNKNOWN"} : game.system;
+            auto itSys = std::find_if(systemList.systems.begin(), systemList.systems.end(), [sys1](const System &sys2) {
+                return sys1.id == sys2.id || sys1.name == sys2.name;;
+            });
+            if (itSys == systemList.systems.end()) {
+                systemList.systems.emplace_back(sys1);
+            }
+
+            Game::Editor ed = game.editor.name.empty() ? Game::Editor{0, "UNKNOWN"} : game.editor;
+            auto itEd = std::find_if(editors.begin(), editors.end(), [ed](const Game::Editor &e) {
+                return ed.id == e.id || ed.name == e.name;
+            });
+            if (itEd == editors.end()) {
+                editors.emplace_back(ed);
+            }
+
+            Game::Developer dev = game.developer.name.empty() ? Game::Developer{0, "UNKNOWN"} : game.developer;
+            auto itDev = std::find_if(developers.begin(), developers.end(), [dev](const Game::Developer &d) {
+                return dev.id == d.id || dev.name == d.name;
+            });
+            if (itDev == developers.end()) {
+                developers.emplace_back(dev);
+            }
+
+            Game::Genre genre = game.genre.name.empty() ? Game::Genre{0, "UNKNOWN"} : game.genre;
+            auto itGenre = std::find_if(genres.begin(), genres.end(), [genre](const Game::Genre &g) {
+                return genre.id == g.id || genre.name == g.name;
+            });
+            if (itGenre == genres.end()) {
+                genres.emplace_back(genre);
+            }
+
+            auto itPlayers = std::find(players.begin(), players.end(), game.playersInt);
+            if (itPlayers == players.end()) {
+                players.emplace_back(game.playersInt);
+            }
+
+            auto itRat = std::find(ratings.begin(), ratings.end(), game.rating);
+            if (itRat == ratings.end()) {
+                ratings.emplace_back(game.rating);
+            }
+
+            auto itRot = std::find(rotations.begin(), rotations.end(), game.rotation);
+            if (itRot == rotations.end()) {
+                rotations.emplace_back(game.rotation);
+            }
+
+            std::string resolution = game.resolution.empty() ? "UNKNOWN" : game.resolution;
+            auto it2 = std::find(resolutions.begin(), resolutions.end(), resolution);
+            if (it2 == resolutions.end()) {
+                resolutions.emplace_back(resolution);
+            }
+
+            it2 = std::find(dates.begin(), dates.end(), game.date);
+            if (it2 == dates.end()) {
+                dates.emplace_back(game.date);
+            }
+
+            // add game to game list
+            games.emplace_back(game);
+
+            // move to next node (game)
+            gameNode = gameNode->NextSibling();
         }
-
-        Game::Editor ed = game.editor.name.empty() ? Game::Editor{0, "UNKNOWN"} : game.editor;
-        auto itEd = std::find_if(editors.begin(), editors.end(), [ed](const Game::Editor &e) {
-            return ed.id == e.id || ed.name == e.name;
-        });
-        if (itEd == editors.end()) {
-            editors.emplace_back(ed);
-        }
-
-        Game::Developer dev = game.developer.name.empty() ? Game::Developer{0, "UNKNOWN"} : game.developer;
-        auto itDev = std::find_if(developers.begin(), developers.end(), [dev](const Game::Developer &d) {
-            return dev.id == d.id || dev.name == d.name;
-        });
-        if (itDev == developers.end()) {
-            developers.emplace_back(dev);
-        }
-
-        Game::Genre genre = game.genre.name.empty() ? Game::Genre{0, "UNKNOWN"} : game.genre;
-        auto itGenre = std::find_if(genres.begin(), genres.end(), [genre](const Game::Genre &g) {
-            return genre.id == g.id || genre.name == g.name;
-        });
-        if (itGenre == genres.end()) {
-            genres.emplace_back(genre);
-        }
-
-        auto itPlayers = std::find(players.begin(), players.end(), game.playersInt);
-        if (itPlayers == players.end()) {
-            players.emplace_back(game.playersInt);
-        }
-
-        auto itRat = std::find(ratings.begin(), ratings.end(), game.rating);
-        if (itRat == ratings.end()) {
-            ratings.emplace_back(game.rating);
-        }
-
-        auto itRot = std::find(rotations.begin(), rotations.end(), game.rotation);
-        if (itRot == rotations.end()) {
-            rotations.emplace_back(game.rotation);
-        }
-
-        std::string resolution = game.resolution.empty() ? "UNKNOWN" : game.resolution;
-        auto it2 = std::find(resolutions.begin(), resolutions.end(), resolution);
-        if (it2 == resolutions.end()) {
-            resolutions.emplace_back(resolution);
-        }
-
-        it2 = std::find(dates.begin(), dates.end(), game.date);
-        if (it2 == dates.end()) {
-            dates.emplace_back(game.date);
-        }
-
-        // add game to game list
-        games.emplace_back(game);
-
-        // move to next node (game)
-        gameNode = gameNode->NextSibling();
+        doc.Clear();
+    } else {
+        SS_PRINT("GameList: %s\n", doc.ErrorName());
     }
-
-    doc.Clear();
 
     // add "unknown" files (not in database)
     for (const auto &file: files) {

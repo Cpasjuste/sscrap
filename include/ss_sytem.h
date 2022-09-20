@@ -19,7 +19,7 @@ namespace ss_api {
             this->name = name;
         }
 
-        std::string name;
+        std::string name = "UNKNOWN";
         int id = 0;
         int parentId = 0;
     };
