@@ -337,7 +337,11 @@ ss_api::Game Scrap::scrapGame(int tid, int tryCount, int sid, int remainingFiles
             gameInfo.game.system.name = "PC Engine TurboGrafx";
         }
 
+#ifdef __WINDOWS__
+        int color = searchType == "game_search" ? COLOR_Y : COLOR_G;
+#else
         const char *color = searchType == "game_search" ? COLOR_Y : COLOR_G;
+#endif
         Api::printc(color, "[%i/%i] OK: %s => %s (%s) (%s)\n",
                     filesCount - remainingFiles, filesCount,
                     fileName.c_str(), gameInfo.game.name.c_str(),
