@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 ####################
@@ -29,10 +29,10 @@ list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(ZLIB REQUIRED)
 find_package(CURL REQUIRED)
 
-cmake_host_system_information(RESULT HOST_DISTRIB_NAME QUERY DISTRIB_NAME)
+cmake_host_system_information(RESULT HOST_OS_NAME QUERY OS_NAME)
 if(PLATFORM_WINDOWS)
   find_package(TinyXML2 REQUIRED)
-elseif(HOST_DISTRIB_NAME STREQUAL "MSYS2")
+elseif(HOST_OS_NAME MATCHES "MSYS")
   find_package(TinyXML2 CONFIG QUIET)
   if(TinyXML2_FOUND)
     find_path(TINYXML2_INCLUDE_DIR NAMES tinyxml2.h)
