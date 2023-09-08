@@ -122,6 +122,10 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     if (game->path.empty()) {
         game->path = romName;
     }
+    // recalbox only ?
+    if (game->path.length() > 1 && game->path[0] == '.' && game->path[1] == '/') {
+        game->path = game->path.replace(0, 2, "");
+    }
 
     // game name
     if (format == GameList::Format::ScreenScraper) {
