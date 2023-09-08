@@ -13,9 +13,9 @@ std::string Api::ss_devpassword;
 std::string Api::ss_softname;
 bool ss_debug = false;
 
-std::string Api::getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name) {
+std::string Api::getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name, const std::string &defaultValue) {
     if (element == nullptr || element->Attribute(name.c_str()) == nullptr) {
-        return "";
+        return defaultValue;
     }
 
     return element->Attribute(name.c_str());

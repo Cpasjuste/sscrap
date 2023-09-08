@@ -65,7 +65,7 @@ namespace ss_api {
         static bool sortGenreByName(const Game::Genre &g1, const Game::Genre &g2);
 
         // get attributes
-        static std::string getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name);
+        static std::string getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name, const std::string &defaultValue = "");
 
         static int getXmlAttrInt(tinyxml2::XMLElement *element, const std::string &name);
 
