@@ -23,11 +23,8 @@ namespace ss_api {
 
         GameList() = default;
 
-        explicit GameList(const std::string &xmlPath, const std::string &romPath = "", bool sort = true,
-                          const std::vector<std::string> &filters = {".zip"}, const System &system = {});
-
         bool append(const std::string &xmlPath, const std::string &romPath = "", bool sort = true,
-                    const std::vector<std::string> &filters = {".zip"}, const System &system = {});
+                    const std::vector<std::string> &filters = {".zip"}, const System &system = {}, bool availableOnly = false);
 
         void sortAlpha(bool byZipName = false, bool gamesOnly = true);
 
@@ -42,6 +39,8 @@ namespace ss_api {
         std::vector<Game> findGamesByName(const std::string &name);
 
         std::vector<Game> findGamesByName(const Game &game);
+
+        std::vector<Game> findGamesBySystem(int systemId);
 
         Game findGameById(unsigned long romId);
 

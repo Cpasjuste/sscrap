@@ -10,13 +10,8 @@
 
 using namespace ss_api;
 
-GameList::GameList(const std::string &xmlPath, const std::string &rPath, bool sort,
-                   const std::vector<std::string> &filters, const System &system) {
-    append(xmlPath, rPath, sort, filters, system);
-}
-
 bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort,
-                      const std::vector<std::string> &filters, const System &system) {
+                      const std::vector<std::string> &filters, const System &system, bool availableOnly) {
     tinyxml2::XMLDocument doc;
     std::vector<Io::File> files;
 
@@ -58,6 +53,10 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             if (it != files.end()) {
                 game.available = true;
                 files.erase(it);
+            } else if (availableOnly) {
+                // move to next node (game)
+                gameNode = gameNode->NextSibling();
+                continue;
             }
 
             // add stuff for later filtering
@@ -309,6 +308,16 @@ std::vector<Game> GameList::findGamesByName(const Game &game) {
 
     auto it = std::copy_if(games.begin(), games.end(), std::back_inserter(matches), [game](const Game &g) {
         return game.name == g.name && game.path != g.path;
+    });
+
+    return matches;
+}
+
+std::vector<Game> GameList::findGamesBySystem(int systemId) {
+    std::vector<Game> matches;
+
+    auto it = std::copy_if(games.begin(), games.end(), std::back_inserter(matches), [systemId](const Game &game) {
+        return game.system.id == systemId;
     });
 
     return matches;
