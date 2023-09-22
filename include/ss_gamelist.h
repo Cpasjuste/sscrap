@@ -66,6 +66,10 @@ namespace ss_api {
 
         std::vector<std::string> getRotationNames();
 
+        std::vector<std::string> getDates();
+
+        std::vector<std::string> getResolutions();
+
         bool exist(unsigned long romId);
 
         bool remove(unsigned long romId);

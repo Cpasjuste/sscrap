@@ -259,20 +259,11 @@ bool GameList::save(const std::string &dstPath, const std::string &imageType,
 GameList GameList::filter(bool available, bool clones, int system, int parent_system,
                           int editor, int developer, int player, int rating, int rotation, int genre,
                           const std::string &resolution, const std::string &date) {
-    GameList gameList;
-    gameList.xml = xml;
-    gameList.romPaths = romPaths;
-    gameList.systemList = systemList;
-    gameList.editors = editors;
-    gameList.developers = developers;
-    gameList.players = players;
-    gameList.ratings = ratings;
-    gameList.rotations = rotations;
-    gameList.resolutions = resolutions;
-    gameList.dates = dates;
-    gameList.genres = genres;
+    GameList gl;
+    gl.xml = xml;
+    gl.romPaths = romPaths;
 
-    std::copy_if(games.begin(), games.end(), std::back_inserter(gameList.games),
+    std::copy_if(games.begin(), games.end(), std::back_inserter(gl.games),
                  [available, clones, system, parent_system, editor, developer, player, rating,
                          rotation, genre, resolution, date](const Game &game) {
                      return (!available || (available && game.available))
@@ -290,7 +281,34 @@ GameList GameList::filter(bool available, bool clones, int system, int parent_sy
                             && (date == "ALL" || game.date == date);
                  });
 
-    return gameList;
+    // update gamelist information
+    gl.editors = editors;
+    gl.developers = developers;
+    gl.players = players;
+    gl.ratings = ratings;
+    gl.rotations = rotations;
+    gl.resolutions = resolutions;
+    gl.dates = dates;
+    gl.genres = genres;
+
+    if (available) {
+        if (gl.games.empty()) {
+            // no games found, keep filtered system
+            if (system != -1) gl.systemList.systems.emplace_back(systemList.findById(system));
+        } else {
+            for (const auto &game: gl.games) {
+                //printf("%s: genre: %s (%i)\n", game.name.c_str(), game.genre.name.c_str(), game.genre.id);
+                // update system list
+                if (gl.systemList.findById(game.system.id).id != game.system.id) {
+                    gl.systemList.systems.emplace_back(game.system);
+                }
+            }
+        }
+    } else {
+        gl.systemList = systemList;
+    }
+
+    return gl;
 }
 
 std::vector<Game> GameList::findGamesByName(const std::string &name) {
@@ -445,6 +463,24 @@ std::vector<std::string> GameList::getPlayersNames() {
     list.emplace_back("ALL");
     for (const auto &i: players) {
         list.emplace_back(std::to_string(i));
+    }
+    return list;
+}
+
+std::vector<std::string> GameList::getDates() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &i: dates) {
+        list.emplace_back(i);
+    }
+    return list;
+}
+
+std::vector<std::string> GameList::getResolutions() {
+    std::vector<std::string> list;
+    list.emplace_back("ALL");
+    for (const auto &i: resolutions) {
+        list.emplace_back(i);
     }
     return list;
 }
