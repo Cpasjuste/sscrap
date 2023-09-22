@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cmath>
-
 #include "ss_api.h"
 #include "ss_gamelist.h"
 
@@ -42,8 +41,10 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         while (gameNode) {
             Game game;
             Game::parseGame(&game, gameNode, "", format);
+
             // set game "real path", minus filename (for pFBN)
             game.romsPath = rPath;
+
             // is rom available?
             //auto p = std::find(files.begin(), files.end(), game.path);
             const std::string n = game.path;
@@ -60,7 +61,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             }
 
             // add stuff for later filtering
-            System sys1 = game.system.name.empty() ? System{0, 0, "UNKNOWN"} : game.system;
+            if (!game.system.id) game.system = system;
+            System sys1 = game.system.id ? game.system : system;
             auto itSys = std::find_if(systemList.systems.begin(), systemList.systems.end(), [sys1](const System &sys2) {
                 return sys1.id == sys2.id || sys1.name == sys2.name;;
             });

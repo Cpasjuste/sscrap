@@ -24,7 +24,8 @@ namespace ss_api {
         GameList() = default;
 
         bool append(const std::string &xmlPath, const std::string &romPath = "", bool sort = true,
-                    const std::vector<std::string> &filters = {".zip"}, const System &system = {}, bool availableOnly = false);
+                    const std::vector<std::string> &filters = {".zip"},
+                    const System &system = {0, 0, "UNKNOWN"}, bool availableOnly = false);
 
         void sortAlpha(bool byZipName = false, bool gamesOnly = true);
 
