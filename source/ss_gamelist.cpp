@@ -46,7 +46,6 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             game.romsPath = rPath;
 
             // is rom available?
-            //auto p = std::find(files.begin(), files.end(), game.path);
             const std::string n = game.path;
             auto it = std::find_if(files.begin(), files.end(), [n](const Io::File &f) {
                 return f.name == n;
@@ -61,8 +60,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             }
 
             // add stuff for later filtering
-            if (!game.system.id) game.system = system;
-            System sys1 = game.system.id ? game.system : system;
+            if (system.id) game.system = system;
+            System sys1 = game.system;
             auto itSys = std::find_if(systemList.systems.begin(), systemList.systems.end(), [sys1](const System &sys2) {
                 return sys1.id == sys2.id || sys1.name == sys2.name;;
             });
@@ -138,8 +137,15 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         game.path = file.name;
         game.romsPath = rPath;
         game.name = file.name;
-        game.system = system;
         game.available = true;
+        game.system = system;
+        System sys1 = game.system;
+        auto itSys = std::find_if(systemList.systems.begin(), systemList.systems.end(), [sys1](const System &sys2) {
+            return sys1.id == sys2.id || sys1.name == sys2.name;;
+        });
+        if (itSys == systemList.systems.end()) {
+            systemList.systems.emplace_back(sys1);
+        }
         games.emplace_back(game);
     }
 
