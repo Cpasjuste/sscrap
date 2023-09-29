@@ -6,7 +6,7 @@
 #define SSCRAP_SS_GAMELIST_H
 
 #include <string>
-
+#include <functional>
 #include "ss_systemlist.h"
 
 namespace ss_api {
@@ -21,11 +21,13 @@ namespace ss_api {
             Unknown
         };
 
+        typedef std::function<void(Game *)> GameAddedCb;
+
         GameList() = default;
 
         bool append(const std::string &xmlPath, const std::string &romPath = "", bool sort = true,
-                    const std::vector<std::string> &filters = {".zip"},
-                    const System &system = {0, 0, "UNKNOWN"}, bool availableOnly = false);
+                    const std::vector<std::string> &filters = {".zip"}, const System &system = {0, 0, "UNKNOWN"},
+                    bool availableOnly = false, const GameAddedCb &cb = nullptr);
 
         void sortAlpha(bool byZipName = false, bool gamesOnly = true);
 

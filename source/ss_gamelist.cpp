@@ -9,8 +9,9 @@
 
 using namespace ss_api;
 
-bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool sort,
-                      const std::vector<std::string> &filters, const System &system, bool availableOnly) {
+bool GameList::append(const std::string &xmlPath, const std::string &rPath,
+                      bool sort, const std::vector<std::string> &filters,
+                      const System &system, bool availableOnly, const GameAddedCb &cb) {
     tinyxml2::XMLDocument doc;
     std::vector<Io::File> files;
 
@@ -63,7 +64,7 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
             if (system.id) game.system = system;
             System sys1 = game.system;
             auto itSys = std::find_if(systemList.systems.begin(), systemList.systems.end(), [sys1](const System &sys2) {
-                return sys1.id == sys2.id || sys1.name == sys2.name;;
+                return sys1.id == sys2.id || sys1.name == sys2.name;
             });
             if (itSys == systemList.systems.end()) {
                 systemList.systems.emplace_back(sys1);
@@ -119,6 +120,9 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
                 dates.emplace_back(game.date);
             }
 
+            // callback
+            if (cb) cb(&game);
+
             // add game to game list
             games.emplace_back(game);
 
@@ -146,6 +150,8 @@ bool GameList::append(const std::string &xmlPath, const std::string &rPath, bool
         if (itSys == systemList.systems.end()) {
             systemList.systems.emplace_back(sys1);
         }
+        // callback
+        if (cb) cb(&game);
         games.emplace_back(game);
     }
 
@@ -307,7 +313,7 @@ GameList GameList::filter(bool available, bool clones, int system, int parent_sy
             for (const auto &game: gl.games) {
                 //printf("%s: genre: %s (%i)\n", game.name.c_str(), game.genre.name.c_str(), game.genre.id);
                 // update system list
-                if (gl.systemList.findById(game.system.id).id != game.system.id) {
+                if (!gl.systemList.find(game.system.id)) {
                     gl.systemList.systems.emplace_back(game.system);
                 }
             }

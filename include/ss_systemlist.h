@@ -40,6 +40,12 @@ namespace ss_api {
 
         SystemList(const std::string &ssid, const std::string &sspassword, int retryDelay = 10);
 
+        System *find(const System &system);
+
+        System *find(const std::string &name);
+
+        System *find(int id);
+
         System findById(int id);
 
         System findByName(const std::string &name);

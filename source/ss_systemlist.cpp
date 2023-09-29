@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include "ss_api.h"
+#include "ss_systemlist.h"
 
 using namespace ss_api;
 
@@ -74,6 +75,30 @@ bool SystemList::parseSystem(struct ss_api::System *system, tinyxml2::XMLNode *s
     }
 
     return true;
+}
+
+System *SystemList::find(const System &system) {
+    for (auto &sys: systems) {
+        if (sys.name == system.name && sys.id == system.id) return &sys;
+    }
+
+    return nullptr;
+}
+
+System *SystemList::find(const std::string &name) {
+    for (auto &sys: systems) {
+        if (sys.name == name) return &sys;
+    }
+
+    return nullptr;
+}
+
+System *SystemList::find(int id) {
+    for (auto &sys: systems) {
+        if (sys.id == id) return &sys;
+    }
+
+    return nullptr;
 }
 
 System SystemList::findById(int id) {
