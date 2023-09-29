@@ -50,6 +50,8 @@ namespace ss_api {
 
         System findByName(const std::string &name);
 
+        bool remove(int id);
+
         std::vector<std::string> getNames();
 
         std::vector<System> systems;

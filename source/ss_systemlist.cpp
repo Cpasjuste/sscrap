@@ -125,6 +125,16 @@ System SystemList::findByName(const std::string &name) {
     return {};
 }
 
+bool SystemList::remove(int id) {
+    auto it = std::remove_if(systems.begin(), systems.end(), [id](const System &sys) { return sys.id == id; });
+    if (it != systems.end()) {
+        systems.erase(it, systems.end());
+        return true;
+    }
+
+    return false;
+}
+
 std::vector<std::string> SystemList::getNames() {
     std::vector<std::string> list;
     list.emplace_back("ALL");
