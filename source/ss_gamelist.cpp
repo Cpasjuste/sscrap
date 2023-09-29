@@ -274,9 +274,20 @@ GameList GameList::filter(bool available, bool clones, int system, int parent_sy
                           int editor, int developer, int player, int rating, int rotation, int genre,
                           const std::string &resolution, const std::string &date) {
     GameList gl;
+    // update gamelist information
     gl.xml = xml;
     gl.romPaths = romPaths;
+    gl.editors = editors;
+    gl.developers = developers;
+    gl.players = players;
+    gl.ratings = ratings;
+    gl.rotations = rotations;
+    gl.resolutions = resolutions;
+    gl.dates = dates;
+    gl.genres = genres;
+    gl.systemList = systemList;
 
+    // update gamelist games
     std::copy_if(games.begin(), games.end(), std::back_inserter(gl.games),
                  [available, clones, system, parent_system, editor, developer, player, rating,
                          rotation, genre, resolution, date](const Game &game) {
@@ -294,34 +305,6 @@ GameList GameList::filter(bool available, bool clones, int system, int parent_sy
                                 || game.resolution.empty() && resolution == "UNKNOWN")
                             && (date == "ALL" || game.date == date);
                  });
-
-    // update gamelist information
-    gl.editors = editors;
-    gl.developers = developers;
-    gl.players = players;
-    gl.ratings = ratings;
-    gl.rotations = rotations;
-    gl.resolutions = resolutions;
-    gl.dates = dates;
-    gl.genres = genres;
-
-    if (available) {
-        if (gl.games.empty()) {
-            // no games found, keep filtered system
-            if (system != -1) gl.systemList.systems.emplace_back(systemList.findById(system));
-        } else {
-            for (const auto &game: gl.games) {
-                //printf("%s: genre: %s (%i)\n", game.name.c_str(), game.genre.name.c_str(), game.genre.id);
-                // update system list
-                if (!gl.systemList.find(game.system.id)) {
-                    gl.systemList.systems.emplace_back(game.system);
-                }
-            }
-        }
-    } else {
-        gl.systemList = systemList;
-    }
-
     return gl;
 }
 
