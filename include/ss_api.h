@@ -76,7 +76,7 @@ namespace ss_api {
         static bool getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name);
 
         // get text
-        static std::string getXmlTextStr(tinyxml2::XMLElement *element);
+        static std::string getXmlTextStr(tinyxml2::XMLElement *element, const std::string &defaultValue = "");
 
         static int getXmlTextInt(tinyxml2::XMLElement *element);
 

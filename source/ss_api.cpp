@@ -13,7 +13,8 @@ std::string Api::ss_devpassword;
 std::string Api::ss_softname;
 bool ss_debug = false;
 
-std::string Api::getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name, const std::string &defaultValue) {
+std::string
+Api::getXmlAttrStr(tinyxml2::XMLElement *element, const std::string &name, const std::string &defaultValue) {
     if (element == nullptr || element->Attribute(name.c_str()) == nullptr) {
         return defaultValue;
     }
@@ -41,9 +42,9 @@ bool Api::getXmlAttrBool(tinyxml2::XMLElement *element, const std::string &name)
     return parseBool(attr);
 }
 
-std::string Api::getXmlTextStr(tinyxml2::XMLElement *element) {
+std::string Api::getXmlTextStr(tinyxml2::XMLElement *element, const std::string &defaultValue) {
     if (element == nullptr || element->GetText() == nullptr) {
-        return "";
+        return defaultValue;
     }
 
     return element->GetText();
@@ -234,6 +235,7 @@ std::string Api::getFileCrc(const std::string &zipPath) {
 
 void Api::printc(int color, const char *format, ...) {
 #else
+
 void Api::printc(const char *color, const char *format, ...) {
 #endif
 

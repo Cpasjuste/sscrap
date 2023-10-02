@@ -503,8 +503,20 @@ bool GameList::remove(unsigned long id) {
     return false;
 }
 
-size_t GameList::getAvailableCount() {
-    return std::count_if(games.begin(), games.end(), [](const Game &game) {
-        return game.available;
+size_t GameList::getAvailableCount(int systemId) {
+    if (systemId < 0) {
+        return std::count_if(games.begin(), games.end(), [](const Game &game) {
+            return game.available;
+        });
+    } else {
+        return std::count_if(games.begin(), games.end(), [systemId](const Game &game) {
+            return game.available && game.system.id == systemId;
+        });
+    }
+}
+
+size_t GameList::getCount(int systemId) {
+    return std::count_if(games.begin(), games.end(), [systemId](const Game &game) {
+        return game.system.id == systemId;
     });
 }

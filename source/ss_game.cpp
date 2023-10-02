@@ -251,19 +251,19 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
     // game developer
     if (format == GameList::Format::ScreenScraper) {
         game->developer.id = Api::getXmlAttrInt(gameNode->FirstChildElement("developpeur"), "id");
-        game->developer.name = Api::getXmlTextStr(gameNode->FirstChildElement("developpeur"));
+        game->developer.name = Api::getXmlTextStr(gameNode->FirstChildElement("developpeur"), "UNKNOWN");
     } else {
         game->developer.id = Api::getXmlAttrInt(gameNode->FirstChildElement("developer"), "id");
-        game->developer.name = Api::getXmlTextStr(gameNode->FirstChildElement("developer"));
+        game->developer.name = Api::getXmlTextStr(gameNode->FirstChildElement("developer"), "UNKNOWN");
     }
 
     // game editor
     if (format == GameList::Format::ScreenScraper) {
         game->editor.id = Api::getXmlAttrInt(gameNode->FirstChildElement("editeur"), "id");
-        game->editor.name = Api::getXmlTextStr(gameNode->FirstChildElement("editeur"));
+        game->editor.name = Api::getXmlTextStr(gameNode->FirstChildElement("editeur"), "UNKNOWN");
     } else {
         game->editor.id = Api::getXmlAttrInt(gameNode->FirstChildElement("publisher"), "id");
-        game->editor.name = Api::getXmlTextStr(gameNode->FirstChildElement("publisher"));
+        game->editor.name = Api::getXmlTextStr(gameNode->FirstChildElement("publisher"), "UNKNOWN");
     }
 
     // game genre
@@ -274,7 +274,7 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
             while (node != nullptr) {
                 if (Api::getXmlAttrStr(node->ToElement(), "langue") == "en") {
                     game->genre = {Api::getXmlAttrInt(node->ToElement(), "id"),
-                                   Api::getXmlTextStr(node->ToElement())};
+                                   Api::getXmlTextStr(node->ToElement(), "UNKNOWN")};
                     break;
                 }
                 node = node->NextSibling();
@@ -284,20 +284,20 @@ bool Game::parseGame(Game *game, tinyxml2::XMLNode *gameNode, const std::string 
                 node = element->FirstChildElement("genre");
                 if (node) {
                     game->genre = {Api::getXmlAttrInt(node->ToElement(), "id"),
-                                   Api::getXmlTextStr(node->ToElement())};
+                                   Api::getXmlTextStr(node->ToElement(), "UNKNOWN")};
                 }
             }
         }
     } else {
         game->genre = {Api::getXmlTextInt(gameNode->FirstChildElement("genreid")),
-                       Api::getXmlTextStr(gameNode->FirstChildElement("genre"))};
+                       Api::getXmlTextStr(gameNode->FirstChildElement("genre"), "UNKNOWN")};
     }
 
     // game players
     if (format == GameList::Format::ScreenScraper) {
         game->players = Api::getXmlTextStr(gameNode->FirstChildElement("joueurs"));
     } else {
-        game->players = Api::getXmlTextStr(gameNode->FirstChildElement("players"));
+        game->players = Api::getXmlTextStr(gameNode->FirstChildElement("players"), "UNKNOWN");
     }
     game->playersInt = parsePlayerString(game->players);
 
