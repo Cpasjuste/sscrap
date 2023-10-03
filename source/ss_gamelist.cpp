@@ -516,6 +516,7 @@ size_t GameList::getAvailableCount(int systemId) {
 }
 
 size_t GameList::getCount(int systemId) {
+    if (systemId < 0) return games.size();
     return std::count_if(games.begin(), games.end(), [systemId](const Game &game) {
         return game.system.id == systemId;
     });
